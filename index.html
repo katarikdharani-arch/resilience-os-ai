@@ -1,2313 +1,2479 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>RESILIENCE OS AI</title>
-
-    <!-- Leaflet Map -->
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    />
-
-    <style>
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #07171d;
-            color: #e8f7fa;
-            line-height: 1.6;
-        }
-
-        /* =========================
-           NAVBAR
-        ========================= */
-
-        nav {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            padding: 16px 6%;
-
-            background: rgba(7, 23, 29, 0.95);
-            border-bottom: 1px solid #183943;
-            backdrop-filter: blur(10px);
-        }
-
-        .logo {
-            font-size: 21px;
-            font-weight: bold;
-            color: #42e8ff;
-            letter-spacing: 1px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-            list-style: none;
-            flex-wrap: wrap;
-        }
-
-        .nav-links a {
-            color: #b8d7dd;
-            text-decoration: none;
-            font-size: 14px;
-            transition: 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: #42e8ff;
-        }
-
-        /* =========================
-           COMMON
-        ========================= */
-
-        section {
-            padding: 80px 6%;
-        }
-
-        .section-title {
-            font-size: 34px;
-            margin-bottom: 12px;
-            color: #ffffff;
-        }
-
-        .section-subtitle {
-            color: #8eb4bd;
-            margin-bottom: 35px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: auto;
-        }
-
-        .card {
-            background: #0d2730;
-            border: 1px solid #1b4652;
-            border-radius: 18px;
-            padding: 28px;
-        }
-
-        /* =========================
-           HERO
-        ========================= */
-
-        .hero {
-            min-height: 90vh;
-
-            display: flex;
-            align-items: center;
-
-            background:
-                radial-gradient(circle at top right, #104352 0%, transparent 40%),
-                #07171d;
-        }
-
-        .hero-content {
-            max-width: 850px;
-        }
-
-        .hero-badge {
-            display: inline-block;
-
-            padding: 8px 14px;
-            margin-bottom: 20px;
-
-            border: 1px solid #23616e;
-            border-radius: 30px;
-
-            color: #42e8ff;
-            font-size: 13px;
-        }
-
-        .hero h1 {
-            font-size: clamp(48px, 8vw, 90px);
-            line-height: 1;
-            margin-bottom: 25px;
-        }
-
-        .hero h1 span {
-            color: #42e8ff;
-        }
-
-        .hero p {
-            max-width: 720px;
-            color: #9bbdc4;
-            font-size: 18px;
-            margin-bottom: 30px;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        /* =========================
-           BUTTONS
-        ========================= */
-
-        button {
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 10px;
-            padding: 13px 20px;
-            transition: 0.3s;
-        }
-
-        .btn-primary {
-            background: #42e8ff;
-            color: #041216;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(66, 232, 255, 0.2);
-        }
-
-        .btn-secondary {
-            background: #12343e;
-            color: #dffaff;
-            border: 1px solid #255865;
-        }
-
-        .btn-secondary:hover {
-            background: #17434e;
-        }
-
-        .btn-danger {
-            background: #b93646;
-            color: white;
-        }
-
-        .btn-success {
-            background: #18845c;
-            color: white;
-        }
-
-        /* =========================
-           PROBLEM / SOLUTION
-        ========================= */
-
-        .two-column {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .feature-card h3 {
-            margin-bottom: 10px;
-            color: #42e8ff;
-        }
-
-        .feature-card p {
-            color: #91b2ba;
-        }
-
-        /* =========================
-           NEO 1
-        ========================= */
-
-        .neo-container {
-            display: flex;
-            align-items: center;
-            gap: 50px;
-
-            max-width: 1000px;
-            margin: auto;
-
-            background: #0f2d38;
-            padding: 40px;
-
-            border-radius: 18px;
-            border: 1px solid #214653;
-        }
-
-        .neo-image {
-            width: 300px;
-            max-width: 100%;
-            border-radius: 15px;
-        }
-
-        .neo-text h2 {
-            font-size: 34px;
-            margin-bottom: 15px;
-        }
-
-        .neo-text p {
-            color: #94b6bd;
-        }
-
-        /* =========================
-           LOCATION
-        ========================= */
-
-        .location-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 25px;
-        }
-
-        .coordinates {
-            display: grid;
-            gap: 12px;
-            margin: 20px 0;
-        }
-
-        .coordinate-box {
-            background: #071c23;
-            border: 1px solid #1a414c;
-            padding: 15px;
-            border-radius: 10px;
-        }
-
-        .coordinate-box small {
-            color: #769da6;
-        }
-
-        .coordinate-box strong {
-            display: block;
-            color: #42e8ff;
-            font-size: 17px;
-        }
-
-        #map {
-            height: 500px;
-            width: 100%;
-            border-radius: 15px;
-            border: 1px solid #24515c;
-            overflow: hidden;
-        }
-
-        .map-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-
-        .route-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .route-card {
-            background: #071c23;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #193e48;
-        }
-
-        .route-card span {
-            display: block;
-            color: #789da5;
-            font-size: 12px;
-        }
-
-        .route-card strong {
-            color: #42e8ff;
-            font-size: 18px;
-        }
-
-        /* =========================
-           DASHBOARD
-        ========================= */
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 25px;
-        }
-
-        .status-bar {
-            padding: 12px 18px;
-            background: #0b352e;
-            color: #5ff0b1;
-            border-radius: 10px;
-            border: 1px solid #1c6555;
-            font-weight: bold;
-        }
-
-        .dashboard-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 18px;
-            margin-bottom: 25px;
-        }
-
-        .stat-card {
-            background: #0d2730;
-            border: 1px solid #1b4652;
-            border-radius: 15px;
-            padding: 22px;
-        }
-
-        .stat-card small {
-            color: #7fabb4;
-        }
-
-        .stat-card h3 {
-            font-size: 30px;
-            margin-top: 8px;
-            color: #42e8ff;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .analysis-box {
-            min-height: 180px;
-        }
-
-        .analysis-box h3 {
-            color: #42e8ff;
-            margin-bottom: 15px;
-        }
-
-        .sensor-list {
-            display: grid;
-            gap: 10px;
-        }
-
-        .sensor {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px;
-            background: #071c23;
-            border-radius: 8px;
-        }
-
-        .sensor span:last-child {
-            color: #5ff0b1;
-        }
-
-        /* =========================
-           TIMELINE
-        ========================= */
-
-        .timeline {
-            display: grid;
-            gap: 12px;
-        }
-
-        .timeline-item {
-            display: flex;
-            gap: 15px;
-            padding: 15px;
-
-            background: #071c23;
-            border-left: 3px solid #42e8ff;
-            border-radius: 8px;
-        }
-
-        .timeline-time {
-            color: #42e8ff;
-            font-size: 12px;
-            min-width: 75px;
-        }
-
-        /* =========================
-           INCIDENT
-        ========================= */
-
-        .incident-form {
-            display: grid;
-            gap: 18px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
-        }
-
-        label {
-            display: block;
-            color: #9bbbc2;
-            font-size: 14px;
-            margin-bottom: 7px;
-        }
-
-        input,
-        textarea,
-        select {
-            width: 100%;
-            padding: 13px;
-
-            background: #071c23;
-            border: 1px solid #24505c;
-            border-radius: 9px;
-
-            color: white;
-            outline: none;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        input:focus,
-        textarea:focus,
-        select:focus {
-            border-color: #42e8ff;
-        }
-
-        input[type="file"] {
-            padding: 10px;
-        }
-
-        .result-box {
-            margin-top: 25px;
-        }
-
-        .risk-banner {
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            background: #4c171d;
-            border: 1px solid #9b3743;
-        }
-
-        .risk-banner h2 {
-            color: #ff7584;
-        }
-
-        .risk-score {
-            font-size: 40px;
-            font-weight: bold;
-            color: white;
-        }
-
-        .impact-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .impact-card {
-            background: #071c23;
-            padding: 18px;
-            border-radius: 10px;
-            border: 1px solid #1a414c;
-        }
-
-        .impact-card small {
-            color: #7599a1;
-        }
-
-        .impact-card strong {
-            display: block;
-            margin-top: 6px;
-            color: #ffcc66;
-        }
-
-        .actions-list {
-            padding-left: 20px;
-        }
-
-        .actions-list li {
-            margin: 8px 0;
-            color: #c2dde2;
-        }
-
-        .prototype-note {
-            margin-top: 20px;
-            padding: 12px;
-
-            background: #102d35;
-            border: 1px solid #24515c;
-            border-radius: 8px;
-
-            color: #8fb1b8;
-            font-size: 13px;
-        }
-
-        /* =========================
-           VOICE
-        ========================= */
-
-        .voice-panel {
-            margin-top: 25px;
-            padding: 20px;
-
-            background: linear-gradient(
-                135deg,
-                #0d3039,
-                #0a242d
-            );
-
-            border: 1px solid #26616d;
-            border-radius: 14px;
-        }
-
-        .voice-panel h3 {
-            color: #42e8ff;
-            margin-bottom: 8px;
-        }
-
-        .voice-panel p {
-            color: #94b8bf;
-            margin-bottom: 15px;
-        }
-
-        .voice-controls {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .voice-status {
-            margin-top: 12px;
-            color: #5ff0b1;
-            font-size: 13px;
-        }
-
-        /* =========================
-           HISTORY
-        ========================= */
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        .history-count {
-            color: #42e8ff;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
-
-        th,
-        td {
-            padding: 13px;
-            border-bottom: 1px solid #1a3c46;
-            text-align: left;
-        }
-
-        th {
-            color: #42e8ff;
-            background: #0b2229;
-        }
-
-        td {
-            color: #b9d2d7;
-        }
-
-        .status-pill {
-            padding: 5px 9px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .status-progress {
-            background: #553e17;
-            color: #ffd76b;
-        }
-
-        .status-recovered {
-            background: #0d4937;
-            color: #5ff0b1;
-        }
-
-        /* =========================
-           REPORT
-        ========================= */
-
-        .report-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        .report-document {
-            background: white;
-            color: #111;
-            padding: 45px;
-            border-radius: 12px;
-            max-width: 950px;
-            margin: auto;
-        }
-
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            border-bottom: 2px solid #111;
-            padding-bottom: 20px;
-            margin-bottom: 25px;
-        }
-
-        .report-header h1 {
-            color: #111;
-        }
-
-        .report-header p {
-            color: #555;
-        }
-
-        .report-section {
-            margin-top: 25px;
-        }
-
-        .report-section h3 {
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 6px;
-            margin-bottom: 10px;
-        }
-
-        .report-risk {
-            padding: 15px;
-            background: #eeeeee;
-            border-left: 5px solid #111;
-        }
-
-        .report-impact-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .report-impact {
-            background: #f3f3f3;
-            padding: 12px;
-        }
-
-        .report-footer {
-            margin-top: 40px;
-            padding-top: 15px;
-            border-top: 1px solid #ccc;
-            font-size: 11px;
-            color: #666;
-        }
-
-        .report-empty {
-            text-align: center;
-            color: #8caab1;
-            padding: 50px;
-        }
-
-        /* =========================
-           RECOVERY
-        ========================= */
-
-        .recovery-progress-container {
-            margin: 30px 0;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: #06171d;
-            border: 1px solid #214752;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            width: 0%;
-            height: 100%;
-            background: #42e8ff;
-            transition: width 0.5s ease;
-        }
-
-        .progress-text {
-            margin-top: 10px;
-            color: #42e8ff;
-            font-weight: bold;
-        }
-
-        .recovery-steps {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-        }
-
-        .recovery-step {
-            background: #071c23;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid #1b414c;
-        }
-
-        .recovery-step span {
-            display: block;
-            font-size: 25px;
-            margin-bottom: 5px;
-        }
-
-        /* =========================
-           FOOTER
-        ========================= */
-
-        footer {
-            padding: 30px 6%;
-            text-align: center;
-            border-top: 1px solid #193943;
-            color: #72959d;
-            font-size: 13px;
-        }
-
-        /* =========================
-           RESPONSIVE
-        ========================= */
-
-        @media(max-width: 900px) {
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .feature-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .two-column,
-            .dashboard-grid,
-            .location-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .neo-container {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .recovery-steps {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media(max-width: 600px) {
-
-            nav {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .nav-links {
-                justify-content: center;
-            }
-
-            section {
-                padding: 55px 5%;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-row,
-            .impact-grid,
-            .route-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .report-document {
-                padding: 20px;
-            }
-
-            .report-impact-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* =========================
-           PRINT
-        ========================= */
-
-        @media print {
-
-            body {
-                background: white;
-            }
-
-            nav,
-            footer,
-            section:not(#report),
-            .report-toolbar,
-            .report-empty {
-                display: none !important;
-            }
-
-            #report {
-                display: block !important;
-                padding: 0;
-            }
-
-            .report-document {
-                display: block !important;
-                box-shadow: none;
-                border-radius: 0;
-                max-width: none;
-            }
-        }
-
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RESILIENCE OS AI</title>
+
+<!-- Leaflet -->
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #071820;
+    color: #eaf7fa;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* =========================
+NAVBAR
+========================= */
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    background: rgba(7, 24, 32, 0.96);
+
+    border-bottom: 1px solid #214653;
+
+    backdrop-filter: blur(12px);
+}
+
+.nav-container {
+    max-width: 1250px;
+    margin: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 16px 20px;
+}
+
+.logo {
+    font-size: 21px;
+    font-weight: bold;
+    color: #8fd8e8;
+}
+
+.logo span {
+    color: #ffffff;
+}
+
+.nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.nav-links a {
+    padding: 8px 11px;
+    border-radius: 7px;
+    font-size: 13px;
+    color: #a9c3ca;
+}
+
+.nav-links a:hover {
+    background: #12333e;
+    color: #ffffff;
+}
+
+/* =========================
+COMMON
+========================= */
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 20px;
+}
+
+section {
+    padding: 80px 0;
+}
+
+.section-title {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.section-subtitle {
+    color: #9fb8c0;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: #0d2731;
+    border: 1px solid #214653;
+    border-radius: 18px;
+    padding: 28px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+}
+
+/* =========================
+HERO
+========================= */
+
+.hero {
+    min-height: 88vh;
+
+    display: flex;
+    align-items: center;
+
+    background:
+        radial-gradient(
+            circle at 80% 20%,
+            rgba(42, 154, 171, 0.15),
+            transparent 35%
+        );
+}
+
+.hero-content {
+    max-width: 800px;
+}
+
+.badge {
+    display: inline-block;
+
+    padding: 7px 12px;
+
+    background: #102f39;
+
+    border: 1px solid #2b6674;
+
+    color: #8fd8e8;
+
+    border-radius: 30px;
+
+    font-size: 12px;
+
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    font-size: clamp(45px, 7vw, 82px);
+    line-height: 0.95;
+    margin-bottom: 25px;
+}
+
+.hero h1 span {
+    color: #67d5e8;
+}
+
+.hero p {
+    max-width: 700px;
+
+    color: #a9c3ca;
+
+    font-size: 18px;
+
+    margin-bottom: 30px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* =========================
+BUTTONS
+========================= */
+
+button {
+    border: none;
+    cursor: pointer;
+
+    font-weight: bold;
+
+    border-radius: 9px;
+
+    padding: 12px 17px;
+
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: #63cfe2;
+    color: #06161c;
+}
+
+.btn-secondary {
+    background: #102f39;
+    color: #bde8f0;
+
+    border: 1px solid #2a5b68;
+}
+
+.btn-danger {
+    background: #6d2730;
+    color: #ffdce0;
+
+    border: 1px solid #9c424d;
+}
+
+.btn-warning {
+    background: #624e20;
+    color: #ffe7a1;
+
+    border: 1px solid #91772f;
+}
+
+/* =========================
+PROBLEM / SOLUTION
+========================= */
+
+.problem-list,
+.solution-list {
+    list-style: none;
+}
+
+.problem-list li,
+.solution-list li {
+    padding: 13px 0;
+
+    border-bottom: 1px solid #1c3b44;
+
+    color: #b4cbd1;
+}
+
+.problem-list li:last-child,
+.solution-list li:last-child {
+    border-bottom: none;
+}
+
+.problem-list li::before {
+    content: "⚠ ";
+}
+
+.solution-list li::before {
+    content: "✓ ";
+    color: #70d7a3;
+}
+
+/* =========================
+NEO 1
+========================= */
+
+.neo1-container {
+    display: flex;
+
+    align-items: center;
+
+    gap: 50px;
+
+    max-width: 1000px;
+
+    margin: auto;
+
+    background: #0f2d38;
+
+    padding: 40px;
+
+    border-radius: 18px;
+
+    border: 1px solid #214653;
+}
+
+.neo1-image {
+    width: 300px;
+    max-width: 100%;
+    border-radius: 15px;
+}
+
+.neo1-text {
+    flex: 1;
+}
+
+.neo1-text h3 {
+    font-size: 30px;
+    margin-bottom: 12px;
+}
+
+.neo1-text p {
+    color: #a9c3ca;
+}
+
+/* =========================
+MAP
+========================= */
+
+#map {
+    width: 100%;
+    height: 450px;
+
+    border-radius: 15px;
+
+    margin-top: 20px;
+}
+
+.map-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.location-info {
+    margin-top: 15px;
+
+    padding: 15px;
+
+    background: #102f39;
+
+    border-radius: 10px;
+
+    color: #9fd9e3;
+}
+
+.route-info {
+    margin-top: 15px;
+
+    padding: 15px;
+
+    background: #102f39;
+
+    border-radius: 10px;
+
+    color: #a9c3ca;
+}
+
+/* =========================
+DASHBOARD
+========================= */
+
+.dashboard-grid {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+}
+
+.metric {
+    background: #0d2731;
+
+    border: 1px solid #214653;
+
+    border-radius: 15px;
+
+    padding: 20px;
+}
+
+.metric-label {
+    color: #8faeb7;
+
+    font-size: 13px;
+}
+
+.metric-value {
+    font-size: 30px;
+
+    font-weight: bold;
+
+    margin-top: 8px;
+}
+
+.risk-high {
+    color: #ff8c8c;
+}
+
+.risk-medium {
+    color: #ffd27d;
+}
+
+.risk-low {
+    color: #77e0a8;
+}
+
+.risk-critical {
+    color: #ff5252;
+}
+
+/* =========================
+DASHBOARD CARDS
+========================= */
+
+.signal {
+    display: flex;
+
+    justify-content: space-between;
+
+    padding: 13px 0;
+
+    border-bottom: 1px solid #1c3b44;
+}
+
+.signal:last-child {
+    border-bottom: none;
+}
+
+.signal span:first-child {
+    color: #9fb8c0;
+}
+
+.timeline {
+    border-left: 2px solid #2d6877;
+
+    padding-left: 20px;
+}
+
+.timeline-item {
+    margin-bottom: 20px;
+
+    position: relative;
+}
+
+.timeline-item::before {
+    content: "";
+
+    position: absolute;
+
+    left: -27px;
+
+    top: 7px;
+
+    width: 10px;
+
+    height: 10px;
+
+    background: #63cfe2;
+
+    border-radius: 50%;
+}
+
+.timeline-time {
+    font-size: 12px;
+
+    color: #71949e;
+}
+
+.timeline-text {
+    color: #d8edf1;
+}
+
+/* =========================
+INCIDENT FORM
+========================= */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #bcd2d8;
+
+    font-size: 14px;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+
+    padding: 13px 14px;
+
+    border-radius: 9px;
+
+    border: 1px solid #2a5360;
+
+    background: #071e27;
+
+    color: #ffffff;
+
+    outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #65ccdf;
+}
+
+textarea {
+    min-height: 140px;
+
+    resize: vertical;
+}
+
+input[type="file"] {
+    padding: 10px;
+}
+
+.image-preview {
+    margin-top: 15px;
+
+    display: none;
+
+    max-width: 350px;
+
+    border-radius: 12px;
+
+    border: 1px solid #315966;
+}
+
+/* =========================
+VOICE INPUT
+========================= */
+
+.voice-input-panel {
+    margin-top: 12px;
+
+    padding: 18px;
+
+    background: #0b2731;
+
+    border: 1px solid #214653;
+
+    border-radius: 13px;
+}
+
+.voice-input-panel h4 {
+    margin-bottom: 5px;
+}
+
+.voice-input-panel p {
+    color: #9fb8c0;
+
+    font-size: 14px;
+}
+
+.voice-controls {
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+    margin-top: 15px;
+}
+
+.voice-status {
+    margin-top: 15px;
+
+    padding: 11px;
+
+    background: #102f39;
+
+    border-radius: 8px;
+
+    color: #8fd8e8;
+
+    font-size: 13px;
+}
+
+/* =========================
+AI RESULT
+========================= */
+
+.ai-result {
+    margin-top: 25px;
+
+    display: none;
+}
+
+.ai-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+
+    margin-bottom: 20px;
+}
+
+.risk-badge {
+    display: inline-block;
+
+    padding: 9px 16px;
+
+    border-radius: 30px;
+
+    font-weight: bold;
+
+    background: #381c22;
+
+    color: #ff9ba5;
+}
+
+.score {
+    font-size: 40px;
+
+    font-weight: bold;
+
+    color: #63cfe2;
+}
+
+.impact-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 15px;
+
+    margin: 20px 0;
+}
+
+.impact-box {
+    padding: 18px;
+
+    background: #102f39;
+
+    border-radius: 12px;
+}
+
+.impact-box h4 {
+    margin-bottom: 7px;
+}
+
+.impact-box p {
+    color: #a9c3ca;
+}
+
+.action-list {
+    list-style: none;
+
+    margin-top: 15px;
+}
+
+.action-list li {
+    padding: 12px;
+
+    margin-bottom: 8px;
+
+    background: #102f39;
+
+    border-radius: 8px;
+
+    color: #c9dce1;
+}
+
+.action-list li::before {
+    content: "→ ";
+
+    color: #67d5e8;
+
+    font-weight: bold;
+}
+
+/* =========================
+VOICE BRIEFING
+========================= */
+
+.voice-panel {
+    margin-top: 25px;
+
+    padding: 25px;
+
+    background: #0b2731;
+
+    border: 1px solid #214653;
+
+    border-radius: 16px;
+}
+
+.voice-panel h3 {
+    margin-bottom: 10px;
+}
+
+.voice-panel p {
+    color: #9fb8c0;
+
+    line-height: 1.6;
+}
+
+/* =========================
+HISTORY
+========================= */
+
+.history-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+
+    margin-bottom: 20px;
+}
+
+.history-count {
+    color: #8fd8e8;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 800px;
+}
+
+th,
+td {
+    padding: 13px;
+
+    border-bottom: 1px solid #214653;
+
+    text-align: left;
+
+    font-size: 13px;
+}
+
+th {
+    color: #82cbd8;
+
+    background: #102f39;
+}
+
+td {
+    color: #c5d8dd;
+}
+
+.status-pill {
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    border-radius: 20px;
+
+    background: #163944;
+
+    color: #aee5ee;
+
+    font-size: 11px;
+}
+
+/* =========================
+REPORT
+========================= */
+
+.report-box {
+    display: none;
+}
+
+.report-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    flex-wrap: wrap;
+
+    padding-bottom: 20px;
+
+    border-bottom: 1px solid #315966;
+
+    margin-bottom: 25px;
+}
+
+.report-id {
+    color: #74d6e6;
+
+    font-family: monospace;
+}
+
+.report-section {
+    margin-bottom: 25px;
+}
+
+.report-section h4 {
+    margin-bottom: 8px;
+
+    color: #83cfdd;
+}
+
+.report-section p {
+    color: #bfd2d7;
+}
+
+.report-actions {
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+    margin-top: 25px;
+}
+
+/* =========================
+RECOVERY
+========================= */
+
+.progress-container {
+    width: 100%;
+
+    height: 20px;
+
+    background: #102f39;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    margin: 20px 0;
+}
+
+.progress-bar {
+    width: 0%;
+
+    height: 100%;
+
+    background: #63cfe2;
+
+    transition: width 0.5s;
+}
+
+.recovery-status {
+    font-size: 20px;
+
+    color: #8fd8e8;
+
+    font-weight: bold;
+}
+
+.recovery-steps {
+    display: grid;
+
+    grid-template-columns: repeat(5, 1fr);
+
+    gap: 10px;
+
+    margin-top: 25px;
+}
+
+.recovery-step {
+    padding: 15px;
+
+    background: #102f39;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    color: #7999a2;
+
+    font-size: 13px;
+}
+
+.recovery-step.active {
+    color: #ffffff;
+
+    border: 1px solid #63cfe2;
+
+    background: #153d48;
+}
+
+/* =========================
+FOOTER
+========================= */
+
+footer {
+    border-top: 1px solid #214653;
+
+    padding: 30px 20px;
+
+    text-align: center;
+
+    color: #71949e;
+
+    font-size: 13px;
+}
+
+/* =========================
+RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+    .grid,
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .impact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .recovery-steps {
+        grid-template-columns: 1fr;
+    }
+
+    .neo1-container {
+        flex-direction: column;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .nav-container {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 12px;
+    }
+
+    .nav-links {
+        max-height: 150px;
+
+        overflow-y: auto;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    section {
+        padding: 60px 0;
+    }
+
+    .hero h1 {
+        font-size: 48px;
+    }
+
+}
+
+/* =========================
+PRINT
+========================= */
+
+@media print {
+
+    body {
+        background: white;
+
+        color: black;
+    }
+
+    .navbar,
+    footer,
+    .report-actions {
+        display: none !important;
+    }
+
+    section:not(#report) {
+        display: none !important;
+    }
+
+    #report {
+        display: block !important;
+
+        padding: 0;
+    }
+
+    .card {
+        border: none;
+
+        background: white;
+
+        color: black;
+    }
+
+}
+
+</style>
 </head>
-
 
 <body>
 
+<!-- =====================================================
+NAVBAR
+===================================================== -->
 
-<!-- =========================
-     NAVIGATION
-========================= -->
+<nav class="navbar">
 
-<nav>
+<div class="nav-container">
 
-    <div class="logo">
-        RESILIENCE OS AI
-    </div>
+<div class="logo">
+RESILIENCE <span>OS AI</span>
+</div>
 
-    <ul class="nav-links">
+<div class="nav-links">
 
-        <li><a href="#home">Home</a></li>
+<a href="#home">Home</a>
+<a href="#problem">Problem</a>
+<a href="#solution">Solution</a>
+<a href="#neo1">Neo 1</a>
+<a href="#location">Location</a>
+<a href="#dashboard">Dashboard</a>
+<a href="#incident">Incident</a>
+<a href="#history">History</a>
+<a href="#report">Report</a>
+<a href="#recovery">Recovery</a>
 
-        <li><a href="#problem">Problem</a></li>
+</div>
 
-        <li><a href="#solution">Solution</a></li>
-
-        <li><a href="#neo1">Neo 1</a></li>
-
-        <li><a href="#location">Location</a></li>
-
-        <li><a href="#dashboard">Dashboard</a></li>
-
-        <li><a href="#incident">Incident</a></li>
-
-        <li><a href="#history">History</a></li>
-
-        <li><a href="#report">Report</a></li>
-
-        <li><a href="#recovery">Recovery</a></li>
-
-    </ul>
+</div>
 
 </nav>
 
 
-<!-- =========================
-     HERO
-========================= -->
+<!-- =====================================================
+HERO
+===================================================== -->
 
 <section id="home" class="hero">
 
-    <div class="container">
+<div class="container">
 
-        <div class="hero-content">
+<div class="hero-content">
 
-            <div class="hero-badge">
-                AI-POWERED EMERGENCY INTELLIGENCE
-            </div>
+<div class="badge">
+AI-POWERED EMERGENCY INTELLIGENCE PROTOTYPE
+</div>
 
-            <h1>
-                Sense.<br>
-                <span>Understand.</span><br>
-                Respond.
-            </h1>
+<h1>
+Sense.<br>
+<span>Understand.</span><br>
+Respond.
+</h1>
 
-            <p>
-                RESILIENCE OS AI is an emergency intelligence
-                prototype designed to detect incidents, assess risk,
-                understand impact, provide response recommendations,
-                communicate incidents through voice and monitor recovery.
-            </p>
+<p>
+RESILIENCE OS AI is a prototype emergency intelligence
+platform that converts incident information into
+risk assessment, impact analysis, recommended actions
+and recovery tracking.
+</p>
 
-            <div class="hero-buttons">
+<div class="hero-buttons">
 
-                <a href="#dashboard">
-                    <button class="btn-primary">
-                        OPEN DASHBOARD
-                    </button>
-                </a>
+<a href="#dashboard">
+<button class="btn-primary">
+OPEN DASHBOARD
+</button>
+</a>
 
-                <a href="#incident">
-                    <button class="btn-secondary">
-                        REPORT INCIDENT
-                    </button>
-                </a>
+<a href="#incident">
+<button class="btn-secondary">
+REPORT INCIDENT
+</button>
+</a>
 
-            </div>
+</div>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
 </section>
 
 
-<!-- =========================
-     PROBLEM
-========================= -->
+<!-- =====================================================
+PROBLEM
+===================================================== -->
 
 <section id="problem">
 
-    <div class="container">
+<div class="container">
 
-        <h2 class="section-title">
-            The Problem
-        </h2>
+<h2 class="section-title">
+The Problem
+</h2>
 
-        <p class="section-subtitle">
-            During emergencies, information is often fragmented,
-            delayed and difficult to understand.
-        </p>
+<p class="section-subtitle">
+Emergency situations generate information faster than
+people can understand and organize it.
+</p>
 
-        <div class="feature-grid">
+<div class="grid">
 
-            <div class="card feature-card">
+<div class="card">
 
-                <h3>
-                    Delayed Detection
-                </h3>
+<h3>Traditional Response</h3>
 
-                <p>
-                    Emergency situations may not be identified
-                    quickly enough.
-                </p>
+<ul class="problem-list">
 
-            </div>
+<li>Information is scattered</li>
 
+<li>Manual situation assessment</li>
 
-            <div class="card feature-card">
+<li>Delayed decision making</li>
 
-                <h3>
-                    Information Overload
-                </h3>
+<li>Difficult incident tracking</li>
 
-                <p>
-                    Responders and decision makers may receive
-                    too much unstructured information.
-                </p>
+<li>Recovery status is often unclear</li>
 
-            </div>
+</ul>
 
+</div>
 
-            <div class="card feature-card">
+<div class="card">
 
-                <h3>
-                    Communication Barriers
-                </h3>
+<h3>What We Need</h3>
 
-                <p>
-                    During stressful situations, not everyone
-                    can easily read or process dashboard information.
-                </p>
+<ul class="solution-list">
 
-            </div>
+<li>One emergency intelligence dashboard</li>
 
-        </div>
+<li>Fast incident analysis</li>
 
-    </div>
+<li>Risk prioritization</li>
+
+<li>Location intelligence</li>
+
+<li>Recovery monitoring</li>
+
+</ul>
+
+</div>
+
+</div>
+
+</div>
 
 </section>
 
 
-<!-- =========================
-     SOLUTION
-========================= -->
+<!-- =====================================================
+SOLUTION
+===================================================== -->
 
 <section id="solution">
 
-    <div class="container">
+<div class="container">
 
-        <h2 class="section-title">
-            Our Solution
-        </h2>
+<h2 class="section-title">
+Our Solution
+</h2>
 
-        <p class="section-subtitle">
-            One intelligence layer connecting detection,
-            analysis, location, communication and recovery.
-        </p>
+<p class="section-subtitle">
+One interface connecting incident reporting,
+intelligence and recovery.
+</p>
 
-        <div class="feature-grid">
+<div class="grid-3">
 
-            <div class="card feature-card">
+<div class="card">
 
-                <h3>
-                    Detect
-                </h3>
+<h3>01. Sense</h3>
 
-                <p>
-                    Collect incident information and sensor signals.
-                </p>
+<p>
+Capture incident information through manual input,
+voice input, location and image evidence.
+</p>
 
-            </div>
+</div>
 
+<div class="card">
 
-            <div class="card feature-card">
+<h3>02. Understand</h3>
 
-                <h3>
-                    Analyze
-                </h3>
+<p>
+Analyze the incident and estimate risk,
+people impact, infrastructure impact and access impact.
+</p>
 
-                <p>
-                    Assess severity, risk and potential impact.
-                </p>
+</div>
 
-            </div>
+<div class="card">
 
+<h3>03. Respond</h3>
 
-            <div class="card feature-card">
+<p>
+Generate recommended actions, incident reports
+and recovery tracking information.
+</p>
 
-                <h3>
-                    Respond
-                </h3>
+</div>
 
-                <p>
-                    Generate recommended response actions.
-                </p>
+</div>
 
-            </div>
-
-
-            <div class="card feature-card">
-
-                <h3>
-                    Communicate
-                </h3>
-
-                <p>
-                    Deliver incident information visually
-                    and through voice.
-                </p>
-
-            </div>
-
-
-            <div class="card feature-card">
-
-                <h3>
-                    Locate
-                </h3>
-
-                <p>
-                    Display incident and user location
-                    on an interactive map.
-                </p>
-
-            </div>
-
-
-            <div class="card feature-card">
-
-                <h3>
-                    Recover
-                </h3>
-
-                <p>
-                    Monitor recovery progress until completion.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
+</div>
 
 </section>
 
 
-<!-- =========================
-     NEO 1
-========================= -->
+<!-- =====================================================
+NEO 1
+===================================================== -->
 
 <section id="neo1">
 
-    <div class="container">
+<div class="container">
 
-        <div class="neo-container">
+<div class="neo1-container">
 
-            <img
-                src="neo1.png"
-                alt="Neo 1"
-                class="neo-image"
-            >
+<img
+src="neo1.png"
+alt="Neo 1"
+class="neo1-image"
+>
 
-            <div class="neo-text">
+<div class="neo1-text">
 
-                <h2>
-                    Neo 1
-                </h2>
+<h3>
+Neo 1
+</h3>
 
-                <p>
-                    Neo 1 represents the intelligent sensing
-                    layer of RESILIENCE OS AI.
-                </p>
+<p>
+Neo 1 represents the intelligent sensing layer
+of RESILIENCE OS AI. In a future implementation,
+connected devices could provide environmental and
+emergency signals to the intelligence platform.
+</p>
 
-                <br>
+<br>
 
-                <p>
-                    In the prototype, sensor signals can be
-                    simulated to demonstrate how emergency
-                    information enters the intelligence system.
-                </p>
+<p>
+For this hackathon prototype, the sensing layer
+is simulated through dashboard signals.
+</p>
 
-            </div>
+</div>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
 </section>
 
 
-<!-- =========================
-     LOCATION
-========================= -->
+<!-- =====================================================
+LOCATION
+===================================================== -->
 
 <section id="location">
 
-    <div class="container">
+<div class="container">
 
-        <h2 class="section-title">
-            Location Intelligence
-        </h2>
+<h2 class="section-title">
+Location Intelligence
+</h2>
 
-        <p class="section-subtitle">
-            Identify the user's position and visualize
-            a simulated incident route.
-        </p>
+<p class="section-subtitle">
+Visualize the incident location and estimate route
+information.
+</p>
 
+<div class="card">
 
-        <div class="location-grid">
+<div class="map-controls">
 
+<button
+class="btn-primary"
+onclick="getMyLocation()"
+>
+📍 GET MY LOCATION
+</button>
 
-            <div class="card">
+<button
+class="btn-secondary"
+onclick="centerMap()"
+>
+🎯 CENTER MAP
+</button>
 
-                <h3>
-                    Current Location
-                </h3>
+<button
+class="btn-warning"
+onclick="showTestIncident()"
+>
+🚨 SHOW TEST INCIDENT
+</button>
 
-                <div class="coordinates">
+</div>
 
-                    <div class="coordinate-box">
+<div
+id="map"
+></div>
 
-                        <small>
-                            Latitude
-                        </small>
+<div
+id="locationInfo"
+class="location-info"
+>
+Location not detected yet.
+</div>
 
-                        <strong id="latitude">
-                            Not available
-                        </strong>
+<div
+id="routeInfo"
+class="route-info"
+>
+Route information will appear when an incident
+location is available.
+</div>
 
-                    </div>
+</div>
 
-
-                    <div class="coordinate-box">
-
-                        <small>
-                            Longitude
-                        </small>
-
-                        <strong id="longitude">
-                            Not available
-                        </strong>
-
-                    </div>
-
-
-                    <div class="coordinate-box">
-
-                        <small>
-                            Status
-                        </small>
-
-                        <strong id="locationStatus">
-                            Waiting
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <div class="map-buttons">
-
-                    <button
-                        class="btn-primary"
-                        onclick="getLocation()"
-                    >
-                        GET MY LOCATION
-                    </button>
-
-                    <button
-                        class="btn-secondary"
-                        onclick="centerOnLocation()"
-                    >
-                        CENTER MAP
-                    </button>
-
-                    <button
-                        class="btn-secondary"
-                        onclick="showIncident()"
-                    >
-                        SHOW TEST INCIDENT
-                    </button>
-
-                </div>
-
-
-                <div class="route-grid">
-
-                    <div class="route-card">
-
-                        <span>
-                            Distance
-                        </span>
-
-                        <strong id="routeDistance">
-                            --
-                        </strong>
-
-                    </div>
-
-
-                    <div class="route-card">
-
-                        <span>
-                            Estimated Time
-                        </span>
-
-                        <strong id="routeETA">
-                            --
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="card">
-
-                <div id="map"></div>
-
-            </div>
-
-        </div>
-
-    </div>
+</div>
 
 </section>
 
 
-<!-- =========================
-     DASHBOARD
-========================= -->
+<!-- =====================================================
+DASHBOARD
+===================================================== -->
 
 <section id="dashboard">
 
-    <div class="container">
+<div class="container">
 
-        <div class="dashboard-header">
+<h2 class="section-title">
+Emergency Intelligence Dashboard
+</h2>
 
-            <div>
+<p class="section-subtitle">
+Real-time prototype command view.
+</p>
 
-                <h2 class="section-title">
-                    Emergency Dashboard
-                </h2>
+<div class="dashboard-grid">
 
-                <div class="status-bar" id="systemStatus">
-                    ● SYSTEM READY
-                </div>
+<div class="metric">
 
-            </div>
+<div class="metric-label">
+SYSTEM STATUS
+</div>
 
+<div
+class="metric-value"
+id="systemStatus"
+>
+ONLINE
+</div>
 
-            <div class="dashboard-actions">
+</div>
 
-                <button
-                    class="btn-danger"
-                    onclick="simulateEmergency()"
-                >
-                    🚨 SIMULATE EMERGENCY
-                </button>
+<div class="metric">
 
-                <button
-                    class="btn-secondary"
-                    onclick="resetSystem()"
-                >
-                    RESET SYSTEM
-                </button>
+<div class="metric-label">
+CURRENT RISK
+</div>
 
-            </div>
+<div
+class="metric-value risk-low"
+id="dashboardRisk"
+>
+LOW
+</div>
 
-        </div>
+</div>
 
+<div class="metric">
 
-        <div class="stats-grid">
+<div class="metric-label">
+ALERTS
+</div>
 
+<div
+class="metric-value"
+id="dashboardAlerts"
+>
+0
+</div>
 
-            <div class="stat-card">
+</div>
 
-                <small>
-                    SYSTEM STATUS
-                </small>
+<div class="metric">
 
-                <h3 id="dashboardSystem">
-                    READY
-                </h3>
+<div class="metric-label">
+DEVICES ONLINE
+</div>
 
-            </div>
+<div
+class="metric-value"
+id="devicesOnline"
+>
+24
+</div>
 
+</div>
 
-            <div class="stat-card">
+</div>
 
-                <small>
-                    RISK LEVEL
-                </small>
 
-                <h3 id="dashboardRisk">
-                    LOW
-                </h3>
+<div class="grid">
 
-            </div>
+<div class="card">
 
+<h3>
+AI Situation Analysis
+</h3>
 
-            <div class="stat-card">
+<br>
 
-                <small>
-                    ACTIVE ALERTS
-                </small>
+<p id="dashboardAnalysis">
+No active incident. System monitoring environment
+and waiting for new information.
+</p>
 
-                <h3 id="dashboardAlerts">
-                    0
-                </h3>
+</div>
 
-            </div>
+<div class="card">
 
+<h3>
+Sensor Signals
+</h3>
 
-            <div class="stat-card">
+<br>
 
-                <small>
-                    DEVICES ONLINE
-                </small>
+<div class="signal">
 
-                <h3 id="dashboardDevices">
-                    12
-                </h3>
+<span>Temperature</span>
 
-            </div>
+<span id="temperatureSignal">
+Normal
+</span>
 
-        </div>
+</div>
 
+<div class="signal">
 
-        <div class="dashboard-grid">
+<span>Air Quality</span>
 
+<span id="airSignal">
+Good
+</span>
 
-            <div class="card analysis-box">
+</div>
 
-                <h3>
-                    AI Situation Analysis
-                </h3>
+<div class="signal">
 
-                <p id="aiAnalysis">
-                    No active incident. System is monitoring
-                    incoming signals.
-                </p>
+<span>Water Level</span>
 
-            </div>
+<span id="waterSignal">
+Normal
+</span>
 
+</div>
 
-            <div class="card analysis-box">
+<div class="signal">
 
-                <h3>
-                    Sensor Signals
-                </h3>
+<span>Network</span>
 
-                <div class="sensor-list">
+<span>
+Stable
+</span>
 
-                    <div class="sensor">
+</div>
 
-                        <span>
-                            Temperature
-                        </span>
+</div>
 
-                        <span id="sensorTemp">
-                            NORMAL
-                        </span>
+</div>
 
-                    </div>
 
+<div class="card" style="margin-top:22px;">
 
-                    <div class="sensor">
+<h3>
+Incident Timeline
+</h3>
 
-                        <span>
-                            Smoke
-                        </span>
+<br>
 
-                        <span id="sensorSmoke">
-                            NORMAL
-                        </span>
+<div
+class="timeline"
+id="timeline"
+>
 
-                    </div>
+<div class="timeline-item">
 
+<div class="timeline-time">
+SYSTEM
+</div>
 
-                    <div class="sensor">
+<div class="timeline-text">
+Resilience intelligence system initialized.
+</div>
 
-                        <span>
-                            Motion
-                        </span>
+</div>
 
-                        <span id="sensorMotion">
-                            NORMAL
-                        </span>
+</div>
 
-                    </div>
+</div>
 
 
-                    <div class="sensor">
+<div class="grid" style="margin-top:22px;">
 
-                        <span>
-                            Structural
-                        </span>
+<div class="card">
 
-                        <span id="sensorStructure">
-                            NORMAL
-                        </span>
+<h3>
+Response Intelligence
+</h3>
 
-                    </div>
+<br>
 
-                </div>
+<ul class="solution-list">
 
-            </div>
+<li>
+Prioritize high-risk incidents
+</li>
 
+<li>
+Identify potential human impact
+</li>
 
-            <div class="card">
+<li>
+Evaluate infrastructure impact
+</li>
 
-                <h3>
-                    Incident Timeline
-                </h3>
+<li>
+Support response planning
+</li>
 
-                <br>
+<li>
+Track recovery progress
+</li>
 
-                <div
-                    class="timeline"
-                    id="timeline"
-                >
+</ul>
 
-                    <div class="timeline-item">
+</div>
 
-                        <div class="timeline-time">
-                            --:--
-                        </div>
+<div class="card">
 
-                        <div>
-                            System initialized.
-                        </div>
+<h3>
+Simulation Controls
+</h3>
 
-                    </div>
+<br>
 
-                </div>
+<p style="color:#9fb8c0;margin-bottom:15px;">
+Use simulation mode for the hackathon demonstration.
+</p>
 
-            </div>
+<button
+class="btn-danger"
+onclick="simulateEmergency()"
+>
+🚨 SIMULATE EMERGENCY
+</button>
 
+<br><br>
 
-            <div class="card">
+<button
+class="btn-secondary"
+onclick="resetSystem()"
+>
+↻ RESET SYSTEM
+</button>
 
-                <h3>
-                    Response Intelligence
-                </h3>
+</div>
 
-                <br>
+</div>
 
-                <p id="responseRecommendation">
-
-                    No emergency detected.
-                    Response intelligence is standing by.
-
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
+</div>
 
 </section>
 
 
-<!-- =========================
-     INCIDENT INTELLIGENCE
-========================= -->
+<!-- =====================================================
+INCIDENT INTELLIGENCE
+===================================================== -->
 
 <section id="incident">
 
-    <div class="container">
+<div class="container">
 
-        <h2 class="section-title">
-            Incident Intelligence
-        </h2>
+<h2 class="section-title">
+Incident Intelligence
+</h2>
 
-        <p class="section-subtitle">
-            Enter incident information and allow the prototype
-            intelligence engine to assess risk and recommend actions.
-        </p>
+<p class="section-subtitle">
+Enter or speak an incident and let the prototype
+generate a structured emergency assessment.
+</p>
 
+<div class="card">
 
-        <div class="card">
+<div class="grid">
 
-            <div class="incident-form">
+<div>
 
+<div class="form-group">
 
-                <div class="form-row">
+<label>
+Incident Type
+</label>
 
-                    <div>
+<select id="incidentType">
 
-                        <label>
-                            Incident Type
-                        </label>
+<option value="Flood">
+Flood
+</option>
 
-                        <select id="incidentType">
+<option value="Fire">
+Fire
+</option>
 
-                            <option value="Fire">
-                                Fire
-                            </option>
+<option value="Road Accident">
+Road Accident
+</option>
 
-                            <option value="Flood">
-                                Flood
-                            </option>
+<option value="Earthquake">
+Earthquake
+</option>
 
-                            <option value="Road Accident">
-                                Road Accident
-                            </option>
+<option value="Storm">
+Storm
+</option>
 
-                            <option value="Earthquake">
-                                Earthquake
-                            </option>
+<option value="Medical Emergency">
+Medical Emergency
+</option>
 
-                            <option value="Storm">
-                                Storm
-                            </option>
+<option value="Other">
+Other
+</option>
 
-                            <option value="Medical Emergency">
-                                Medical Emergency
-                            </option>
+</select>
 
-                            <option value="Other">
-                                Other
-                            </option>
-
-                        </select>
-
-                    </div>
+</div>
 
 
-                    <div>
+<div class="form-group">
 
-                        <label>
-                            Incident Title
-                        </label>
+<label>
+Incident Title
+</label>
 
-                        <input
-                            id="incidentTitle"
-                            type="text"
-                            placeholder="Example: Major Building Fire"
-                        >
+<input
+type="text"
+id="incidentTitle"
+placeholder="Example: Major building fire"
+>
 
-                    </div>
-
-                </div>
+</div>
 
 
-                <div>
+<div class="form-group">
 
-                    <label>
-                        Description
-                    </label>
+<label>
+Incident Description
+</label>
 
-                    <textarea
-                        id="incidentDescription"
-                        placeholder="Describe what happened..."
-                    ></textarea>
-
-                </div>
+<textarea
+id="incidentDescription"
+placeholder="Describe what happened..."
+></textarea>
 
 
-                <div class="form-row">
+<!-- VOICE INPUT -->
 
-                    <div>
+<div class="voice-input-panel">
 
-                        <label>
-                            Location
-                        </label>
+<h4>
+🎤 Voice Incident Reporting
+</h4>
 
-                        <input
-                            id="incidentLocation"
-                            type="text"
-                            placeholder="Example: Main College Building"
-                        >
+<p>
+Speak the incident instead of typing it.
+Your browser will convert your speech into text.
+</p>
 
-                    </div>
+<div class="voice-controls">
+
+<button
+type="button"
+class="btn-primary"
+onclick="startVoiceInput()"
+>
+🎤 START VOICE INPUT
+</button>
+
+<button
+type="button"
+class="btn-secondary"
+onclick="stopVoiceInput()"
+>
+⏹ STOP LISTENING
+</button>
+
+</div>
+
+<div
+id="voiceInputStatus"
+class="voice-status"
+>
+Voice input ready.
+</div>
+
+</div>
+
+</div>
 
 
-                    <div>
+<div class="form-group">
 
-                        <label>
-                            Upload Incident Image
-                        </label>
+<label>
+Incident Location
+</label>
 
-                        <input
-                            id="incidentImage"
-                            type="file"
-                            accept="image/*"
-                        >
+<input
+type="text"
+id="incidentLocation"
+placeholder="Example: Main College Building"
+>
 
-                    </div>
+</div>
 
-                </div>
-
-
-                <button
-                    class="btn-primary"
-                    onclick="analyzeIncident()"
-                >
-                    🧠 ANALYZE INCIDENT
-                </button>
-
-            </div>
+</div>
 
 
-            <div
-                id="incidentResult"
-                class="result-box"
-            ></div>
+<div>
 
-        </div>
+<div class="form-group">
 
-    </div>
+<label>
+Incident Image
+</label>
+
+<input
+type="file"
+id="incidentImage"
+accept="image/*"
+onchange="previewIncidentImage(event)"
+>
+
+<img
+id="imagePreview"
+class="image-preview"
+alt="Incident preview"
+>
+
+</div>
+
+
+<div class="card" style="background:#102f39;">
+
+<h3>
+How It Works
+</h3>
+
+<br>
+
+<p style="color:#a9c3ca;">
+1. Enter or speak the incident.
+</p>
+
+<p style="color:#a9c3ca;">
+2. Add the location.
+</p>
+
+<p style="color:#a9c3ca;">
+3. Optionally upload an image.
+</p>
+
+<p style="color:#a9c3ca;">
+4. Analyze the incident.
+</p>
+
+<p style="color:#a9c3ca;">
+5. Review risk and recommended actions.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+<br>
+
+<button
+class="btn-primary"
+onclick="analyzeIncident()"
+>
+🧠 ANALYZE INCIDENT
+</button>
+
+
+<!-- AI RESULT -->
+
+<div
+id="aiResult"
+class="ai-result"
+>
+
+<div class="ai-header">
+
+<div>
+
+<h3>
+AI Situation Assessment
+</h3>
+
+<br>
+
+<div
+id="riskBadge"
+class="risk-badge"
+>
+RISK
+</div>
+
+</div>
+
+<div>
+
+<div
+id="riskScore"
+class="score"
+>
+0
+</div>
+
+<div style="color:#809da5;">
+Risk Score / 100
+</div>
+
+</div>
+
+</div>
+
+
+<div class="impact-grid">
+
+<div class="impact-box">
+
+<h4>
+👥 People Impact
+</h4>
+
+<p id="peopleImpact">
+-
+</p>
+
+</div>
+
+<div class="impact-box">
+
+<h4>
+🚧 Access Impact
+</h4>
+
+<p id="accessImpact">
+-
+</p>
+
+</div>
+
+<div class="impact-box">
+
+<h4>
+🏢 Infrastructure Impact
+</h4>
+
+<p id="infrastructureImpact">
+-
+</p>
+
+</div>
+
+</div>
+
+
+<h3>
+Recommended Actions
+</h3>
+
+<ul
+id="actionList"
+class="action-list"
+>
+</ul>
+
+
+<div
+style="
+margin-top:20px;
+padding:15px;
+background:#102f39;
+border-radius:10px;
+color:#9fb8c0;
+"
+>
+
+<strong>
+Prototype Note:
+</strong>
+
+This assessment uses rule-based demonstration
+logic for the hackathon prototype. It is not
+a certified emergency-response system.
+
+</div>
+
+
+<!-- VOICE BRIEFING -->
+
+<div class="voice-panel">
+
+<h3>
+🔊 Voice Incident Briefing
+</h3>
+
+<p>
+The system can read the incident information aloud
+for users who may have difficulty reading the dashboard
+during an emergency.
+</p>
+
+<div class="voice-controls">
+
+<button
+class="btn-primary"
+onclick="speakIncidentBriefing()"
+>
+🔊 LISTEN TO INCIDENT BRIEFING
+</button>
+
+<button
+class="btn-secondary"
+onclick="stopIncidentVoice()"
+>
+⏹ STOP VOICE
+</button>
+
+</div>
+
+<div
+class="voice-status"
+id="voiceStatus"
+>
+Voice briefing ready.
+</div>
+
+</div>
+
+
+<br>
+
+<button
+class="btn-secondary"
+onclick="generateReport()"
+>
+📄 GENERATE INCIDENT REPORT
+</button>
+
+<button
+class="btn-secondary"
+onclick="document.getElementById('report').scrollIntoView()"
+>
+VIEW REPORT CENTER
+</button>
+
+</div>
+
+</div>
+
+</div>
 
 </section>
 
 
-<!-- =========================
-     INCIDENT HISTORY
-========================= -->
+<!-- =====================================================
+HISTORY
+===================================================== -->
 
 <section id="history">
 
-    <div class="container">
+<div class="container">
 
-        <div class="history-header">
+<div class="history-header">
 
-            <div>
+<div>
 
-                <h2 class="section-title">
-                    Incident History
-                </h2>
+<h2 class="section-title">
+Incident History
+</h2>
 
-                <p class="section-subtitle">
-                    Previous incident assessments recorded in this prototype.
-                </p>
+<p class="section-subtitle">
+Previously analyzed incidents stored in this browser.
+</p>
 
-            </div>
+</div>
 
+<div>
 
-            <div>
+<span
+id="historyCount"
+class="history-count"
+>
+0 incidents
+</span>
 
-                <span class="history-count">
-                    Incidents:
-                    <strong id="historyCount">
-                        0
-                    </strong>
-                </span>
+<br><br>
 
-                <button
-                    class="btn-secondary"
-                    onclick="clearIncidentHistory()"
-                >
-                    CLEAR HISTORY
-                </button>
+<button
+class="btn-danger"
+onclick="clearHistory()"
+>
+CLEAR HISTORY
+</button>
 
-            </div>
+</div>
 
-        </div>
-
-
-        <div class="card">
-
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                ID
-                            </th>
-
-                            <th>
-                                Type
-                            </th>
-
-                            <th>
-                                Title
-                            </th>
-
-                            <th>
-                                Risk
-                            </th>
-
-                            <th>
-                                Score
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Date
-                            </th>
-
-                        </tr>
-
-                    </thead>
+</div>
 
 
-                    <tbody id="historyTableBody">
+<div class="card">
 
-                    </tbody>
+<div class="table-wrapper">
 
-                </table>
+<table>
 
-            </div>
+<thead>
 
-        </div>
+<tr>
 
-    </div>
+<th>
+ID
+</th>
+
+<th>
+Type
+</th>
+
+<th>
+Title
+</th>
+
+<th>
+Location
+</th>
+
+<th>
+Risk
+</th>
+
+<th>
+Score
+</th>
+
+<th>
+Recovery
+</th>
+
+<th>
+Time
+</th>
+
+</tr>
+
+</thead>
+
+<tbody
+id="historyBody"
+>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
 
 </section>
 
 
-<!-- =========================
-     REPORT
-========================= -->
+<!-- =====================================================
+REPORT
+===================================================== -->
 
 <section id="report">
 
-    <div class="container">
+<div class="container">
 
-        <div class="report-toolbar">
+<h2 class="section-title">
+Incident Report Center
+</h2>
 
-            <div>
+<p class="section-subtitle">
+Generate a structured report from the latest assessment.
+</p>
 
-                <h2 class="section-title">
-                    Incident Report Center
-                </h2>
+<div
+id="reportBox"
+class="card report-box"
+>
 
-                <p class="section-subtitle">
-                    Generate a professional incident assessment report.
-                </p>
+<div class="report-header">
 
-            </div>
+<div>
 
+<h2>
+RESILIENCE OS AI
+</h2>
 
-            <div>
+<p>
+Emergency Intelligence Report
+</p>
 
-                <button
-                    class="btn-primary"
-                    onclick="generateIncidentReport()"
-                >
-                    GENERATE REPORT
-                </button>
+</div>
 
-                <button
-                    id="printReportButton"
-                    class="btn-secondary"
-                    onclick="printIncidentReport()"
-                    style="display:none;"
-                >
-                    🖨️ PRINT / SAVE PDF
-                </button>
+<div>
 
-            </div>
+<div class="report-id">
+REPORT: <span id="reportId">---</span>
+</div>
 
-        </div>
+<div style="color:#819da5;">
+Generated: <span id="reportDate">---</span>
+</div>
 
+</div>
 
-        <div
-            id="reportEmpty"
-            class="card report-empty"
-        >
+</div>
 
-            Analyze an incident first to generate a report.
 
-        </div>
+<div class="grid">
 
+<div>
 
-        <div
-            id="reportDocument"
-            class="report-document"
-            style="display:none;"
-        >
+<div class="report-section">
 
-            <div class="report-header">
+<h4>
+Incident
+</h4>
 
-                <div>
+<p id="reportIncident">
+---
+</p>
 
-                    <h1>
-                        RESILIENCE OS AI
-                    </h1>
+</div>
 
-                    <p>
-                        Emergency Incident Intelligence Report
-                    </p>
+<div class="report-section">
 
-                </div>
+<h4>
+Location
+</h4>
 
+<p id="reportLocation">
+---
+</p>
 
-                <div>
+</div>
 
-                    <strong id="reportId">
-                        RSAI-000000
-                    </strong>
+<div class="report-section">
 
-                    <br>
+<h4>
+Coordinates
+</h4>
 
-                    <span id="reportDate">
-                        --
-                    </span>
+<p id="reportCoordinates">
+---
+</p>
 
-                </div>
+</div>
 
-            </div>
+</div>
 
 
-            <div class="report-section">
+<div>
 
-                <h3>
-                    Incident Information
-                </h3>
+<div class="report-section">
 
-                <p>
-                    <strong>Type:</strong>
-                    <span id="reportIncidentType"></span>
-                </p>
+<h4>
+Risk Assessment
+</h4>
 
-                <p>
-                    <strong>Title:</strong>
-                    <span id="reportIncidentTitle"></span>
-                </p>
+<p>
+Risk:
+<strong id="reportRisk">
+---
+</strong>
+</p>
 
-                <p>
-                    <strong>Location:</strong>
-                    <span id="reportIncidentLocation"></span>
-                </p>
+<p>
+Score:
+<strong id="reportScore">
+---
+</strong>
+</p>
 
-            </div>
+</div>
 
+<div class="report-section">
 
-            <div class="report-section">
+<h4>
+Recovery Status
+</h4>
 
-                <h3>
-                    Risk Assessment
-                </h3>
+<p id="reportRecoveryStatus">
+---
+</p>
 
-                <div class="report-risk">
+</div>
 
-                    <strong>
-                        Risk Level:
-                    </strong>
+</div>
 
-                    <span id="reportRisk"></span>
+</div>
 
-                    <br>
 
-                    <strong>
-                        Risk Score:
-                    </strong>
+<div class="report-section">
 
-                    <span id="reportScore"></span>
+<h4>
+Description
+</h4>
 
-                </div>
+<p id="reportDescription">
+---
+</p>
 
-            </div>
+</div>
 
 
-            <div class="report-section">
+<div class="report-section">
 
-                <h3>
-                    Incident Description
-                </h3>
+<h4>
+Impact Assessment
+</h4>
 
-                <p id="reportDescription">
-                </p>
+<p>
+People:
+<span id="reportPeople">
+---
+</span>
+</p>
 
-            </div>
+<p>
+Access:
+<span id="reportAccess">
+---
+</span>
+</p>
 
+<p>
+Infrastructure:
+<span id="reportInfrastructure">
+---
+</span>
+</p>
 
-            <div class="report-section">
+</div>
 
-                <h3>
-                    Impact Assessment
-                </h3>
 
-                <div class="report-impact-grid">
+<div class="report-section">
 
-                    <div class="report-impact">
+<h4>
+Recommended Actions
+</h4>
 
-                        <strong>
-                            People
-                        </strong>
+<ul
+id="reportActions"
+class="action-list"
+>
+</ul>
 
-                        <br>
+</div>
 
-                        <span id="reportPeopleImpact"></span>
 
-                    </div>
+<div class="report-section">
 
+<h4>
+Route Intelligence
+</h4>
 
-                    <div class="report-impact">
+<p id="reportRoute">
+---
+</p>
 
-                        <strong>
-                            Access
-                        </strong>
+</div>
 
-                        <br>
 
-                        <span id="reportAccessImpact"></span>
+<div class="report-actions">
 
-                    </div>
+<button
+class="btn-primary"
+onclick="window.print()"
+>
+🖨 PRINT / SAVE PDF
+</button>
 
+<button
+class="btn-secondary"
+onclick="document.getElementById('recovery').scrollIntoView()"
+>
+TRACK RECOVERY
+</button>
 
-                    <div class="report-impact">
+</div>
 
-                        <strong>
-                            Infrastructure
-                        </strong>
+</div>
 
-                        <br>
-
-                        <span id="reportInfrastructureImpact"></span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="report-section">
-
-                <h3>
-                    Recommended Actions
-                </h3>
-
-                <ul
-                    id="reportActions"
-                    class="actions-list"
-                ></ul>
-
-            </div>
-
-
-            <div class="report-section">
-
-                <h3>
-                    Recovery
-                </h3>
-
-                <p>
-
-                    <strong>
-                        Recovery Status:
-                    </strong>
-
-                    <span id="reportRecoveryStatus">
-                        IN PROGRESS
-                    </span>
-
-                </p>
-
-            </div>
-
-
-            <div class="report-section">
-
-                <h3>
-                    Location Coordinates
-                </h3>
-
-                <p>
-
-                    Latitude:
-                    <span id="reportLatitude">
-                        --
-                    </span>
-
-                </p>
-
-                <p>
-
-                    Longitude:
-                    <span id="reportLongitude">
-                        --
-                    </span>
-
-                </p>
-
-                <p>
-
-                    Route Distance:
-                    <span id="reportRouteDistance">
-                        --
-                    </span>
-
-                </p>
-
-                <p>
-
-                    Estimated Response Time:
-                    <span id="reportRouteETA">
-                        --
-                    </span>
-
-                </p>
-
-            </div>
-
-
-            <div class="report-footer">
-
-                RESILIENCE OS AI is a prototype emergency
-                intelligence and simulation platform.
-                This report does not represent an actual
-                emergency dispatch, professional risk assessment,
-                or communication with emergency services.
-
-            </div>
-
-        </div>
-
-    </div>
+</div>
 
 </section>
 
 
-<!-- =========================
-     RECOVERY
-========================= -->
+<!-- =====================================================
+RECOVERY
+===================================================== -->
 
 <section id="recovery">
 
-    <div class="container">
+<div class="container">
 
-        <h2 class="section-title">
-            Recovery Tracking
-        </h2>
+<h2 class="section-title">
+Recovery Tracking
+</h2>
 
-        <p class="section-subtitle">
-            Monitor the incident from detection through recovery completion.
-        </p>
+<p class="section-subtitle">
+Monitor the incident recovery lifecycle.
+</p>
 
+<div class="card">
 
-        <div class="card">
+<div
+class="recovery-status"
+id="recoveryStatus"
+>
+WAITING FOR INCIDENT
+</div>
 
-            <h3>
-                Recovery Intelligence
-            </h3>
+<div class="progress-container">
 
-            <br>
+<div
+id="recoveryProgress"
+class="progress-bar"
+>
+</div>
 
-            <p id="recoveryMessage">
-                Recovery monitoring has not started.
-            </p>
+</div>
 
-
-            <div class="recovery-progress-container">
-
-                <div class="progress-bar">
-
-                    <div
-                        id="mainRecoveryProgress"
-                        class="progress-fill"
-                    ></div>
-
-                </div>
-
-
-                <div
-                    id="progressText"
-                    class="progress-text"
-                >
-                    0%
-                </div>
-
-            </div>
+<p
+id="recoveryPercentage"
+style="color:#9fb8c0;"
+>
+0% complete
+</p>
 
 
-            <div class="recovery-steps">
+<div class="recovery-steps">
 
+<div
+class="recovery-step"
+id="step1"
+>
+01<br>
+Assessment
+</div>
 
-                <div class="recovery-step">
+<div
+class="recovery-step"
+id="step2"
+>
+02<br>
+Response
+</div>
 
-                    <span>
-                        🚨
-                    </span>
+<div
+class="recovery-step"
+id="step3"
+>
+03<br>
+Stabilization
+</div>
 
-                    Incident Detected
+<div
+class="recovery-step"
+id="step4"
+>
+04<br>
+Restoration
+</div>
 
-                </div>
+<div
+class="recovery-step"
+id="step5"
+>
+05<br>
+Recovered
+</div>
 
+</div>
 
-                <div class="recovery-step">
+</div>
 
-                    <span>
-                        🧠
-                    </span>
-
-                    Risk Assessed
-
-                </div>
-
-
-                <div class="recovery-step">
-
-                    <span>
-                        📢
-                    </span>
-
-                    Response Recommended
-
-                </div>
-
-
-                <div class="recovery-step">
-
-                    <span>
-                        ♻️
-                    </span>
-
-                    Recovery Started
-
-                </div>
-
-
-                <div class="recovery-step">
-
-                    <span>
-                        ✅
-                    </span>
-
-                    Recovery Completed
-
-                </div>
-
-            </div>
-
-
-            <br>
-
-
-            <p>
-
-                Emergency Status:
-
-                <strong id="emergencyStatus">
-                    STANDBY
-                </strong>
-
-            </p>
-
-        </div>
-
-    </div>
+</div>
 
 </section>
 
 
-<!-- =========================
-     FOOTER
-========================= -->
+<!-- =====================================================
+FOOTER
+===================================================== -->
 
 <footer>
 
-    RESILIENCE OS AI © 2026
+RESILIENCE OS AI © 2026
 
-    <br><br>
+<br>
 
-    Prototype / Simulation System — Not connected to
-    real emergency dispatch services.
+Emergency Intelligence Prototype
+
+<br><br>
+
+This project is a hackathon prototype and simulation.
+It does not replace official emergency services,
+certified emergency systems or professional responders.
 
 </footer>
 
 
-<!-- Leaflet -->
+<!-- LEAFLET -->
+
 <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
+src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+></script>
 
 
 <script>
 
 /* =========================================================
-   GLOBAL VARIABLES
+GLOBAL VARIABLES
 ========================================================= */
 
 let map = null;
@@ -2332,54 +2498,61 @@ let activeIncidentId = null;
 
 let latestIncidentAnalysis = null;
 
+let recognition = null;
+
+let isListening = false;
+
 
 /* =========================================================
-   MAP
+INITIALIZATION
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        initializeMap();
+
+        loadHistory();
+
+        updateDashboard();
+
+    }
+);
+
+
+/* =========================================================
+MAP
 ========================================================= */
 
 function initializeMap() {
 
-    if (map) return;
-
     map = L.map("map").setView(
-        [20.5937, 78.9629],
-        5
+        [16.3067, 80.4365],
+        13
     );
-
 
     L.tileLayer(
         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         {
-            maxZoom: 19,
-            attribution: "&copy; OpenStreetMap contributors"
+            attribution:
+            '&copy; OpenStreetMap contributors'
         }
     ).addTo(map);
 
 }
 
 
-/* =========================================================
-   GET LOCATION
-========================================================= */
-
-function getLocation() {
-
-    const status =
-        document.getElementById("locationStatus");
-
+function getMyLocation() {
 
     if (!navigator.geolocation) {
 
-        status.innerText =
-            "Geolocation not supported";
+        alert(
+            "Geolocation is not supported by this browser."
+        );
 
         return;
     }
-
-
-    status.innerText =
-        "Requesting location...";
-
 
     navigator.geolocation.getCurrentPosition(
 
@@ -2392,23 +2565,13 @@ function getLocation() {
                 position.coords.longitude;
 
 
-            document.getElementById("latitude")
-                .innerText =
-                currentLatitude.toFixed(6);
-
-
-            document.getElementById("longitude")
-                .innerText =
-                currentLongitude.toFixed(6);
-
-
-            status.innerText =
-                "LOCATION ACTIVE";
-
-
-            if (!map) {
-                initializeMap();
-            }
+            map.setView(
+                [
+                    currentLatitude,
+                    currentLongitude
+                ],
+                16
+            );
 
 
             if (userMarker) {
@@ -2427,36 +2590,36 @@ function getLocation() {
                     ])
                     .addTo(map)
                     .bindPopup(
-                        "Your current location"
+                        "📍 Your current location"
                     );
 
             }
 
 
-            map.setView(
-                [
-                    currentLatitude,
-                    currentLongitude
-                ],
-                15
+            document.getElementById(
+                "locationInfo"
+            ).innerText =
+                `Latitude: ${currentLatitude.toFixed(6)}
+                | Longitude: ${currentLongitude.toFixed(6)}`;
+
+
+            addTimeline(
+                "Current location detected."
             );
 
         },
 
-
         function(error) {
 
-            status.innerText =
-                "Location permission unavailable";
-
-            console.log(error);
+            alert(
+                "Unable to access location. Please allow location permission."
+            );
 
         },
 
         {
             enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
+            timeout: 10000
         }
 
     );
@@ -2464,65 +2627,43 @@ function getLocation() {
 }
 
 
-/* =========================================================
-   CENTER MAP
-========================================================= */
-
-function centerOnLocation() {
+function centerMap() {
 
     if (
-        currentLatitude === null ||
-        currentLongitude === null
+        currentLatitude !== null &&
+        currentLongitude !== null
     ) {
+
+        map.setView(
+            [
+                currentLatitude,
+                currentLongitude
+            ],
+            16
+        );
+
+    } else {
 
         alert(
             "Please get your location first."
         );
 
-        return;
     }
-
-
-    map.setView(
-        [
-            currentLatitude,
-            currentLongitude
-        ],
-        16
-    );
 
 }
 
 
-/* =========================================================
-   SHOW INCIDENT
-========================================================= */
+function showTestIncident() {
 
-async function showIncident(silent = false) {
+    const testLat =
+        currentLatitude !== null
+            ? currentLatitude + 0.01
+            : 16.3167;
 
-    if (
-        currentLatitude === null ||
-        currentLongitude === null
-    ) {
-
-        if (!silent) {
-
-            alert(
-                "Please get your location first."
-            );
-
-        }
-
-        return;
-
-    }
-
-
-    const incidentLatitude =
-        currentLatitude + 0.002;
-
-    const incidentLongitude =
-        currentLongitude + 0.002;
+    const testLng =
+        currentLongitude !== null
+            ? currentLongitude + 0.01
+            : 80.4465;
 
 
     if (incidentMarker) {
@@ -2534,74 +2675,70 @@ async function showIncident(silent = false) {
     }
 
 
-    if (routeLine) {
+    incidentMarker =
+        L.marker([
+            testLat,
+            testLng
+        ])
+        .addTo(map)
+        .bindPopup(
+            "🚨 TEST INCIDENT"
+        )
+        .openPopup();
 
-        map.removeLayer(
-            routeLine
+
+    map.setView(
+        [testLat, testLng],
+        14
+    );
+
+
+    document.getElementById(
+        "incidentLocation"
+    ).value =
+        `Test Incident (${testLat.toFixed(4)}, ${testLng.toFixed(4)})`;
+
+
+    addTimeline(
+        "Test incident location displayed."
+    );
+
+
+    if (
+        currentLatitude !== null &&
+        currentLongitude !== null
+    ) {
+
+        calculateRoute(
+            currentLatitude,
+            currentLongitude,
+            testLat,
+            testLng
         );
 
     }
 
-
-    incidentMarker =
-        L.marker([
-            incidentLatitude,
-            incidentLongitude
-        ])
-        .addTo(map)
-        .bindPopup(
-            "Simulated Incident Location"
-        );
+}
 
 
-    map.fitBounds(
+function calculateRoute(
+    startLat,
+    startLng,
+    endLat,
+    endLng
+) {
 
-        L.latLngBounds(
-
-            [
-                currentLatitude,
-                currentLongitude
-            ],
-
-            [
-                incidentLatitude,
-                incidentLongitude
-            ]
-
-        ),
-
-        {
-            padding: [50, 50]
-        }
-
-    );
+    const url =
+        `https://router.project-osrm.org/route/v1/driving/` +
+        `${startLng},${startLat};${endLng},${endLat}` +
+        `?overview=full&geometries=geojson`;
 
 
-    const routeURL =
+    fetch(url)
 
-        "https://router.project-osrm.org/route/v1/driving/" +
+    .then(response => response.json())
 
-        currentLongitude +
-        "," +
-        currentLatitude +
-
-        ";" +
-
-        incidentLongitude +
-        "," +
-        incidentLatitude +
-
-        "?overview=full&geometries=geojson";
-
-
-    try {
-
-        const response =
-            await fetch(routeURL);
-
-        const data =
-            await response.json();
-
+    .then(data => {
 
         if (
             data.routes &&
@@ -2611,281 +2748,380 @@ async function showIncident(silent = false) {
             const route =
                 data.routes[0];
 
+            const distance =
+                (route.distance / 1000)
+                .toFixed(2);
 
-            routeLine =
-                L.geoJSON(
-                    route.geometry,
-                    {
-                        style: {
-                            weight: 5
-                        }
-                    }
-                ).addTo(map);
-
-
-            const distanceKm =
-                route.distance / 1000;
-
-
-            const minutes =
+            const duration =
                 Math.round(
                     route.duration / 60
                 );
 
 
-            document.getElementById(
-                "routeDistance"
-            ).innerText =
-                distanceKm.toFixed(2) +
-                " km";
+            if (routeLine) {
 
-
-            document.getElementById(
-                "routeETA"
-            ).innerText =
-                minutes +
-                " min";
-
-        }
-
-    } catch (error) {
-
-        console.log(
-            "Route service unavailable",
-            error
-        );
-
-
-        const distanceKm =
-            Math.sqrt(
-                Math.pow(
-                    (incidentLatitude -
-                        currentLatitude) *
-                    111,
-                    2
-                ) +
-
-                Math.pow(
-                    (incidentLongitude -
-                        currentLongitude) *
-                    111,
-                    2
-                )
-            );
-
-
-        document.getElementById(
-            "routeDistance"
-        ).innerText =
-            distanceKm.toFixed(2) +
-            " km";
-
-
-        document.getElementById(
-            "routeETA"
-        ).innerText =
-            "Estimated";
-
-    }
-
-}
-
-
-/* =========================================================
-   TIMELINE
-========================================================= */
-
-function addTimeline(message) {
-
-    const timeline =
-        document.getElementById(
-            "timeline"
-        );
-
-
-    const item =
-        document.createElement("div");
-
-
-    item.className =
-        "timeline-item";
-
-
-    const time =
-        new Date().toLocaleTimeString(
-            [],
-            {
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
-
-
-    item.innerHTML = `
-
-        <div class="timeline-time">
-            ${time}
-        </div>
-
-        <div>
-            ${escapeHTML(message)}
-        </div>
-
-    `;
-
-
-    timeline.prepend(item);
-
-}
-
-
-/* =========================================================
-   EMERGENCY SIMULATION
-========================================================= */
-
-function simulateEmergency() {
-
-    if (emergencyRunning) return;
-
-
-    emergencyRunning = true;
-
-
-    emergencyTimers.forEach(
-        timer => clearTimeout(timer)
-    );
-
-
-    emergencyTimers = [];
-
-
-    const steps = [
-
-        {
-            delay: 500,
-            text: "Sensor anomaly detected."
-        },
-
-        {
-            delay: 1800,
-            text: "AI analyzing emergency signals."
-        },
-
-        {
-            delay: 3200,
-            text: "Risk assessment: HIGH."
-        },
-
-        {
-            delay: 4500,
-            text: "Incident location identified."
-        },
-
-        {
-            delay: 5800,
-            text: "Emergency route calculated."
-        },
-
-        {
-            delay: 7000,
-            text: "Response recommendation generated."
-        },
-
-        {
-            delay: 8500,
-            text: "Recovery monitoring started."
-        }
-
-    ];
-
-
-    document.getElementById(
-        "dashboardSystem"
-    ).innerText =
-        "ANALYZING";
-
-
-    document.getElementById(
-        "systemStatus"
-    ).innerText =
-        "● EMERGENCY ANALYSIS ACTIVE";
-
-
-    document.getElementById(
-        "dashboardAlerts"
-    ).innerText =
-        "1";
-
-
-    document.getElementById(
-        "dashboardRisk"
-    ).innerText =
-        "HIGH";
-
-
-    document.getElementById(
-        "sensorTemp"
-    ).innerText =
-        "ANOMALY";
-
-
-    document.getElementById(
-        "sensorSmoke"
-    ).innerText =
-        "DETECTED";
-
-
-    document.getElementById(
-        "sensorMotion"
-    ).innerText =
-        "ABNORMAL";
-
-
-    steps.forEach(step => {
-
-        const timer =
-            setTimeout(() => {
-
-                addTimeline(
-                    step.text
+                map.removeLayer(
+                    routeLine
                 );
 
-
-                document.getElementById(
-                    "aiAnalysis"
-                ).innerText =
-                    step.text;
+            }
 
 
-            }, step.delay);
+            routeLine =
+                L.geoJSON(
+                    route.geometry
+                ).addTo(map);
 
 
-        emergencyTimers.push(timer);
+            document.getElementById(
+                "routeInfo"
+            ).innerText =
+                `Estimated route distance: ${distance} km | ETA: ${duration} minutes`;
+
+
+        } else {
+
+            drawFallbackRoute(
+                startLat,
+                startLng,
+                endLat,
+                endLng
+            );
+
+        }
+
+    })
+
+    .catch(() => {
+
+        drawFallbackRoute(
+            startLat,
+            startLng,
+            endLat,
+            endLng
+        );
 
     });
 
-
-    const recoveryTimer =
-        setTimeout(() => {
-
-            startRecoveryTracking();
-
-            emergencyRunning = false;
-
-        }, 9000);
+}
 
 
-    emergencyTimers.push(
-        recoveryTimer
-    );
+function drawFallbackRoute(
+    startLat,
+    startLng,
+    endLat,
+    endLng
+) {
 
+    if (routeLine) {
+
+        map.removeLayer(
+            routeLine
+        );
+
+    }
+
+
+    routeLine =
+        L.polyline(
+            [
+                [startLat, startLng],
+                [endLat, endLng]
+            ],
+            {
+                dashArray: "8,8"
+            }
+        ).addTo(map);
+
+
+    const distance =
+        calculateDistance(
+            startLat,
+            startLng,
+            endLat,
+            endLng
+        );
+
+
+    document.getElementById(
+        "routeInfo"
+    ).innerText =
+        `Approximate straight-line distance: ${distance.toFixed(2)} km | Road ETA unavailable.`;
+
+}
+
+
+function calculateDistance(
+    lat1,
+    lon1,
+    lat2,
+    lon2
+) {
+
+    const R = 6371;
+
+    const dLat =
+        (lat2 - lat1)
+        * Math.PI / 180;
+
+    const dLon =
+        (lon2 - lon1)
+        * Math.PI / 180;
+
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) ** 2;
+
+    const c =
+        2 *
+        Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
+
+    return R * c;
+
+}
+
+
+/* =========================================================
+VOICE INPUT
+========================================================= */
+
+function startVoiceInput() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    if (!SpeechRecognition) {
+
+        alert(
+            "Voice input is not supported in this browser. Please use Google Chrome or Microsoft Edge."
+        );
+
+        return;
+
+    }
+
+
+    if (isListening) {
+
+        return;
+
+    }
+
+
+    recognition =
+        new SpeechRecognition();
+
+
+    recognition.lang =
+        "en-IN";
+
+
+    recognition.continuous =
+        true;
+
+
+    recognition.interimResults =
+        true;
+
+
+    const textarea =
+        document.getElementById(
+            "incidentDescription"
+        );
+
+
+    const status =
+        document.getElementById(
+            "voiceInputStatus"
+        );
+
+
+    recognition.onstart =
+        function() {
+
+            isListening = true;
+
+            status.innerText =
+                "🎤 Listening... Speak your incident.";
+
+            addTimeline(
+                "Voice incident input started."
+            );
+
+        };
+
+
+    recognition.onresult =
+        function(event) {
+
+            let finalText = "";
+
+
+            for (
+                let i = event.resultIndex;
+                i < event.results.length;
+                i++
+            ) {
+
+                const transcript =
+                    event.results[i][0].transcript;
+
+
+                if (
+                    event.results[i].isFinal
+                ) {
+
+                    finalText +=
+                        transcript + " ";
+
+                }
+
+            }
+
+
+            if (
+                finalText.trim()
+            ) {
+
+                if (
+                    textarea.value.trim()
+                ) {
+
+                    textarea.value +=
+                        " " +
+                        finalText.trim();
+
+                } else {
+
+                    textarea.value =
+                        finalText.trim();
+
+                }
+
+                autoDetectIncidentType(
+                    finalText
+                );
+
+            }
+
+        };
+
+
+    recognition.onerror =
+        function(event) {
+
+            isListening = false;
+
+
+            let message =
+                "Voice input error.";
+
+
+            if (
+                event.error ===
+                "not-allowed"
+            ) {
+
+                message =
+                    "Microphone permission was denied.";
+
+            }
+
+            else if (
+                event.error ===
+                "no-speech"
+            ) {
+
+                message =
+                    "No speech detected. Please try again.";
+
+            }
+
+            else if (
+                event.error ===
+                "network"
+            ) {
+
+                message =
+                    "Network error during voice recognition.";
+
+            }
+
+
+            status.innerText =
+                message;
+
+        };
+
+
+    recognition.onend =
+        function() {
+
+            isListening = false;
+
+
+            if (
+                status.innerText.includes(
+                    "Listening"
+                )
+            ) {
+
+                status.innerText =
+                    "✓ Voice input completed.";
+
+            }
+
+        };
+
+
+    try {
+
+        recognition.start();
+
+    }
+
+    catch(error) {
+
+        status.innerText =
+            "Unable to start voice input.";
+
+    }
+
+}
+
+
+function stopVoiceInput() {
 
     if (
-        currentLatitude !== null &&
-        currentLongitude !== null
+        recognition &&
+        isListening
     ) {
 
-        showIncident(true);
+        recognition.stop();
+
+        isListening = false;
+
+
+        const status =
+            document.getElementById(
+                "voiceInputStatus"
+            );
+
+
+        status.innerText =
+            "✓ Voice input stopped.";
+
+
+        addTimeline(
+            "Voice incident input stopped."
+        );
 
     }
 
@@ -2893,196 +3129,146 @@ function simulateEmergency() {
 
 
 /* =========================================================
-   RECOVERY
+AUTO INCIDENT TYPE DETECTION
 ========================================================= */
 
-function startRecoveryTracking() {
+function autoDetectIncidentType(
+    text
+) {
 
-    recoveryTimers.forEach(
-        timer => clearTimeout(timer)
-    );
-
-
-    recoveryTimers = [];
+    const lower =
+        text.toLowerCase();
 
 
-    const progress =
+    const typeSelect =
         document.getElementById(
-            "mainRecoveryProgress"
+            "incidentType"
         );
 
 
-    const progressText =
+    if (
+        lower.includes("fire") ||
+        lower.includes("burning") ||
+        lower.includes("smoke")
+    ) {
+
+        typeSelect.value =
+            "Fire";
+
+    }
+
+    else if (
+        lower.includes("flood") ||
+        lower.includes("water level") ||
+        lower.includes("water entered")
+    ) {
+
+        typeSelect.value =
+            "Flood";
+
+    }
+
+    else if (
+        lower.includes("earthquake") ||
+        lower.includes("building collapsed") ||
+        lower.includes("tremor")
+    ) {
+
+        typeSelect.value =
+            "Earthquake";
+
+    }
+
+    else if (
+        lower.includes("accident") ||
+        lower.includes("crash") ||
+        lower.includes("collision")
+    ) {
+
+        typeSelect.value =
+            "Road Accident";
+
+    }
+
+    else if (
+        lower.includes("storm") ||
+        lower.includes("cyclone") ||
+        lower.includes("strong wind")
+    ) {
+
+        typeSelect.value =
+            "Storm";
+
+    }
+
+    else if (
+        lower.includes("unconscious") ||
+        lower.includes("injured") ||
+        lower.includes("medical") ||
+        lower.includes("heart")
+    ) {
+
+        typeSelect.value =
+            "Medical Emergency";
+
+    }
+
+}
+
+
+/* =========================================================
+IMAGE PREVIEW
+========================================================= */
+
+function previewIncidentImage(
+    event
+) {
+
+    const file =
+        event.target.files[0];
+
+
+    const preview =
         document.getElementById(
-            "progressText"
+            "imagePreview"
         );
 
 
-    const message =
-        document.getElementById(
-            "recoveryMessage"
-        );
+    if (!file) {
+
+        preview.style.display =
+            "none";
+
+        return;
+
+    }
 
 
-    const emergencyStatus =
-        document.getElementById(
-            "emergencyStatus"
-        );
+    const reader =
+        new FileReader();
 
 
-    const recoverySteps = [
+    reader.onload =
+        function(e) {
 
-        {
-            percent: 10,
-            text: "Incident detected."
-        },
+            preview.src =
+                e.target.result;
 
-        {
-            percent: 25,
-            text: "Risk assessed."
-        },
+            preview.style.display =
+                "block";
 
-        {
-            percent: 40,
-            text: "Response recommended."
-        },
-
-        {
-            percent: 65,
-            text: "Recovery started."
-        },
-
-        {
-            percent: 80,
-            text: "Recovery in progress."
-        },
-
-        {
-            percent: 100,
-            text: "Recovery completed."
-        }
-
-    ];
+        };
 
 
-    emergencyStatus.innerText =
-        "RECOVERY IN PROGRESS";
-
-
-    recoverySteps.forEach(
-        (step, index) => {
-
-            const timer =
-                setTimeout(() => {
-
-                    progress.style.width =
-                        step.percent + "%";
-
-
-                    progressText.innerText =
-                        step.percent + "%";
-
-
-                    message.innerText =
-                        step.text;
-
-
-                    addTimeline(
-                        step.text
-                    );
-
-
-                    if (
-                        activeIncidentId
-                    ) {
-
-                        updateActiveIncidentStatus(
-                            step.percent === 100
-                                ? "RECOVERED"
-                                : "RECOVERY IN PROGRESS"
-                        );
-
-                    }
-
-
-                    if (
-                        latestIncidentAnalysis
-                    ) {
-
-                        latestIncidentAnalysis
-                            .recoveryStatus =
-                            step.percent === 100
-                                ? "RECOVERED"
-                                : "IN PROGRESS";
-
-                    }
-
-
-                    if (
-                        step.percent === 100
-                    ) {
-
-                        document.getElementById(
-                            "dashboardSystem"
-                        ).innerText =
-                            "READY";
-
-
-                        document.getElementById(
-                            "dashboardRisk"
-                        ).innerText =
-                            "LOW";
-
-
-                        document.getElementById(
-                            "dashboardAlerts"
-                        ).innerText =
-                            "0";
-
-
-                        document.getElementById(
-                            "systemStatus"
-                        ).innerText =
-                            "● SYSTEM READY";
-
-
-                        document.getElementById(
-                            "responseRecommendation"
-                        ).innerText =
-                            "Recovery completed. System returned to monitoring mode.";
-
-
-                        emergencyStatus.innerText =
-                            "RECOVERED";
-
-
-                        if (
-                            latestIncidentAnalysis
-                        ) {
-
-                            document.getElementById(
-                                "reportRecoveryStatus"
-                            ).innerText =
-                                "RECOVERED";
-
-                        }
-
-                    }
-
-                }, index * 1500);
-
-
-            recoveryTimers.push(timer);
-
-        }
-
+    reader.readAsDataURL(
+        file
     );
 
 }
 
 
 /* =========================================================
-   INCIDENT ANALYSIS
+INCIDENT ANALYSIS
 ========================================================= */
 
 function analyzeIncident() {
@@ -3111,10 +3297,32 @@ function analyzeIncident() {
         ).value.trim();
 
 
-    if (!title || !description) {
+    if (!title) {
 
         alert(
-            "Please enter incident title and description."
+            "Please enter an incident title."
+        );
+
+        return;
+
+    }
+
+
+    if (!description) {
+
+        alert(
+            "Please describe the incident or use voice input."
+        );
+
+        return;
+
+    }
+
+
+    if (!location) {
+
+        alert(
+            "Please enter the incident location."
         );
 
         return;
@@ -3125,9 +3333,20 @@ function analyzeIncident() {
     let risk =
         "MEDIUM";
 
+
     let score =
         55;
 
+
+    const lower =
+        (
+            title +
+            " " +
+            description
+        ).toLowerCase();
+
+
+    /* BASIC RULES */
 
     if (
         type === "Fire" ||
@@ -3135,34 +3354,43 @@ function analyzeIncident() {
         type === "Road Accident"
     ) {
 
-        risk = "HIGH";
-        score = 82;
+        risk =
+            "HIGH";
+
+        score =
+            82;
 
     }
 
-
-    if (
+    else if (
         type === "Flood" ||
         type === "Storm"
     ) {
 
-        risk = "HIGH";
-        score = 78;
+        risk =
+            "HIGH";
+
+        score =
+            78;
 
     }
 
-
-    if (
+    else if (
         type === "Medical Emergency"
     ) {
 
-        risk = "HIGH";
-        score = 75;
+        risk =
+            "HIGH";
+
+        score =
+            75;
 
     }
 
 
-    const severeKeywords = [
+    /* CRITICAL KEYWORDS */
+
+    const criticalWords = [
 
         "severe",
         "critical",
@@ -3170,50 +3398,55 @@ function analyzeIncident() {
         "multiple",
         "rapidly",
         "collapsed",
-        "unconscious"
+        "unconscious",
+        "explosion",
+        "major"
 
     ];
 
 
-    const lowerDescription =
-        description.toLowerCase();
+    const hasCriticalKeyword =
+        criticalWords.some(
+            word =>
+                lower.includes(word)
+        );
 
 
-    if (
-        severeKeywords.some(
-            keyword =>
-                lowerDescription.includes(
-                    keyword
-                )
-        )
-    ) {
+    if (hasCriticalKeyword) {
 
-        risk = "CRITICAL";
-        score = 94;
+        risk =
+            "CRITICAL";
+
+        score =
+            94;
 
     }
 
 
-    const peopleImpact =
-        (
-            risk === "HIGH" ||
-            risk === "CRITICAL"
-        )
-            ? "HIGH"
-            : "MEDIUM";
+    let peopleImpact =
+        "MEDIUM";
 
 
-    const accessImpact =
-        (
-            risk === "HIGH" ||
-            risk === "CRITICAL"
-        )
-            ? "HIGH"
-            : "MEDIUM";
+    let accessImpact =
+        "MEDIUM";
 
 
     let infrastructureImpact =
         "MEDIUM";
+
+
+    if (
+        risk === "HIGH" ||
+        risk === "CRITICAL"
+    ) {
+
+        peopleImpact =
+            "HIGH";
+
+        accessImpact =
+            "HIGH";
+
+    }
 
 
     if (
@@ -3235,76 +3468,97 @@ function analyzeIncident() {
 
         actions = [
 
-            "Evacuate the affected area.",
-            "Avoid entering the affected building.",
-            "Identify safe access routes.",
-            "Contact appropriate emergency services."
+            "Move people away from the affected area.",
+            "Avoid smoke and unsafe structures.",
+            "Identify safe evacuation routes.",
+            "Contact appropriate emergency services.",
+            "Monitor the incident until conditions stabilize."
 
         ];
 
-    } else if (type === "Flood") {
+    }
+
+    else if (type === "Flood") {
 
         actions = [
 
-            "Move people away from flooded areas.",
-            "Avoid electrical hazards.",
-            "Identify safe elevated locations.",
-            "Monitor water levels."
+            "Move people toward safer elevated areas.",
+            "Avoid flooded roads and electrical hazards.",
+            "Monitor water-level changes.",
+            "Keep emergency access routes clear.",
+            "Contact appropriate emergency services if required."
 
         ];
 
-    } else if (type === "Road Accident") {
+    }
+
+    else if (type === "Road Accident") {
 
         actions = [
 
             "Secure the surrounding area.",
-            "Avoid unnecessary movement of injured people.",
-            "Keep access routes clear.",
+            "Avoid creating additional traffic hazards.",
+            "Check for injured people from a safe location.",
+            "Contact appropriate emergency services.",
+            "Maintain an accessible route for responders."
+
+        ];
+
+    }
+
+    else if (type === "Earthquake") {
+
+        actions = [
+
+            "Move away from damaged structures.",
+            "Watch for falling objects and aftershocks.",
+            "Identify safe assembly areas.",
+            "Avoid entering visibly damaged buildings.",
             "Contact appropriate emergency services."
 
         ];
 
-    } else if (type === "Earthquake") {
+    }
 
-        actions = [
-
-            "Move to a safe open area when appropriate.",
-            "Avoid damaged structures.",
-            "Check for secondary hazards.",
-            "Monitor structural conditions."
-
-        ];
-
-    } else if (type === "Storm") {
+    else if (type === "Storm") {
 
         actions = [
 
             "Move people indoors or to a safe shelter.",
             "Avoid exposed electrical infrastructure.",
             "Monitor weather conditions.",
-            "Keep emergency routes accessible."
-
-        ];
-
-    } else if (type === "Medical Emergency") {
-
-        actions = [
-
-            "Assess the immediate safety of the area.",
-            "Provide appropriate first aid if trained.",
-            "Keep access clear for medical responders.",
-            "Contact appropriate emergency services."
-
-        ];
-
-    } else {
-
-        actions = [
-
-            "Assess the immediate environment.",
-            "Move people away from potential hazards.",
-            "Keep access routes clear.",
+            "Keep roads and emergency routes clear.",
             "Contact appropriate emergency services if required."
+
+        ];
+
+    }
+
+    else if (
+        type === "Medical Emergency"
+    ) {
+
+        actions = [
+
+            "Keep the affected person in a safe location.",
+            "Avoid unnecessary movement of an injured person.",
+            "Request appropriate medical assistance.",
+            "Keep access clear for medical responders.",
+            "Monitor the situation until assistance arrives."
+
+        ];
+
+    }
+
+    else {
+
+        actions = [
+
+            "Assess the immediate danger.",
+            "Move people away from unsafe areas.",
+            "Identify possible hazards.",
+            "Maintain clear access routes.",
+            "Contact appropriate emergency services if necessary."
 
         ];
 
@@ -3312,48 +3566,6 @@ function analyzeIncident() {
 
 
     latestIncidentAnalysis = {
-
-        type: type,
-
-        title: title,
-
-        description: description,
-
-        location:
-            location || "Not provided",
-
-        risk: risk,
-
-        score: score,
-
-        peopleImpact:
-            peopleImpact,
-
-        accessImpact:
-            accessImpact,
-
-        infrastructureImpact:
-            infrastructureImpact,
-
-        actions: actions,
-
-        date:
-            new Date().toISOString(),
-
-        recoveryStatus:
-            "IN PROGRESS"
-
-    };
-
-
-    activeIncidentId =
-        Date.now();
-
-
-    const historyRecord = {
-
-        id:
-            activeIncidentId,
 
         type:
             type,
@@ -3365,7 +3577,7 @@ function analyzeIncident() {
             description,
 
         location:
-            location || "Not provided",
+            location,
 
         risk:
             risk,
@@ -3373,263 +3585,226 @@ function analyzeIncident() {
         score:
             score,
 
-        recoveryStatus:
-            "RECOVERY IN PROGRESS",
+        peopleImpact:
+            peopleImpact,
 
-        createdAt:
-            new Date().toISOString()
+        accessImpact:
+            accessImpact,
+
+        infrastructureImpact:
+            infrastructureImpact,
+
+        actions:
+            actions,
+
+        recoveryStatus:
+            "ASSESSMENT"
 
     };
 
 
-    saveIncidentHistory(
-        historyRecord
+    activeIncidentId =
+        "INC-" +
+        Date.now();
+
+
+    latestIncidentAnalysis.id =
+        activeIncidentId;
+
+
+    displayIncidentAnalysis();
+
+
+    saveIncidentHistory();
+
+
+    startRecovery();
+
+
+    updateDashboardFromIncident();
+
+
+    addTimeline(
+        `Incident analyzed: ${type} — ${risk}`
     );
 
 
-    let actionHTML = "";
+    setTimeout(
+        function() {
+
+            speakIncidentBriefing();
+
+        },
+        1000
+    );
+
+}
 
 
-    actions.forEach(
-        action => {
+/* =========================================================
+DISPLAY ANALYSIS
+========================================================= */
 
-            actionHTML +=
-                `<li>${escapeHTML(action)}</li>`;
+function displayIncidentAnalysis() {
+
+    const incident =
+        latestIncidentAnalysis;
+
+
+    document.getElementById(
+        "aiResult"
+    ).style.display =
+        "block";
+
+
+    const badge =
+        document.getElementById(
+            "riskBadge"
+        );
+
+
+    badge.innerText =
+        incident.risk;
+
+
+    badge.className =
+        "risk-badge";
+
+
+    if (
+        incident.risk ===
+        "CRITICAL"
+    ) {
+
+        badge.style.background =
+            "#451a20";
+
+        badge.style.color =
+            "#ff6975";
+
+    }
+
+    else if (
+        incident.risk ===
+        "HIGH"
+    ) {
+
+        badge.style.background =
+            "#3c2520";
+
+        badge.style.color =
+            "#ffae75";
+
+    }
+
+    else {
+
+        badge.style.background =
+            "#40391d";
+
+        badge.style.color =
+            "#ffd978";
+
+    }
+
+
+    document.getElementById(
+        "riskScore"
+    ).innerText =
+        incident.score;
+
+
+    document.getElementById(
+        "peopleImpact"
+    ).innerText =
+        incident.peopleImpact;
+
+
+    document.getElementById(
+        "accessImpact"
+    ).innerText =
+        incident.accessImpact;
+
+
+    document.getElementById(
+        "infrastructureImpact"
+    ).innerText =
+        incident.infrastructureImpact;
+
+
+    const actionList =
+        document.getElementById(
+            "actionList"
+        );
+
+
+    actionList.innerHTML =
+        "";
+
+
+    incident.actions.forEach(
+        function(action) {
+
+            const li =
+                document.createElement(
+                    "li"
+                );
+
+            li.innerText =
+                action;
+
+            actionList.appendChild(
+                li
+            );
 
         }
     );
 
 
     document.getElementById(
-        "incidentResult"
-    ).innerHTML = `
-
-        <div class="risk-banner">
-
-            <h2>
-                ${escapeHTML(risk)} RISK
-            </h2>
-
-            <div class="risk-score">
-                ${score}/100
-            </div>
-
-        </div>
-
-
-        <div class="impact-grid">
-
-            <div class="impact-card">
-
-                <small>
-                    Impact on People
-                </small>
-
-                <strong>
-                    ${peopleImpact}
-                </strong>
-
-            </div>
-
-
-            <div class="impact-card">
-
-                <small>
-                    Access Impact
-                </small>
-
-                <strong>
-                    ${accessImpact}
-                </strong>
-
-            </div>
-
-
-            <div class="impact-card">
-
-                <small>
-                    Infrastructure
-                </small>
-
-                <strong>
-                    ${infrastructureImpact}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>
-                Recommended Actions
-            </h3>
-
-            <br>
-
-            <ul class="actions-list">
-
-                ${actionHTML}
-
-            </ul>
-
-        </div>
-
-
-        <div class="voice-panel">
-
-            <h3>
-                🔊 Voice Incident Briefing
-            </h3>
-
-            <p>
-                The system can read the incident information
-                aloud for users who may have difficulty reading
-                the dashboard during an emergency.
-            </p>
-
-
-            <div class="voice-controls">
-
-                <button
-                    class="btn-primary"
-                    onclick="speakIncidentBriefing()"
-                >
-                    🔊 LISTEN TO INCIDENT BRIEFING
-                </button>
-
-
-                <button
-                    class="btn-secondary"
-                    onclick="stopIncidentVoice()"
-                >
-                    ⏹ STOP VOICE
-                </button>
-
-            </div>
-
-
-            <div
-                id="voiceStatus"
-                class="voice-status"
-            >
-                Voice briefing ready.
-
-            </div>
-
-        </div>
-
-
-        <div class="prototype-note">
-
-            Prototype intelligence note:
-            incident risk is currently assessed using
-            rule-based logic for demonstration purposes.
-            It is not a production emergency-response AI.
-
-        </div>
-
-
-        <br>
-
-
-        <button
-            class="btn-primary"
-            onclick="generateIncidentReport()"
-        >
-            📄 GENERATE INCIDENT REPORT
-        </button>
-
-
-        <button
-            class="btn-secondary"
-            onclick="document.getElementById('report').scrollIntoView()"
-        >
-            VIEW REPORT CENTER
-        </button>
-
-    `;
-
-
-    document.getElementById(
         "dashboardRisk"
     ).innerText =
-        risk;
-
-
-    document.getElementById(
-        "dashboardAlerts"
-    ).innerText =
-        "1";
-
-
-    document.getElementById(
-        "dashboardSystem"
-    ).innerText =
-        "ANALYZING";
-
-
-    document.getElementById(
-        "aiAnalysis"
-    ).innerText =
-
-        `${type} incident analyzed. Risk assessed as ${risk} with a score of ${score}/100.`;
-
-
-    document.getElementById(
-        "responseRecommendation"
-    ).innerText =
-        actions.join(" ");
-
-
-    addTimeline(
-        `${type} incident analyzed. Risk: ${risk}.`
-    );
-
-
-    displayIncidentHistory();
+        incident.risk;
 
 
     if (
-        currentLatitude === null ||
-        currentLongitude === null
+        incident.risk ===
+        "CRITICAL"
     ) {
 
-        getLocation();
-
-        setTimeout(() => {
-
-            showIncident(true);
-
-        }, 1500);
-
-    } else {
-
-        showIncident(true);
+        document.getElementById(
+            "dashboardRisk"
+        ).className =
+            "metric-value risk-critical";
 
     }
 
+    else if (
+        incident.risk ===
+        "HIGH"
+    ) {
 
-    startRecoveryTracking();
+        document.getElementById(
+            "dashboardRisk"
+        ).className =
+            "metric-value risk-high";
 
+    }
 
-    /*
-       Automatically start voice briefing
-       one second after analysis.
-    */
+    else {
 
-    setTimeout(() => {
+        document.getElementById(
+            "dashboardRisk"
+        ).className =
+            "metric-value risk-medium";
 
-        speakIncidentBriefing();
-
-    }, 1000);
+    }
 
 }
 
 
 /* =========================================================
-   VOICE INCIDENT BRIEFING
+VOICE BRIEFING
 ========================================================= */
 
 function speakIncidentBriefing() {
@@ -3645,609 +3820,1196 @@ function speakIncidentBriefing() {
     }
 
 
-    /*
-       Stop previous speech.
-    */
+    if (
+        !("speechSynthesis" in window)
+    ) {
+
+        alert(
+            "Voice playback is not supported by this browser."
+        );
+
+        return;
+
+    }
+
+
     window.speechSynthesis.cancel();
+
+
     const incident =
         latestIncidentAnalysis;
+
+
     const message = `
+
         Emergency incident briefing.
+
         Incident type:
         ${incident.type}.
+
         Incident title:
         ${incident.title}.
+
         Risk level:
         ${incident.risk}.
+
         Risk score:
         ${incident.score} out of 100.
+
         Location:
         ${incident.location}.
+
         Impact on people:
         ${incident.peopleImpact}.
+
         Access impact:
         ${incident.accessImpact}.
+
         Infrastructure impact:
         ${incident.infrastructureImpact}.
+
         Recommended actions.
-        ${incident.actions.join(". ")}
+
+        ${incident.actions.join(". ")}.
+
         Recovery status:
         ${incident.recoveryStatus}.
+
         This is a prototype emergency intelligence briefing.
+
         Please follow your organization's emergency procedures
         and contact appropriate emergency services when necessary.
+
     `;
+
+
     const speech =
         new SpeechSynthesisUtterance(
             message
         );
+
+
     speech.rate =
         0.88;
+
+
     speech.pitch =
         1;
+
+
     speech.volume =
         1;
-    /*
-       Try to find an English voice.
-    */
+
+
     const voices =
-        window.speechSynthesis
-            .getVoices();
+        window.speechSynthesis.getVoices();
+
+
     const englishVoice =
         voices.find(
             voice =>
                 voice.lang
-                    .toLowerCase()
-                    .startsWith("en")
+                .toLowerCase()
+                .startsWith("en")
         );
+
+
     if (englishVoice) {
+
         speech.voice =
             englishVoice;
 
     }
+
+
     const status =
         document.getElementById(
             "voiceStatus"
         );
+
+
     if (status) {
+
         status.innerText =
             "🔊 Speaking incident briefing...";
+
     }
-    speech.onend = function() {
-        if (status) {
-            status.innerText =
-                "✓ Voice briefing completed.";
-        }
-    };
-    speech.onerror = function() {
-        if (status) {
-            status.innerText =
-                "Voice playback unavailable.";
-        }
-    };
+
+
+    speech.onend =
+        function() {
+
+            if (status) {
+
+                status.innerText =
+                    "✓ Voice briefing completed.";
+
+            }
+
+        };
+
+
+    speech.onerror =
+        function() {
+
+            if (status) {
+
+                status.innerText =
+                    "Voice playback unavailable.";
+
+            }
+
+        };
+
+
     window.speechSynthesis.speak(
         speech
     );
+
+
     addTimeline(
         "Voice incident briefing started."
     );
+
 }
-/* =========================================================
-   STOP VOICE
-========================================================= */
+
+
 function stopIncidentVoice() {
-    window.speechSynthesis.cancel();
+
+    if (
+        "speechSynthesis" in window
+    ) {
+
+        window.speechSynthesis.cancel();
+
+    }
+
+
     const status =
         document.getElementById(
             "voiceStatus"
         );
+
+
     if (status) {
+
         status.innerText =
             "Voice briefing stopped.";
+
     }
+
+
     addTimeline(
         "Voice incident briefing stopped."
     );
+
 }
+
+
 /* =========================================================
-   REPORT GENERATOR
+HISTORY
 ========================================================= */
-function generateIncidentReport() {
+
+function saveIncidentHistory() {
+
     if (!latestIncidentAnalysis) {
-        alert(
-            "Analyze an incident first."
-        );
+
         return;
+
     }
+
+
+    let history =
+        JSON.parse(
+            localStorage.getItem(
+                "resilienceIncidentHistory"
+            ) || "[]"
+        );
+
+
     const incident =
         latestIncidentAnalysis;
-    const reportId =
-        "RSAI-" +
-        new Date()
-            .getFullYear() +
-        "-" +
-        Math.floor(
-            100000 +
-            Math.random() *
-            900000
+
+
+    history.unshift({
+
+        id:
+            incident.id,
+
+        type:
+            incident.type,
+
+        title:
+            incident.title,
+
+        description:
+            incident.description,
+
+        location:
+            incident.location,
+
+        risk:
+            incident.risk,
+
+        score:
+            incident.score,
+
+        recoveryStatus:
+            incident.recoveryStatus,
+
+        createdAt:
+            new Date().toLocaleString()
+
+    });
+
+
+    history =
+        history.slice(
+            0,
+            50
         );
+
+
+    localStorage.setItem(
+        "resilienceIncidentHistory",
+        JSON.stringify(history)
+    );
+
+
+    loadHistory();
+
+}
+
+
+function loadHistory() {
+
+    const history =
+        JSON.parse(
+            localStorage.getItem(
+                "resilienceIncidentHistory"
+            ) || "[]"
+        );
+
+
+    const body =
+        document.getElementById(
+            "historyBody"
+        );
+
+
+    if (!body) {
+
+        return;
+
+    }
+
+
+    body.innerHTML =
+        "";
+
+
+    history.forEach(
+        function(item) {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${item.id}
+                </td>
+
+                <td>
+                    ${item.type}
+                </td>
+
+                <td>
+                    ${escapeHTML(item.title)}
+                </td>
+
+                <td>
+                    ${escapeHTML(item.location)}
+                </td>
+
+                <td>
+                    ${item.risk}
+                </td>
+
+                <td>
+                    ${item.score}
+                </td>
+
+                <td>
+                    <span class="status-pill">
+                        ${item.recoveryStatus}
+                    </span>
+                </td>
+
+                <td>
+                    ${item.createdAt}
+                </td>
+
+            `;
+
+
+            body.appendChild(
+                row
+            );
+
+        }
+    );
+
+
     document.getElementById(
-        "reportEmpty"
-    ).style.display =
-        "none";
+        "historyCount"
+    ).innerText =
+        `${history.length} incident${history.length === 1 ? "" : "s"}`;
+
+}
+
+
+function clearHistory() {
+
+    if (
+        !confirm(
+            "Clear all saved incident history?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    localStorage.removeItem(
+        "resilienceIncidentHistory"
+    );
+
+
+    loadHistory();
+
+
+    addTimeline(
+        "Incident history cleared."
+    );
+
+}
+
+
+function updateActiveIncidentStatus(
+    status
+) {
+
+    if (!activeIncidentId) {
+
+        return;
+
+    }
+
+
+    let history =
+        JSON.parse(
+            localStorage.getItem(
+                "resilienceIncidentHistory"
+            ) || "[]"
+        );
+
+
+    history =
+        history.map(
+            function(item) {
+
+                if (
+                    item.id ===
+                    activeIncidentId
+                ) {
+
+                    item.recoveryStatus =
+                        status;
+
+                }
+
+                return item;
+
+            }
+        );
+
+
+    localStorage.setItem(
+        "resilienceIncidentHistory",
+        JSON.stringify(history)
+    );
+
+
+    loadHistory();
+
+}
+
+
+/* =========================================================
+RECOVERY
+========================================================= */
+
+function startRecovery() {
+
+    recoveryTimers.forEach(
+        clearTimeout
+    );
+
+
+    recoveryTimers =
+        [];
+
+
+    if (!latestIncidentAnalysis) {
+
+        return;
+
+    }
+
+
+    latestIncidentAnalysis.recoveryStatus =
+        "ASSESSMENT";
+
+
+    updateActiveIncidentStatus(
+        "ASSESSMENT"
+    );
+
+
+    setRecovery(
+        0,
+        "ASSESSMENT"
+    );
+
+
+    recoveryTimers.push(
+        setTimeout(
+            function() {
+
+                latestIncidentAnalysis.recoveryStatus =
+                    "RESPONSE";
+
+                updateActiveIncidentStatus(
+                    "RESPONSE"
+                );
+
+                setRecovery(
+                    25,
+                    "RESPONSE"
+                );
+
+            },
+            5000
+        )
+    );
+
+
+    recoveryTimers.push(
+        setTimeout(
+            function() {
+
+                latestIncidentAnalysis.recoveryStatus =
+                    "STABILIZATION";
+
+                updateActiveIncidentStatus(
+                    "STABILIZATION"
+                );
+
+                setRecovery(
+                    50,
+                    "STABILIZATION"
+                );
+
+            },
+            10000
+        )
+    );
+
+
+    recoveryTimers.push(
+        setTimeout(
+            function() {
+
+                latestIncidentAnalysis.recoveryStatus =
+                    "RESTORATION";
+
+                updateActiveIncidentStatus(
+                    "RESTORATION"
+                );
+
+                setRecovery(
+                    75,
+                    "RESTORATION"
+                );
+
+            },
+            15000
+        )
+    );
+
+
+    recoveryTimers.push(
+        setTimeout(
+            function() {
+
+                latestIncidentAnalysis.recoveryStatus =
+                    "RECOVERED";
+
+                updateActiveIncidentStatus(
+                    "RECOVERED"
+                );
+
+                setRecovery(
+                    100,
+                    "RECOVERED"
+                );
+
+
+                document.getElementById(
+                    "reportRecoveryStatus"
+                ).innerText =
+                    "RECOVERED";
+
+
+                addTimeline(
+                    "Incident recovery completed."
+                );
+
+            },
+            20000
+        )
+    );
+
+}
+
+
+function setRecovery(
+    percentage,
+    status
+) {
+
     document.getElementById(
-        "reportDocument"
+        "recoveryProgress"
+    ).style.width =
+        percentage + "%";
+
+
+    document.getElementById(
+        "recoveryPercentage"
+    ).innerText =
+        `${percentage}% complete`;
+
+
+    document.getElementById(
+        "recoveryStatus"
+    ).innerText =
+        status;
+
+
+    for (
+        let i = 1;
+        i <= 5;
+        i++
+    ) {
+
+        const step =
+            document.getElementById(
+                "step" + i
+            );
+
+
+        step.classList.remove(
+            "active"
+        );
+
+    }
+
+
+    let activeStep =
+        1;
+
+
+    if (percentage >= 25)
+        activeStep = 2;
+
+    if (percentage >= 50)
+        activeStep = 3;
+
+    if (percentage >= 75)
+        activeStep = 4;
+
+    if (percentage >= 100)
+        activeStep = 5;
+
+
+    for (
+        let i = 1;
+        i <= activeStep;
+        i++
+    ) {
+
+        document.getElementById(
+            "step" + i
+        ).classList.add(
+            "active"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+REPORT
+========================================================= */
+
+function generateReport() {
+
+    if (!latestIncidentAnalysis) {
+
+        alert(
+            "Please analyze an incident first."
+        );
+
+        return;
+
+    }
+
+
+    const incident =
+        latestIncidentAnalysis;
+
+
+    document.getElementById(
+        "reportBox"
     ).style.display =
         "block";
-    document.getElementById(
-        "printReportButton"
-    ).style.display =
-        "inline-block";
+
+
     document.getElementById(
         "reportId"
     ).innerText =
-        reportId;
+        incident.id;
+
+
     document.getElementById(
         "reportDate"
     ).innerText =
-        new Date(
-            incident.date
-        ).toLocaleString();
+        new Date().toLocaleString();
+
+
     document.getElementById(
-        "reportIncidentType"
+        "reportIncident"
     ).innerText =
-        incident.type;
+        `${incident.type} — ${incident.title}`;
+
+
     document.getElementById(
-        "reportIncidentTitle"
-    ).innerText =
-        incident.title;
-    document.getElementById(
-        "reportIncidentLocation"
+        "reportLocation"
     ).innerText =
         incident.location;
-    document.getElementById(
-        "reportRisk"
-    ).innerText =
-        incident.risk;
-    document.getElementById(
-        "reportScore"
-    ).innerText =
-        incident.score +
-        " / 100";
+
+
     document.getElementById(
         "reportDescription"
     ).innerText =
         incident.description;
+
+
     document.getElementById(
-        "reportPeopleImpact"
+        "reportRisk"
+    ).innerText =
+        incident.risk;
+
+
+    document.getElementById(
+        "reportScore"
+    ).innerText =
+        incident.score + " / 100";
+
+
+    document.getElementById(
+        "reportPeople"
     ).innerText =
         incident.peopleImpact;
+
+
     document.getElementById(
-        "reportAccessImpact"
+        "reportAccess"
     ).innerText =
         incident.accessImpact;
+
+
     document.getElementById(
-        "reportInfrastructureImpact"
+        "reportInfrastructure"
     ).innerText =
         incident.infrastructureImpact;
+
+
     document.getElementById(
         "reportRecoveryStatus"
     ).innerText =
         incident.recoveryStatus;
-    document.getElementById(
-        "reportLatitude"
-    ).innerText =
-        currentLatitude !== null
-            ? currentLatitude.toFixed(6)
-            : "--";
-    document.getElementById(
-        "reportLongitude"
-    ).innerText =
+
+
+    if (
+        currentLatitude !== null &&
         currentLongitude !== null
-            ? currentLongitude.toFixed(6)
-            : "--";
-    document.getElementById(
-        "reportRouteDistance"
-    ).innerText =
+    ) {
+
         document.getElementById(
-            "routeDistance"
-        ).innerText;
-    document.getElementById(
-        "reportRouteETA"
-    ).innerText =
+            "reportCoordinates"
+        ).innerText =
+            `${currentLatitude.toFixed(6)}, ${currentLongitude.toFixed(6)}`;
+
+    }
+
+    else {
+
         document.getElementById(
-            "routeETA"
-        ).innerText;
-    const actionsContainer =
+            "reportCoordinates"
+        ).innerText =
+            "Not available";
+
+    }
+
+
+    const actions =
         document.getElementById(
             "reportActions"
         );
-    actionsContainer.innerHTML = "";
+
+
+    actions.innerHTML =
+        "";
+
+
     incident.actions.forEach(
-        action => {
+        function(action) {
+
             const li =
-                document.createElement("li");
+                document.createElement(
+                    "li"
+                );
+
             li.innerText =
                 action;
-            actionsContainer.appendChild(
+
+            actions.appendChild(
                 li
             );
+
         }
     );
+
+
+    const routeText =
+        document.getElementById(
+            "routeInfo"
+        ).innerText;
+
+
+    document.getElementById(
+        "reportRoute"
+    ).innerText =
+        routeText;
+
 
     document.getElementById(
         "report"
     ).scrollIntoView({
         behavior: "smooth"
     });
+
+
     addTimeline(
         "Incident report generated."
     );
-}
-/* =========================================================
-   PRINT REPORT
-========================================================= */
-function printIncidentReport() {
-    if (!latestIncidentAnalysis) {
-        alert(
-            "Generate an incident report first."
-        );
-        return;
-    }
-    window.print();
-}
-/* =========================================================
-   HISTORY STORAGE
-========================================================= */
-function getIncidentHistory() {
-    try {
-        return JSON.parse(
-            localStorage.getItem(
-                "resilienceIncidentHistory"
-            )
-        ) || [];
-    } catch {
-        return [];
-    }
-}
-/* =========================================================
-   SAVE HISTORY
-========================================================= */
-function saveIncidentHistory(record) {
-    const history =
-        getIncidentHistory();
-    history.unshift(record);
-    localStorage.setItem(
-        "resilienceIncidentHistory",
-        JSON.stringify(
-            history
-        )
-    );
-    displayIncidentHistory();
-}
-/* =========================================================
-   UPDATE ACTIVE HISTORY STATUS
-========================================================= */
-function updateActiveIncidentStatus(
-    status
-) {
-    if (!activeIncidentId) return;
-    const history =
-        getIncidentHistory();
-    const incident =
-        history.find(
-            item =>
-                item.id ===
-                activeIncidentId
-        );
-    if (incident) {
-        incident.recoveryStatus =
-            status;
-        localStorage.setItem(
-            "resilienceIncidentHistory",
-            JSON.stringify(
-                history
-            )
-        );
-        displayIncidentHistory();
-    }
-}
-/* =========================================================
-   DISPLAY HISTORY
-========================================================= */
-function displayIncidentHistory() {
-    const history =
-        getIncidentHistory();
-    const tbody =
-        document.getElementById(
-            "historyTableBody"
-        );
-    const count =
-        document.getElementById(
-            "historyCount"
-        );
-    count.innerText =
-        history.length;
-    tbody.innerHTML = "";
-    if (history.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td
-                    colspan="7"
-                    style="text-align:center;"
-                >
-                    No incidents recorded yet.
-                </td>
-            </tr>
-        `;
-        return;
-    }
-    history.forEach(
-        item => {
-            const row =
-                document.createElement("tr");
-            const statusClass =
-                item.recoveryStatus ===
-                "RECOVERED"
-                    ? "status-recovered"
-                    : "status-progress";
-            row.innerHTML = `
-                <td>
-                    ${item.id}
-                </td>
-                <td>
-                    ${escapeHTML(item.type)}
-                </td>
-                <td>
-                    ${escapeHTML(item.title)}
-                </td>
-                <td>
-                    ${escapeHTML(item.risk)}
-                </td>
-                <td>
-                    ${item.score}/100
-                </td>
-                <td>
-                    <span
-                        class="status-pill ${statusClass}"
-                    >
-                        ${escapeHTML(
-                            item.recoveryStatus
-                        )}
-                    </span>
-                </td>
-                <td>
-                    ${formatHistoryDate(
-                        item.createdAt
-                    )}
-                </td>
-            `;
-            tbody.appendChild(
-                row
-            );
-        }
-    );
+
 }
 
-/* =========================================================
-   FORMAT DATE
-========================================================= */
-function formatHistoryDate(
-    date
-) {
-    return new Date(
-        date
-    ).toLocaleString(
-        [],
-        {
-            dateStyle: "short",
-            timeStyle: "short"
-        }
-    );
-}
-/* =========================================================
-   CLEAR HISTORY
-========================================================= */
-function clearIncidentHistory() {
 
-    const confirmClear =
-        confirm(
-            "Clear all incident history?"
-        );
-    if (!confirmClear) return;
-    localStorage.removeItem(
-        "resilienceIncidentHistory"
-    );
-    displayIncidentHistory();
-}
 /* =========================================================
-   RESET SYSTEM
+DASHBOARD
 ========================================================= */
-function resetSystem() {
-    emergencyTimers.forEach(
-        timer => clearTimeout(timer)
-    );
-    recoveryTimers.forEach(
-        timer => clearTimeout(timer)
-    );
-    emergencyTimers = [];
-    recoveryTimers = [];
-    emergencyRunning =
-        false;
-    window.speechSynthesis.cancel();
+
+function updateDashboard() {
+
     document.getElementById(
         "systemStatus"
     ).innerText =
-        "● SYSTEM READY";
+        "ONLINE";
+
+
     document.getElementById(
-        "dashboardSystem"
+        "devicesOnline"
     ).innerText =
-        "READY";
+        "24";
+
+}
+
+
+function updateDashboardFromIncident() {
+
+    if (!latestIncidentAnalysis) {
+
+        return;
+
+    }
+
+
+    const incident =
+        latestIncidentAnalysis;
+
+
+    document.getElementById(
+        "dashboardAlerts"
+    ).innerText =
+        "1";
+
+
+    document.getElementById(
+        "dashboardAnalysis"
+    ).innerText =
+        `${incident.type} detected at ${incident.location}. Risk classified as ${incident.risk} with a score of ${incident.score}/100. People impact: ${incident.peopleImpact}. Access impact: ${incident.accessImpact}. Infrastructure impact: ${incident.infrastructureImpact}.`;
+
+
+    if (
+        incident.type === "Fire"
+    ) {
+
+        document.getElementById(
+            "temperatureSignal"
+        ).innerText =
+            "Elevated";
+
+        document.getElementById(
+            "airSignal"
+        ).innerText =
+            "Poor";
+
+    }
+
+    else if (
+        incident.type === "Flood"
+    ) {
+
+        document.getElementById(
+            "waterSignal"
+        ).innerText =
+            "Elevated";
+
+    }
+
+    else if (
+        incident.type === "Storm"
+    ) {
+
+        document.getElementById(
+            "temperatureSignal"
+        ).innerText =
+            "Unstable";
+
+    }
+
+}
+
+
+/* =========================================================
+TIMELINE
+========================================================= */
+
+function addTimeline(
+    message
+) {
+
+    const timeline =
+        document.getElementById(
+            "timeline"
+        );
+
+
+    if (!timeline) {
+
+        return;
+
+    }
+
+
+    const item =
+        document.createElement(
+            "div"
+        );
+
+
+    item.className =
+        "timeline-item";
+
+
+    item.innerHTML = `
+
+        <div class="timeline-time">
+            ${new Date().toLocaleTimeString()}
+        </div>
+
+        <div class="timeline-text">
+            ${escapeHTML(message)}
+        </div>
+
+    `;
+
+
+    timeline.prepend(
+        item
+    );
+
+}
+
+
+/* =========================================================
+EMERGENCY SIMULATION
+========================================================= */
+
+function simulateEmergency() {
+
+    if (emergencyRunning) {
+
+        return;
+
+    }
+
+
+    emergencyRunning =
+        true;
+
+
+    document.getElementById(
+        "dashboardAlerts"
+    ).innerText =
+        "1";
+
+
+    document.getElementById(
+        "dashboardRisk"
+    ).innerText =
+        "CRITICAL";
+
+
+    document.getElementById(
+        "dashboardRisk"
+    ).className =
+        "metric-value risk-critical";
+
+
+    document.getElementById(
+        "dashboardAnalysis"
+    ).innerText =
+        "Critical emergency signal detected. Prototype intelligence is evaluating potential human, access and infrastructure impact.";
+
+
+    document.getElementById(
+        "temperatureSignal"
+    ).innerText =
+        "HIGH";
+
+
+    document.getElementById(
+        "airSignal"
+    ).innerText =
+        "POOR";
+
+
+    document.getElementById(
+        "waterSignal"
+    ).innerText =
+        "ELEVATED";
+
+
+    addTimeline(
+        "⚠ Emergency signal detected."
+    );
+
+
+    emergencyTimers.push(
+        setTimeout(
+            function() {
+
+                addTimeline(
+                    "AI risk assessment initiated."
+                );
+
+            },
+            1000
+        )
+    );
+
+
+    emergencyTimers.push(
+        setTimeout(
+            function() {
+
+                addTimeline(
+                    "Potential impact identified."
+                );
+
+            },
+            2000
+        )
+    );
+
+
+    emergencyTimers.push(
+        setTimeout(
+            function() {
+
+                addTimeline(
+                    "Recommended response actions generated."
+                );
+
+                emergencyRunning =
+                    false;
+
+            },
+            3000
+        )
+    );
+
+}
+
+
+function resetSystem() {
+
+    emergencyTimers.forEach(
+        clearTimeout
+    );
+
+
+    recoveryTimers.forEach(
+        clearTimeout
+    );
+
+
+    emergencyTimers =
+        [];
+
+
+    recoveryTimers =
+        [];
+
+
+    emergencyRunning =
+        false;
+
+
+    latestIncidentAnalysis =
+        null;
+
+
+    activeIncidentId =
+        null;
+
+
+    document.getElementById(
+        "systemStatus"
+    ).innerText =
+        "ONLINE";
+
+
     document.getElementById(
         "dashboardRisk"
     ).innerText =
         "LOW";
+
+
+    document.getElementById(
+        "dashboardRisk"
+    ).className =
+        "metric-value risk-low";
+
+
     document.getElementById(
         "dashboardAlerts"
     ).innerText =
         "0";
+
+
     document.getElementById(
-        "dashboardDevices"
+        "dashboardAnalysis"
     ).innerText =
-        "12";
+        "No active incident. System monitoring environment and waiting for new information.";
+
+
     document.getElementById(
-        "aiAnalysis"
+        "temperatureSignal"
     ).innerText =
-        "No active incident. System is monitoring incoming signals.";
+        "Normal";
+
+
     document.getElementById(
-        "responseRecommendation"
+        "airSignal"
     ).innerText =
-        "No emergency detected. Response intelligence is standing by.";
+        "Good";
+
+
     document.getElementById(
-        "sensorTemp"
+        "waterSignal"
     ).innerText =
-        "NORMAL";
+        "Normal";
+
+
     document.getElementById(
-        "sensorSmoke"
-    ).innerText =
-        "NORMAL";
+        "aiResult"
+    ).style.display =
+        "none";
+
+
     document.getElementById(
-        "sensorMotion"
-    ).innerText =
-        "NORMAL";
-    document.getElementById(
-        "sensorStructure"
-    ).innerText =
-        "NORMAL";
-    document.getElementById(
-        "mainRecoveryProgress"
-    ).style.width =
-        "0%";
-    document.getElementById(
-        "progressText"
-    ).innerText =
-        "0%";
-    document.getElementById(
-        "recoveryMessage"
-    ).innerText =
-        "Recovery monitoring has not started.";
-    document.getElementById(
-        "emergencyStatus"
-    ).innerText =
-        "STANDBY";
-    document.getElementById(
-        "routeDistance"
-    ).innerText =
-        "--";
-    document.getElementById(
-        "routeETA"
-    ).innerText =
-        "--";
-    document.getElementById(
-        "incidentResult"
-    ).innerHTML =
-        "";
-    latestIncidentAnalysis =
-        null;
-    activeIncidentId =
-        null;
-    if (incidentMarker) {
-        map.removeLayer(
-            incidentMarker
-        );
-        incidentMarker =
-            null;
-    }
-    if (routeLine) {
-        map.removeLayer(
-            routeLine
-        );
-        routeLine =
-            null;
-    }
-    document.getElementById(
-        "timeline"
-    ).innerHTML = `
-        <div class="timeline-item">
-            <div class="timeline-time">
-                ${new Date().toLocaleTimeString(
-                    [],
-                    {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    }
-                )}
-            </div>
-            <div>
-                System reset and monitoring resumed.
-            </div>
-        </div>
-    `;
-    addTimeline(
-        "System reset."
+        "reportBox"
+    ).style.display =
+        "none";
+
+
+    setRecovery(
+        0,
+        "WAITING FOR INCIDENT"
     );
+
+
+    addTimeline(
+        "System reset completed."
+    );
+
 }
+
+
 /* =========================================================
-   ESCAPE HTML
+SECURITY HELPER
 ========================================================= */
+
 function escapeHTML(
-    text
+    value
 ) {
-    return String(text)
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
+
+    const div =
+        document.createElement(
+            "div"
         );
+
+
+    div.textContent =
+        value ?? "";
+
+
+    return div.innerHTML;
+
 }
-/* =========================================================
-   PAGE LOAD
-========================================================= */
-window.addEventListener(
-    "load",
-    function() {
-        initializeMap();
-        displayIncidentHistory();
-        setTimeout(
-            () => {
-                if (map) {
-                 map.invalidateSize();
-                }
-            },
-            500
-        );
-        /*
-           Load browser voices.
-           Some browsers populate voices asynchronously.
-        */
-        window.speechSynthesis
-            .getVoices();
-    }
-);
-/*
-   Some browsers load voices after page startup.
-*/
-window.speechSynthesis
-    .onvoiceschanged =
-    function() {
-        window.speechSynthesis
-            .getVoices();
-    };
+
 </script>
+
 </body>
 </html>
