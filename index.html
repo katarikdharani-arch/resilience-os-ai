@@ -3648,83 +3648,51 @@ function speakIncidentBriefing() {
     /*
        Stop previous speech.
     */
-
     window.speechSynthesis.cancel();
-
-
     const incident =
         latestIncidentAnalysis;
-
-
     const message = `
-
         Emergency incident briefing.
-
         Incident type:
         ${incident.type}.
-
         Incident title:
         ${incident.title}.
-
         Risk level:
         ${incident.risk}.
-
         Risk score:
         ${incident.score} out of 100.
-
         Location:
         ${incident.location}.
-
         Impact on people:
         ${incident.peopleImpact}.
-
         Access impact:
         ${incident.accessImpact}.
-
         Infrastructure impact:
         ${incident.infrastructureImpact}.
-
         Recommended actions.
-
         ${incident.actions.join(". ")}
-
         Recovery status:
         ${incident.recoveryStatus}.
-
         This is a prototype emergency intelligence briefing.
         Please follow your organization's emergency procedures
         and contact appropriate emergency services when necessary.
-
     `;
-
-
     const speech =
         new SpeechSynthesisUtterance(
             message
         );
-
-
     speech.rate =
         0.88;
-
-
     speech.pitch =
         1;
-
-
     speech.volume =
         1;
-
-
     /*
        Try to find an English voice.
     */
-
     const voices =
         window.speechSynthesis
             .getVoices();
-
-
     const englishVoice =
         voices.find(
             voice =>
@@ -3732,117 +3700,67 @@ function speakIncidentBriefing() {
                     .toLowerCase()
                     .startsWith("en")
         );
-
-
     if (englishVoice) {
-
         speech.voice =
             englishVoice;
 
     }
-
-
     const status =
         document.getElementById(
             "voiceStatus"
         );
-
-
     if (status) {
-
         status.innerText =
             "🔊 Speaking incident briefing...";
-
     }
-
-
     speech.onend = function() {
-
         if (status) {
-
             status.innerText =
                 "✓ Voice briefing completed.";
-
         }
-
     };
-
-
     speech.onerror = function() {
-
         if (status) {
-
             status.innerText =
                 "Voice playback unavailable.";
-
         }
-
     };
-
-
     window.speechSynthesis.speak(
         speech
     );
-
-
     addTimeline(
         "Voice incident briefing started."
     );
-
 }
-
-
 /* =========================================================
    STOP VOICE
 ========================================================= */
-
 function stopIncidentVoice() {
-
     window.speechSynthesis.cancel();
-
-
     const status =
         document.getElementById(
             "voiceStatus"
         );
-
-
     if (status) {
-
         status.innerText =
             "Voice briefing stopped.";
-
     }
-
-
     addTimeline(
         "Voice incident briefing stopped."
     );
-
 }
-
-
 /* =========================================================
    REPORT GENERATOR
 ========================================================= */
-
 function generateIncidentReport() {
-
     if (!latestIncidentAnalysis) {
-
         alert(
             "Analyze an incident first."
         );
-
         return;
-
     }
-
-
     const incident =
         latestIncidentAnalysis;
-
-
     const reportId =
         "RSAI-" +
         new Date()
@@ -3853,385 +3771,243 @@ function generateIncidentReport() {
             Math.random() *
             900000
         );
-
-
     document.getElementById(
         "reportEmpty"
     ).style.display =
         "none";
-
-
     document.getElementById(
         "reportDocument"
     ).style.display =
         "block";
-
-
     document.getElementById(
         "printReportButton"
     ).style.display =
         "inline-block";
-
-
     document.getElementById(
         "reportId"
     ).innerText =
         reportId;
-
-
     document.getElementById(
         "reportDate"
     ).innerText =
         new Date(
             incident.date
         ).toLocaleString();
-
-
     document.getElementById(
         "reportIncidentType"
     ).innerText =
         incident.type;
-
-
     document.getElementById(
         "reportIncidentTitle"
     ).innerText =
         incident.title;
-
-
     document.getElementById(
         "reportIncidentLocation"
     ).innerText =
         incident.location;
-
-
     document.getElementById(
         "reportRisk"
     ).innerText =
         incident.risk;
-
-
     document.getElementById(
         "reportScore"
     ).innerText =
         incident.score +
         " / 100";
-
-
     document.getElementById(
         "reportDescription"
     ).innerText =
         incident.description;
-
-
     document.getElementById(
         "reportPeopleImpact"
     ).innerText =
         incident.peopleImpact;
-
-
     document.getElementById(
         "reportAccessImpact"
     ).innerText =
         incident.accessImpact;
-
-
     document.getElementById(
         "reportInfrastructureImpact"
     ).innerText =
         incident.infrastructureImpact;
-
-
     document.getElementById(
         "reportRecoveryStatus"
     ).innerText =
         incident.recoveryStatus;
-
-
     document.getElementById(
         "reportLatitude"
     ).innerText =
         currentLatitude !== null
             ? currentLatitude.toFixed(6)
             : "--";
-
-
     document.getElementById(
         "reportLongitude"
     ).innerText =
         currentLongitude !== null
             ? currentLongitude.toFixed(6)
             : "--";
-
-
     document.getElementById(
         "reportRouteDistance"
     ).innerText =
         document.getElementById(
             "routeDistance"
         ).innerText;
-
-
     document.getElementById(
         "reportRouteETA"
     ).innerText =
         document.getElementById(
             "routeETA"
         ).innerText;
-
-
     const actionsContainer =
         document.getElementById(
             "reportActions"
         );
-
-
     actionsContainer.innerHTML = "";
-
-
     incident.actions.forEach(
         action => {
-
             const li =
                 document.createElement("li");
-
             li.innerText =
                 action;
-
             actionsContainer.appendChild(
                 li
             );
-
         }
     );
-
 
     document.getElementById(
         "report"
     ).scrollIntoView({
         behavior: "smooth"
     });
-
-
     addTimeline(
         "Incident report generated."
     );
-
 }
-
-
 /* =========================================================
    PRINT REPORT
 ========================================================= */
-
 function printIncidentReport() {
-
     if (!latestIncidentAnalysis) {
-
         alert(
             "Generate an incident report first."
         );
-
         return;
-
     }
-
-
     window.print();
-
 }
-
-
 /* =========================================================
    HISTORY STORAGE
 ========================================================= */
-
 function getIncidentHistory() {
-
     try {
-
         return JSON.parse(
             localStorage.getItem(
                 "resilienceIncidentHistory"
             )
         ) || [];
-
     } catch {
-
         return [];
-
     }
-
 }
-
-
 /* =========================================================
    SAVE HISTORY
 ========================================================= */
-
 function saveIncidentHistory(record) {
-
     const history =
         getIncidentHistory();
-
-
     history.unshift(record);
-
-
     localStorage.setItem(
-
         "resilienceIncidentHistory",
-
         JSON.stringify(
             history
         )
-
     );
-
-
     displayIncidentHistory();
-
 }
-
-
 /* =========================================================
    UPDATE ACTIVE HISTORY STATUS
 ========================================================= */
-
 function updateActiveIncidentStatus(
     status
 ) {
-
     if (!activeIncidentId) return;
-
-
     const history =
         getIncidentHistory();
-
-
     const incident =
         history.find(
             item =>
                 item.id ===
                 activeIncidentId
         );
-
-
     if (incident) {
-
         incident.recoveryStatus =
             status;
-
-
         localStorage.setItem(
-
             "resilienceIncidentHistory",
-
             JSON.stringify(
                 history
             )
-
         );
-
-
         displayIncidentHistory();
-
     }
-
 }
-
-
 /* =========================================================
    DISPLAY HISTORY
 ========================================================= */
-
 function displayIncidentHistory() {
-
     const history =
         getIncidentHistory();
-
-
     const tbody =
         document.getElementById(
             "historyTableBody"
         );
-
-
     const count =
         document.getElementById(
             "historyCount"
         );
-
-
     count.innerText =
         history.length;
-
-
     tbody.innerHTML = "";
-
-
     if (history.length === 0) {
-
         tbody.innerHTML = `
-
             <tr>
-
                 <td
                     colspan="7"
                     style="text-align:center;"
                 >
                     No incidents recorded yet.
                 </td>
-
             </tr>
-
         `;
-
         return;
-
     }
-
-
     history.forEach(
         item => {
-
             const row =
                 document.createElement("tr");
-
-
             const statusClass =
                 item.recoveryStatus ===
                 "RECOVERED"
-
                     ? "status-recovered"
-
                     : "status-progress";
-
-
             row.innerHTML = `
-
                 <td>
                     ${item.id}
                 </td>
-
                 <td>
                     ${escapeHTML(item.type)}
                 </td>
-
                 <td>
                     ${escapeHTML(item.title)}
                 </td>
-
                 <td>
                     ${escapeHTML(item.risk)}
                 </td>
-
                 <td>
                     ${item.score}/100
                 </td>
-
                 <td>
-
                     <span
                         class="status-pill ${statusClass}"
                     >
@@ -4239,36 +4015,26 @@ function displayIncidentHistory() {
                             item.recoveryStatus
                         )}
                     </span>
-
                 </td>
-
                 <td>
                     ${formatHistoryDate(
                         item.createdAt
                     )}
                 </td>
-
             `;
-
-
             tbody.appendChild(
                 row
             );
-
         }
     );
-
 }
-
 
 /* =========================================================
    FORMAT DATE
 ========================================================= */
-
 function formatHistoryDate(
     date
 ) {
-
     return new Date(
         date
     ).toLocaleString(
@@ -4278,209 +4044,131 @@ function formatHistoryDate(
             timeStyle: "short"
         }
     );
-
 }
-
-
 /* =========================================================
    CLEAR HISTORY
 ========================================================= */
-
 function clearIncidentHistory() {
 
     const confirmClear =
         confirm(
             "Clear all incident history?"
         );
-
-
     if (!confirmClear) return;
-
-
     localStorage.removeItem(
         "resilienceIncidentHistory"
     );
-
-
     displayIncidentHistory();
-
 }
-
-
 /* =========================================================
    RESET SYSTEM
 ========================================================= */
-
 function resetSystem() {
-
     emergencyTimers.forEach(
         timer => clearTimeout(timer)
     );
-
-
     recoveryTimers.forEach(
         timer => clearTimeout(timer)
     );
-
-
     emergencyTimers = [];
-
     recoveryTimers = [];
-
-
     emergencyRunning =
         false;
-
-
     window.speechSynthesis.cancel();
-
-
     document.getElementById(
         "systemStatus"
     ).innerText =
         "● SYSTEM READY";
-
-
     document.getElementById(
         "dashboardSystem"
     ).innerText =
         "READY";
-
-
     document.getElementById(
         "dashboardRisk"
     ).innerText =
         "LOW";
-
-
     document.getElementById(
         "dashboardAlerts"
     ).innerText =
         "0";
-
-
     document.getElementById(
         "dashboardDevices"
     ).innerText =
         "12";
-
-
     document.getElementById(
         "aiAnalysis"
     ).innerText =
         "No active incident. System is monitoring incoming signals.";
-
-
     document.getElementById(
         "responseRecommendation"
     ).innerText =
         "No emergency detected. Response intelligence is standing by.";
-
-
     document.getElementById(
         "sensorTemp"
     ).innerText =
         "NORMAL";
-
-
     document.getElementById(
         "sensorSmoke"
     ).innerText =
         "NORMAL";
-
-
     document.getElementById(
         "sensorMotion"
     ).innerText =
         "NORMAL";
-
-
     document.getElementById(
         "sensorStructure"
     ).innerText =
         "NORMAL";
-
-
     document.getElementById(
         "mainRecoveryProgress"
     ).style.width =
         "0%";
-
-
     document.getElementById(
         "progressText"
     ).innerText =
         "0%";
-
-
     document.getElementById(
         "recoveryMessage"
     ).innerText =
         "Recovery monitoring has not started.";
-
-
     document.getElementById(
         "emergencyStatus"
     ).innerText =
         "STANDBY";
-
-
     document.getElementById(
         "routeDistance"
     ).innerText =
         "--";
-
-
     document.getElementById(
         "routeETA"
     ).innerText =
         "--";
-
-
     document.getElementById(
         "incidentResult"
     ).innerHTML =
         "";
-
-
     latestIncidentAnalysis =
         null;
-
-
     activeIncidentId =
         null;
-
-
     if (incidentMarker) {
-
         map.removeLayer(
             incidentMarker
         );
-
         incidentMarker =
             null;
-
     }
-
-
     if (routeLine) {
-
         map.removeLayer(
             routeLine
         );
-
         routeLine =
             null;
-
     }
-
-
     document.getElementById(
         "timeline"
     ).innerHTML = `
-
         <div class="timeline-item">
-
             <div class="timeline-time">
                 ${new Date().toLocaleTimeString(
                     [],
@@ -4490,116 +4178,76 @@ function resetSystem() {
                     }
                 )}
             </div>
-
             <div>
                 System reset and monitoring resumed.
             </div>
-
         </div>
-
     `;
-
-
     addTimeline(
         "System reset."
     );
-
 }
-
-
 /* =========================================================
    ESCAPE HTML
 ========================================================= */
-
 function escapeHTML(
     text
 ) {
-
     return String(text)
-
         .replace(
             /&/g,
             "&amp;"
         )
-
         .replace(
             /</g,
             "&lt;"
         )
-
         .replace(
             />/g,
             "&gt;"
         )
-
         .replace(
             /"/g,
             "&quot;"
         )
-
         .replace(
             /'/g,
             "&#039;"
         );
-
 }
-
-
 /* =========================================================
    PAGE LOAD
 ========================================================= */
-
 window.addEventListener(
     "load",
     function() {
-
         initializeMap();
-
         displayIncidentHistory();
-
-
         setTimeout(
             () => {
-
                 if (map) {
-
-                    map.invalidateSize();
-
+                 map.invalidateSize();
                 }
-
             },
             500
         );
-
-
         /*
            Load browser voices.
            Some browsers populate voices asynchronously.
         */
-
         window.speechSynthesis
             .getVoices();
-
     }
 );
-
-
 /*
    Some browsers load voices after page startup.
 */
-
 window.speechSynthesis
     .onvoiceschanged =
     function() {
-
         window.speechSynthesis
             .getVoices();
-
     };
-
-
 </script>
-
 </body>
-
 </html>
