@@ -181,18 +181,64 @@
             background: #06141B;
             color: #8FAAB3;
         }
-        @media (max-width: 700px) {
-            h1 {
-                font-size: 42px;
-            }
-            nav {
-                flex-direction: column;
-                gap: 15px;
-            }
-            nav a {
-                margin: 0 8px;
-            }
-        }
+        @media.neo1-container {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    max-width: 1000px;
+    margin: auto;
+    background: #0F2D38;
+    padding: 40px;
+    border-radius: 18px;
+    border: 1px solid #214653;
+}
+
+.neo1-image {
+    flex: 1;
+    text-align: center;
+}
+
+.neo1-image img {
+    width: 100%;
+    max-width: 350px;
+    border-radius: 15px;
+}
+
+.neo1-info {
+    flex: 1;
+}
+
+.neo1-info h3 {
+    color: #19D3E6;
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.neo1-info p {
+    color: #B7C8CE;
+    line-height: 1.7;
+}
+
+.hardware-points {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.hardware-points div {
+    background: #081B24;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #214653;
+}
+
+@media (max-width: 700px) {
+
+    .neo1-container {
+        flex-direction: column;
+    }
+
+}
     </style>
 </head>
 
@@ -261,32 +307,36 @@
         </div>
     </section>
     <!-- SOLUTION -->
-    <section id="solution">
-        <h2 class="section-title">Our Solution</h2>
-        <div class="cards">
-            <div class="card">
-                <h3>📡 Sense</h3>
-                <p>
-                    Capture relevant signals through Neo 1 and
-                    the prototype sensor layer.
-                </p>
-            </div>
-            <div class="card">
-                <h3>🧠 Understand</h3>
-                <p>
-                    AI analyzes available signals and context
-                    to estimate the situation and risk level.
-                </p>
-            </div>
-            <div class="card">
-                <h3>🚨 Respond</h3>
-                <p>
-                    The system presents alerts, incident details
-                    and recommended response actions.
-                </p>
+   <!-- NEO 1 HARDWARE -->
+<section id="neo1">
+    <h2 class="section-title">Neo 1 Hardware</h2>
+    <div class="neo1-container">
+        <div class="neo1-image">
+            <img src="neo1.png" alt="Neo 1 wearable AI hardware">
+        </div>
+        <div class="neo1-info">
+            <h3>Neo 1 — Wearable AI Interface</h3>
+            <p>
+                Neo 1 acts as the wearable hardware interface
+                for RESILIENCE OS AI.
+            </p>
+            <br>
+            <p>
+                The system can combine the wearable interface
+                with prototype sensor signals and AI analysis
+                to understand situations and support faster
+                response.
+            </p>
+            <br>
+            <div class="hardware-points">
+                <div>📡 Wearable Interface</div>
+                <div>🧠 AI Intelligence</div>
+                <div>📊 Sensor Signals</div>
+                <div>🚨 Emergency Response</div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
     <!-- HOW IT WORKS -->
     <section>
         <h2 class="section-title">How It Works</h2>
