@@ -1,21 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>RESILIENCE OS AI</title>
+
     <style>
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
+
         body {
             background: #081B24;
             color: white;
             min-height: 100vh;
         }
+
+        /* ================= NAVIGATION ================= */
+
         nav {
             display: flex;
             justify-content: space-between;
@@ -24,19 +32,25 @@
             background: #0F2D38;
             border-bottom: 1px solid #19D3E6;
         }
+
         .logo {
             font-size: 22px;
             font-weight: bold;
             color: #19D3E6;
         }
+
         nav a {
             color: white;
             text-decoration: none;
             margin-left: 25px;
         }
+
         nav a:hover {
             color: #19D3E6;
         }
+
+        /* ================= HERO ================= */
+
         .hero {
             min-height: 80vh;
             display: flex;
@@ -45,34 +59,41 @@
             text-align: center;
             padding: 60px 20px;
         }
+
         .hero-content {
             max-width: 900px;
         }
+
         .tag {
             color: #19D3E6;
             font-size: 15px;
             letter-spacing: 3px;
             margin-bottom: 20px;
         }
+
         h1 {
             font-size: 64px;
             margin-bottom: 20px;
         }
+
         h1 span {
             color: #19D3E6;
         }
+
         .hero p {
             color: #B7C8CE;
             font-size: 20px;
             line-height: 1.7;
             margin-bottom: 35px;
         }
+
         .buttons {
             display: flex;
             justify-content: center;
             gap: 15px;
             flex-wrap: wrap;
         }
+
         button {
             border: none;
             padding: 15px 25px;
@@ -80,49 +101,145 @@
             font-size: 16px;
             cursor: pointer;
         }
+
         .primary {
             background: #19D3E6;
             color: #081B24;
             font-weight: bold;
         }
+
         .secondary {
             background: transparent;
             color: white;
             border: 1px solid #19D3E6;
         }
+
+        /* ================= GENERAL SECTIONS ================= */
+
         section {
             padding: 70px 7%;
         }
+
         .section-title {
             text-align: center;
             font-size: 36px;
             margin-bottom: 45px;
         }
+
+        /* ================= CARDS ================= */
+
         .cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
         }
+
         .card {
             background: #0F2D38;
             border: 1px solid #214653;
             padding: 30px;
             border-radius: 15px;
         }
+
         .card h3 {
             color: #19D3E6;
             margin-bottom: 15px;
         }
+
         .card p {
             color: #B7C8CE;
             line-height: 1.6;
         }
+
+        /* ================= NEO 1 HARDWARE ================= */
+
+        .neo1-container {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            max-width: 1000px;
+            margin: auto;
+            background: #0F2D38;
+            padding: 40px;
+            border-radius: 18px;
+            border: 1px solid #214653;
+        }
+
+        .neo1-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .neo1-image img {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 15px;
+        }
+
+        .neo1-info {
+            flex: 1;
+        }
+
+        .neo1-info h3 {
+            color: #19D3E6;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .neo1-info p {
+            color: #B7C8CE;
+            line-height: 1.7;
+        }
+
+        .hardware-points {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .hardware-points div {
+            background: #081B24;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #214653;
+        }
+
+        .hardware-points div:hover {
+            border-color: #19D3E6;
+        }
+
+        /* ================= HOW IT WORKS ================= */
+
+        .process {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .process div {
+            background: #0F2D38;
+            border: 1px solid #19D3E6;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .arrow {
+            color: #FF7A1A;
+            font-size: 25px;
+        }
+
+        /* ================= DASHBOARD ================= */
+
         .dashboard {
             background: #0F2D38;
             border-radius: 18px;
             padding: 30px;
             border: 1px solid #214653;
         }
+
         .status {
             display: flex;
             justify-content: space-between;
@@ -138,17 +255,21 @@
             padding: 20px;
             border-radius: 10px;
         }
+
         .status-box small {
             color: #8FAAB3;
         }
+
         .status-box strong {
             display: block;
             font-size: 28px;
             margin-top: 8px;
         }
+
         .safe {
             color: #35D07F;
         }
+
         .warning {
             color: #FF7A1A;
         }
@@ -156,24 +277,8 @@
         .danger {
             color: #FF3B3B;
         }
-        .process {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .process div {
-            background: #0F2D38;
-            border: 1px solid #19D3E6;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        .arrow {
-            color: #FF7A1A;
-            font-size: 25px;
-        }
+
+        /* ================= FOOTER ================= */
 
         footer {
             text-align: center;
@@ -181,261 +286,559 @@
             background: #06141B;
             color: #8FAAB3;
         }
-        @media.neo1-container {
-    display: flex;
-    align-items: center;
-    gap: 50px;
-    max-width: 1000px;
-    margin: auto;
-    background: #0F2D38;
-    padding: 40px;
-    border-radius: 18px;
-    border: 1px solid #214653;
-}
 
-.neo1-image {
-    flex: 1;
-    text-align: center;
-}
+        /* ================= MOBILE ================= */
 
-.neo1-image img {
-    width: 100%;
-    max-width: 350px;
-    border-radius: 15px;
-}
+        @media (max-width: 700px) {
 
-.neo1-info {
-    flex: 1;
-}
+            h1 {
+                font-size: 42px;
+            }
 
-.neo1-info h3 {
-    color: #19D3E6;
-    font-size: 28px;
-    margin-bottom: 15px;
-}
+            nav {
+                flex-direction: column;
+                gap: 15px;
+            }
 
-.neo1-info p {
-    color: #B7C8CE;
-    line-height: 1.7;
-}
+            nav a {
+                margin: 0 8px;
+            }
 
-.hardware-points {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
+            .neo1-container {
+                flex-direction: column;
+            }
 
-.hardware-points div {
-    background: #081B24;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #214653;
-}
+            .hardware-points {
+                grid-template-columns: 1fr;
+            }
 
-@media (max-width: 700px) {
+            .neo1-container {
+                padding: 25px;
+            }
 
-    .neo1-container {
-        flex-direction: column;
-    }
+            .neo1-info h3 {
+                font-size: 24px;
+            }
 
-}
+        }
+
     </style>
 </head>
 
+
 <body>
-    <!-- NAVIGATION -->
+
+    <!-- ================= NAVIGATION ================= -->
+
     <nav>
-        <div class="logo">RESILIENCE OS AI</div>
-        <div>
-            <a href="#home">Home</a>
-            <a href="#problem">Problem</a>
-            <a href="#solution">Solution</a>
-            <a href="#dashboard">Dashboard</a>
+
+        <div class="logo">
+            RESILIENCE OS AI
         </div>
+
+        <div>
+
+            <a href="#home">Home</a>
+
+            <a href="#problem">Problem</a>
+
+            <a href="#solution">Solution</a>
+
+            <a href="#neo1">Neo 1</a>
+
+            <a href="#dashboard">Dashboard</a>
+
+        </div>
+
     </nav>
-    <!-- HERO -->
+
+
+    <!-- ================= HERO ================= -->
+
     <section class="hero" id="home">
+
         <div class="hero-content">
-            <div class="tag">AI-POWERED RESILIENCE PLATFORM</div>
+
+            <div class="tag">
+                AI-POWERED RESILIENCE PLATFORM
+            </div>
+
             <h1>
                 Sense.<br>
                 <span>Understand. Respond.</span>
             </h1>
+
             <p>
                 RESILIENCE OS AI combines wearable hardware,
                 sensor signals and artificial intelligence to
                 understand risky situations and coordinate
                 faster emergency responses.
             </p>
+
             <div class="buttons">
+
                 <button class="primary" onclick="showDashboard()">
                     Open Live Dashboard
                 </button>
+
                 <button class="secondary" onclick="scrollToSolution()">
                     How It Works
                 </button>
+
             </div>
+
         </div>
+
     </section>
-    <!-- PROBLEM -->
+
+
+    <!-- ================= PROBLEM ================= -->
+
     <section id="problem">
-        <h2 class="section-title">The Problem</h2>
+
+        <h2 class="section-title">
+            The Problem
+        </h2>
+
         <div class="cards">
+
             <div class="card">
-                <h3>⚠️ Risk Goes Unnoticed</h3>
+
+                <h3>
+                    ⚠️ Risk Goes Unnoticed
+                </h3>
+
                 <p>
                     Important signals from people, devices and
                     environments can be missed during critical
                     situations.
                 </p>
+
             </div>
+
+
             <div class="card">
-                <h3>📡 Scattered Signals</h3>
+
+                <h3>
+                    📡 Scattered Signals
+                </h3>
+
                 <p>
                     Sensor information and incident information
                     may exist in different systems without a
                     unified intelligence layer.
                 </p>
+
             </div>
+
+
             <div class="card">
-                <h3>⏱️ Slow Response</h3>
+
+                <h3>
+                    ⏱️ Slow Response
+                </h3>
+
                 <p>
                     Delays in understanding an incident can lead
                     to delays in taking the right action.
                 </p>
+
             </div>
+
         </div>
+
     </section>
-    <!-- SOLUTION -->
-   <!-- NEO 1 HARDWARE -->
-<section id="neo1">
-    <h2 class="section-title">Neo 1 Hardware</h2>
-    <div class="neo1-container">
-        <div class="neo1-image">
-            <img src="neo1.png" alt="Neo 1 wearable AI hardware">
-        </div>
-        <div class="neo1-info">
-            <h3>Neo 1 — Wearable AI Interface</h3>
-            <p>
-                Neo 1 acts as the wearable hardware interface
-                for RESILIENCE OS AI.
-            </p>
-            <br>
-            <p>
-                The system can combine the wearable interface
-                with prototype sensor signals and AI analysis
-                to understand situations and support faster
-                response.
-            </p>
-            <br>
-            <div class="hardware-points">
-                <div>📡 Wearable Interface</div>
-                <div>🧠 AI Intelligence</div>
-                <div>📊 Sensor Signals</div>
-                <div>🚨 Emergency Response</div>
+
+
+    <!-- ================= SOLUTION ================= -->
+
+    <section id="solution">
+
+        <h2 class="section-title">
+            Our Solution
+        </h2>
+
+        <div class="cards">
+
+            <div class="card">
+
+                <h3>
+                    📡 Sense
+                </h3>
+
+                <p>
+                    Capture relevant signals through Neo 1 and
+                    the prototype sensor layer.
+                </p>
+
             </div>
+
+
+            <div class="card">
+
+                <h3>
+                    🧠 Understand
+                </h3>
+
+                <p>
+                    AI analyzes available signals and context
+                    to estimate the situation and risk level.
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>
+                    🚨 Respond
+                </h3>
+
+                <p>
+                    The system presents alerts, incident details
+                    and recommended response actions.
+                </p>
+
+            </div>
+
         </div>
-    </div>
-</section>
-    <!-- HOW IT WORKS -->
+
+    </section>
+
+
+    <!-- ================= NEO 1 HARDWARE ================= -->
+
+    <section id="neo1">
+
+        <h2 class="section-title">
+            Neo 1 Hardware
+        </h2>
+
+        <div class="neo1-container">
+
+            <div class="neo1-image">
+
+                <img
+                    src="neo1.png"
+                    alt="Neo 1 wearable AI hardware"
+                >
+
+            </div>
+
+
+            <div class="neo1-info">
+
+                <h3>
+                    Neo 1 — Wearable AI Interface
+                </h3>
+
+                <p>
+                    Neo 1 acts as the wearable hardware interface
+                    for RESILIENCE OS AI.
+                </p>
+
+                <br>
+
+                <p>
+                    The system can combine the wearable interface
+                    with prototype sensor signals and AI analysis
+                    to understand situations and support faster
+                    response.
+                </p>
+
+                <br>
+
+                <div class="hardware-points">
+
+                    <div>
+                        📡 Wearable Interface
+                    </div>
+
+                    <div>
+                        🧠 AI Intelligence
+                    </div>
+
+                    <div>
+                        📊 Sensor Signals
+                    </div>
+
+                    <div>
+                        🚨 Emergency Response
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= HOW IT WORKS ================= -->
+
     <section>
-        <h2 class="section-title">How It Works</h2>
+
+        <h2 class="section-title">
+            How It Works
+        </h2>
+
         <div class="process">
+
             <div>
-                <h3>Neo 1</h3>
-                <p>Wearable Interface</p>
+
+                <h3>
+                    Neo 1
+                </h3>
+
+                <p>
+                    Wearable Interface
+                </p>
+
             </div>
-            <div class="arrow">→</div>
+
+
+            <div class="arrow">
+                →
+            </div>
+
+
             <div>
-                <h3>Sensor Layer</h3>
-                <p>Real-world Signals</p>
+
+                <h3>
+                    Sensor Layer
+                </h3>
+
+                <p>
+                    Real-world Signals
+                </p>
+
             </div>
-            <div class="arrow">→</div>
+
+
+            <div class="arrow">
+                →
+            </div>
+
+
             <div>
-                <h3>AI Engine</h3>
-                <p>Risk Analysis</p>
+
+                <h3>
+                    AI Engine
+                </h3>
+
+                <p>
+                    Risk Analysis
+                </p>
+
             </div>
-            <div class="arrow">→</div>
+
+
+            <div class="arrow">
+                →
+            </div>
+
+
             <div>
-                <h3>Dashboard</h3>
-                <p>Response</p>
+
+                <h3>
+                    Dashboard
+                </h3>
+
+                <p>
+                    Response
+                </p>
+
             </div>
+
         </div>
+
     </section>
-    <!-- DASHBOARD -->
+
+
+    <!-- ================= DASHBOARD ================= -->
+
     <section id="dashboard">
 
-        <h2 class="section-title">Live Incident Dashboard</h2>
+        <h2 class="section-title">
+            Live Incident Dashboard
+        </h2>
 
         <div class="dashboard">
 
+
+            <!-- STATUS -->
+
             <div class="status">
 
+
                 <div class="status-box">
-                    <small>System Status</small>
-                    <strong class="safe">ONLINE</strong>
+
+                    <small>
+                        System Status
+                    </small>
+
+                    <strong class="safe">
+                        ONLINE
+                    </strong>
+
                 </div>
+
+
                 <div class="status-box">
-                    <small>Risk Level</small>
-                    <strong id="risk" class="safe">LOW</strong>
+
+                    <small>
+                        Risk Level
+                    </small>
+
+                    <strong id="risk" class="safe">
+                        LOW
+                    </strong>
+
                 </div>
+
+
                 <div class="status-box">
-                    <small>Active Alerts</small>
-                    <strong id="alerts">0</strong>
+
+                    <small>
+                        Active Alerts
+                    </small>
+
+                    <strong id="alerts">
+                        0
+                    </strong>
+
                 </div>
+
+
                 <div class="status-box">
-                    <small>Devices Online</small>
-                    <strong>01</strong>
+
+                    <small>
+                        Devices Online
+                    </small>
+
+                    <strong>
+                        01
+                    </strong>
+
                 </div>
+
             </div>
+
+
+            <!-- AI ANALYSIS -->
+
             <div class="card">
-                <h3>AI Situation Analysis</h3>
+
+                <h3>
+                    AI Situation Analysis
+                </h3>
+
                 <p id="analysis">
+
                     No active incident detected.
                     System is monitoring incoming signals.
+
                 </p>
+
                 <br>
-                <button class="primary" onclick="simulateEmergency()">
+
+                <button
+                    class="primary"
+                    onclick="simulateEmergency()"
+                >
                     Simulate Emergency
                 </button>
+
             </div>
+
         </div>
+
     </section>
-    <!-- FOOTER -->
+
+
+    <!-- ================= FOOTER ================= -->
+
     <footer>
-        <p>RESILIENCE OS AI</p>
+
+        <p>
+            RESILIENCE OS AI
+        </p>
+
         <p>
             AI-Powered Resilience & Emergency Intelligence
         </p>
+
         <br>
+
         <small>
             Prototype • Hackathon Demonstration
         </small>
+
     </footer>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
     <script>
+
         function showDashboard() {
+
             document
                 .getElementById("dashboard")
-                .scrollIntoView({ behavior: "smooth" });
+                .scrollIntoView({
+                    behavior: "smooth"
+                });
+
         }
+
+
         function scrollToSolution() {
+
             document
                 .getElementById("solution")
-                .scrollIntoView({ behavior: "smooth" });
+                .scrollIntoView({
+                    behavior: "smooth"
+                });
+
         }
+
+
         function simulateEmergency() {
-            document.getElementById("risk").innerText = "HIGH";
-            document.getElementById("risk").className = "danger";
-            document.getElementById("alerts").innerText = "1";
-            document.getElementById("analysis").innerHTML =
+
+            document
+                .getElementById("risk")
+                .innerText = "HIGH";
+
+            document
+                .getElementById("risk")
+                .className = "danger";
+
+
+            document
+                .getElementById("alerts")
+                .innerText = "1";
+
+
+            document
+                .getElementById("analysis")
+                .innerHTML =
+
                 "<strong>⚠️ INCIDENT DETECTED</strong><br><br>" +
+
                 "AI has identified an abnormal situation " +
+
                 "from the incoming prototype signals.<br><br>" +
+
                 "<strong>Recommended Action:</strong> " +
+
                 "Verify the incident and initiate emergency response.";
+
         }
 
     </script>
 
+
 </body>
+
 </html>
