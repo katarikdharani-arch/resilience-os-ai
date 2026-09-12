@@ -8,11 +8,15 @@
 
     <title>RESILIENCE OS AI</title>
 
-    <!-- LEAFLET MAP CSS -->
+    <!-- LEAFLET MAP -->
     <link rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
     <style>
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
 
         * {
             margin: 0;
@@ -31,15 +35,20 @@
             line-height: 1.6;
         }
 
-        /* =========================
-           LOGIN / REGISTER
-        ========================= */
+        /* =====================================================
+           LOGIN SCREEN
+        ===================================================== */
 
         #authScreen {
+
             min-height: 100vh;
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             padding: 20px;
 
             background:
@@ -51,7 +60,9 @@
         }
 
         .auth-container {
+
             width: 100%;
+
             max-width: 430px;
 
             background: #0d2731;
@@ -67,32 +78,44 @@
         }
 
         .auth-logo {
+
             text-align: center;
+
             margin-bottom: 30px;
         }
 
         .auth-logo h1 {
+
             color: #22d3ee;
+
             font-size: 28px;
         }
 
         .auth-logo p {
+
             color: #8da8b0;
+
             margin-top: 5px;
         }
 
         .auth-container h2 {
+
             margin-bottom: 20px;
         }
 
         .input-group {
+
             margin-bottom: 15px;
         }
 
         .input-group label {
+
             display: block;
+
             color: #9db5bc;
+
             font-size: 14px;
+
             margin-bottom: 6px;
         }
 
@@ -116,6 +139,7 @@
 
         .input-group input:focus,
         .input-group select:focus {
+
             border-color: #22d3ee;
         }
 
@@ -141,6 +165,7 @@
         }
 
         .auth-btn:hover {
+
             background: #67e8f9;
         }
 
@@ -174,18 +199,18 @@
         }
 
 
-        /* =========================
+        /* =====================================================
            MAIN WEBSITE
-        ========================= */
+        ===================================================== */
 
         #mainWebsite {
             display: none;
         }
 
 
-        /* =========================
+        /* =====================================================
            NAVBAR
-        ========================= */
+        ===================================================== */
 
         nav {
 
@@ -238,6 +263,7 @@
         }
 
         .nav-links a:hover {
+
             color: #22d3ee;
         }
 
@@ -257,9 +283,9 @@
         }
 
 
-        /* =========================
+        /* =====================================================
            HERO
-        ========================= */
+        ===================================================== */
 
         .hero {
 
@@ -276,7 +302,6 @@
             padding: 60px 20px;
 
             background:
-
                 radial-gradient(
                     circle at center,
                     #103b47,
@@ -285,6 +310,7 @@
         }
 
         .hero-content {
+
             max-width: 850px;
         }
 
@@ -300,6 +326,7 @@
         }
 
         .hero h1 span {
+
             color: #22d3ee;
         }
 
@@ -332,11 +359,12 @@
         }
 
 
-        /* =========================
+        /* =====================================================
            SECTIONS
-        ========================= */
+        ===================================================== */
 
         section {
+
             padding: 80px 7%;
         }
 
@@ -355,13 +383,14 @@
         }
 
         .section-title p {
+
             color: #8da8b0;
         }
 
 
-        /* =========================
+        /* =====================================================
            CARDS
-        ========================= */
+        ===================================================== */
 
         .cards {
 
@@ -395,13 +424,14 @@
         }
 
         .card p {
+
             color: #9fb6bd;
         }
 
 
-        /* =========================
+        /* =====================================================
            SOLUTION
-        ========================= */
+        ===================================================== */
 
         .solution-box {
 
@@ -426,9 +456,9 @@
         }
 
 
-        /* =========================
+        /* =====================================================
            NEO 1
-        ========================= */
+        ===================================================== */
 
         .neo1-container {
 
@@ -468,6 +498,7 @@
         }
 
         .neo1-content {
+
             flex: 1;
         }
 
@@ -495,15 +526,17 @@
         }
 
         .neo1-content li {
+
             margin: 8px 0;
         }
 
 
-        /* =========================
-           LOCATION
-        ========================= */
+        /* =====================================================
+           LOCATION SECTION
+        ===================================================== */
 
         .location-section {
+
             background: #081d26;
         }
 
@@ -540,6 +573,13 @@
             font-size: 22px;
         }
 
+        .location-header p {
+
+            color: #8da8b0;
+
+            font-size: 13px;
+        }
+
         .location-status {
 
             color: #ffcf5a;
@@ -548,7 +588,9 @@
         }
 
 
-        /* COORDINATES */
+        /* =====================================================
+           COORDINATES
+        ===================================================== */
 
         .coordinates {
 
@@ -590,9 +632,9 @@
         }
 
 
-        /* =========================
+        /* =====================================================
            MAP
-        ========================= */
+        ===================================================== */
 
         #map {
 
@@ -654,9 +696,57 @@
         }
 
 
-        /* =========================
+        /* =====================================================
+           ROUTE INFORMATION
+        ===================================================== */
+
+        .route-info {
+
+            display: none;
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+            gap: 15px;
+
+            margin-top: 20px;
+        }
+
+        .route-box {
+
+            background: #071820;
+
+            border: 1px solid #214653;
+
+            border-radius: 10px;
+
+            padding: 18px;
+        }
+
+        .route-box span {
+
+            display: block;
+
+            color: #7f9aa2;
+
+            font-size: 13px;
+        }
+
+        .route-box strong {
+
+            display: block;
+
+            color: #22d3ee;
+
+            font-size: 22px;
+
+            margin-top: 4px;
+        }
+
+
+        /* =====================================================
            HOW IT WORKS
-        ========================= */
+        ===================================================== */
 
         .steps {
 
@@ -712,6 +802,7 @@
         }
 
         .step h3 {
+
             margin-bottom: 8px;
         }
 
@@ -723,11 +814,12 @@
         }
 
 
-        /* =========================
+        /* =====================================================
            DASHBOARD
-        ========================= */
+        ===================================================== */
 
         #dashboard {
+
             background: #06161d;
         }
 
@@ -760,7 +852,9 @@
         }
 
 
-        /* STATUS CARDS */
+        /* =====================================================
+           STATUS CARDS
+        ===================================================== */
 
         .status-cards {
 
@@ -800,27 +894,34 @@
         }
 
         .status-card strong {
+
             font-size: 24px;
         }
 
         .online {
+
             color: #22d3ee;
         }
 
         .low {
+
             color: #22d3ee;
         }
 
         .high {
+
             color: #ff5c5c;
         }
 
         .alert {
+
             color: #ff5c5c;
         }
 
 
-        /* DASHBOARD GRID */
+        /* =====================================================
+           DASHBOARD GRID
+        ===================================================== */
 
         .dashboard-grid {
 
@@ -858,7 +959,9 @@
         }
 
 
-        /* SENSOR */
+        /* =====================================================
+           SENSOR SIGNALS
+        ===================================================== */
 
         .sensor-row {
 
@@ -872,6 +975,7 @@
         }
 
         .sensor-row:last-child {
+
             border-bottom: none;
         }
 
@@ -883,11 +987,14 @@
         }
 
         .sensor-danger {
+
             color: #ff5c5c;
         }
 
 
-        /* TIMELINE */
+        /* =====================================================
+           TIMELINE
+        ===================================================== */
 
         .timeline {
 
@@ -917,7 +1024,9 @@
         }
 
 
-        /* ACTIONS */
+        /* =====================================================
+           DASHBOARD BUTTONS
+        ===================================================== */
 
         .dashboard-actions {
 
@@ -950,6 +1059,7 @@
         }
 
         .emergency-btn:hover {
+
             background: #ef4141;
         }
 
@@ -978,7 +1088,9 @@
         }
 
 
-        /* FOOTER */
+        /* =====================================================
+           FOOTER
+        ===================================================== */
 
         footer {
 
@@ -994,50 +1106,68 @@
         }
 
 
-        /* =========================
+        /* =====================================================
            MOBILE
-        ========================= */
+        ===================================================== */
 
         @media(max-width:800px) {
 
             nav {
+
                 padding: 15px 5%;
             }
 
             .nav-links {
+
                 display: none;
             }
 
             section {
+
                 padding: 60px 5%;
             }
 
             .neo1-container {
+
                 flex-direction: column;
+
                 padding: 25px;
             }
 
             .coordinates {
+
+                grid-template-columns: 1fr;
+            }
+
+            .route-info {
+
                 grid-template-columns: 1fr;
             }
 
             .dashboard-grid {
+
                 grid-template-columns: 1fr;
             }
 
             .location-header {
+
                 flex-direction: column;
+
                 align-items: flex-start;
+
                 gap: 10px;
             }
 
             #map {
+
                 height: 350px;
             }
 
             .auth-container {
+
                 padding: 25px;
             }
+
         }
 
     </style>
@@ -1056,9 +1186,12 @@
 
     <div class="auth-container">
 
+
         <div class="auth-logo">
 
-            <h1>RESILIENCE OS AI</h1>
+            <h1>
+                RESILIENCE OS AI
+            </h1>
 
             <p>
                 Emergency Intelligence Platform
@@ -1071,11 +1204,16 @@
 
         <div id="loginForm">
 
-            <h2>Welcome Back</h2>
+            <h2>
+                Welcome Back
+            </h2>
+
 
             <div class="input-group">
 
-                <label>Email</label>
+                <label>
+                    Email
+                </label>
 
                 <input
                     type="email"
@@ -1087,7 +1225,9 @@
 
             <div class="input-group">
 
-                <label>Password</label>
+                <label>
+                    Password
+                </label>
 
                 <input
                     type="password"
@@ -1125,18 +1265,23 @@
         </div>
 
 
+
         <!-- REGISTER -->
 
         <div
             id="registerForm"
             style="display:none;">
 
-            <h2>Create Account</h2>
+            <h2>
+                Create Account
+            </h2>
 
 
             <div class="input-group">
 
-                <label>Full Name</label>
+                <label>
+                    Full Name
+                </label>
 
                 <input
                     type="text"
@@ -1148,7 +1293,9 @@
 
             <div class="input-group">
 
-                <label>Email</label>
+                <label>
+                    Email
+                </label>
 
                 <input
                     type="email"
@@ -1160,7 +1307,9 @@
 
             <div class="input-group">
 
-                <label>Password</label>
+                <label>
+                    Password
+                </label>
 
                 <input
                     type="password"
@@ -1172,15 +1321,23 @@
 
             <div class="input-group">
 
-                <label>Role</label>
+                <label>
+                    Role
+                </label>
 
                 <select id="registerRole">
 
-                    <option>User</option>
+                    <option>
+                        User
+                    </option>
 
-                    <option>Responder</option>
+                    <option>
+                        Responder
+                    </option>
 
-                    <option>Admin</option>
+                    <option>
+                        Admin
+                    </option>
 
                 </select>
 
@@ -1285,6 +1442,7 @@
         id="home">
 
         <div class="hero-content">
+
 
             <h1>
 
@@ -1426,7 +1584,7 @@
 
                 The platform can identify simulated
                 anomalies, visualize incident locations
-                and provide structured response information.
+                and calculate an emergency road route.
 
             </p>
 
@@ -1532,7 +1690,7 @@
             </h2>
 
             <p>
-                Real-time location and emergency monitoring.
+                Real-time location and emergency route monitoring.
             </p>
 
         </div>
@@ -1540,6 +1698,8 @@
 
         <div class="location-card">
 
+
+            <!-- HEADER -->
 
             <div class="location-header">
 
@@ -1549,11 +1709,8 @@
                         Current Device Location
                     </h3>
 
-                    <p style="color:#8da8b0;">
-
-                        GPS location is obtained
-                        from the browser.
-
+                    <p>
+                        Browser GPS location
                     </p>
 
                 </div>
@@ -1615,6 +1772,42 @@
 
 
 
+            <!-- ROUTE INFORMATION -->
+
+            <div
+                id="routeInfo"
+                class="route-info">
+
+
+                <div class="route-box">
+
+                    <span>
+                        ROUTE DISTANCE
+                    </span>
+
+                    <strong id="routeDistance">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="route-box">
+
+                    <span>
+                        ESTIMATED TRAVEL TIME
+                    </span>
+
+                    <strong id="routeTime">
+                        --
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
             <!-- MAP BUTTONS -->
 
             <div class="map-buttons">
@@ -1633,7 +1826,7 @@
                     class="map-btn"
                     onclick="centerOnLocation()">
 
-                    🎯 CENTER ON LOCATION
+                    🎯 CENTER MAP
 
                 </button>
 
@@ -1651,8 +1844,8 @@
 
             <p class="map-note">
 
-                Map data is provided by OpenStreetMap.
-                Emergency markers are simulated for
+                Map data © OpenStreetMap contributors.
+                Emergency incidents are simulated for
                 hackathon demonstration purposes.
 
             </p>
@@ -1763,6 +1956,7 @@
     ================================================== -->
 
     <section id="dashboard">
+
 
         <div class="section-title">
 
@@ -2055,7 +2249,7 @@
 
 
 <!-- =====================================================
-     LEAFLET MAP JAVASCRIPT
+     LEAFLET JAVASCRIPT
 ===================================================== -->
 
 <script
@@ -2089,45 +2283,68 @@ let currentLongitude = null;
 
 function showRegister() {
 
-    document.getElementById("loginForm").style.display =
-        "none";
+    document.getElementById(
+        "loginForm"
+    ).style.display = "none";
 
-    document.getElementById("registerForm").style.display =
-        "block";
+
+    document.getElementById(
+        "registerForm"
+    ).style.display = "block";
+
 }
 
 
 function showLogin() {
 
-    document.getElementById("registerForm").style.display =
-        "none";
+    document.getElementById(
+        "registerForm"
+    ).style.display = "none";
 
-    document.getElementById("loginForm").style.display =
-        "block";
+
+    document.getElementById(
+        "loginForm"
+    ).style.display = "block";
+
 }
 
 
 function registerUser() {
 
     const name =
-        document.getElementById("registerName").value.trim();
+        document.getElementById(
+            "registerName"
+        ).value.trim();
+
 
     const email =
-        document.getElementById("registerEmail").value.trim();
+        document.getElementById(
+            "registerEmail"
+        ).value.trim();
+
 
     const password =
-        document.getElementById("registerPassword").value;
+        document.getElementById(
+            "registerPassword"
+        ).value;
+
 
     const role =
-        document.getElementById("registerRole").value;
+        document.getElementById(
+            "registerRole"
+        ).value;
+
 
     const message =
-        document.getElementById("registerMessage");
+        document.getElementById(
+            "registerMessage"
+        );
 
 
     if (!name || !email || !password) {
 
-        message.style.color = "#ff5c5c";
+        message.style.color =
+            "#ff5c5c";
 
         message.innerText =
             "Please fill all fields.";
@@ -2150,8 +2367,8 @@ function registerUser() {
 
 
     /*
-       HACKATHON PROTOTYPE ONLY.
-       This is NOT secure production authentication.
+       Prototype authentication only.
+       Not suitable for production.
     */
 
     localStorage.setItem(
@@ -2160,7 +2377,8 @@ function registerUser() {
     );
 
 
-    message.style.color = "#22d3ee";
+    message.style.color =
+        "#22d3ee";
 
     message.innerText =
         "Registration successful.";
@@ -2171,6 +2389,7 @@ function registerUser() {
         showLogin();
 
     }, 1000);
+
 }
 
 
@@ -2178,22 +2397,33 @@ function registerUser() {
 function loginUser() {
 
     const email =
-        document.getElementById("loginEmail").value.trim();
+        document.getElementById(
+            "loginEmail"
+        ).value.trim();
+
 
     const password =
-        document.getElementById("loginPassword").value;
+        document.getElementById(
+            "loginPassword"
+        ).value;
+
 
     const message =
-        document.getElementById("loginMessage");
+        document.getElementById(
+            "loginMessage"
+        );
 
 
     const storedUser =
-        localStorage.getItem("resilienceUser");
+        localStorage.getItem(
+            "resilienceUser"
+        );
 
 
     if (!storedUser) {
 
-        message.style.color = "#ff5c5c";
+        message.style.color =
+            "#ff5c5c";
 
         message.innerText =
             "No account found. Register first.";
@@ -2223,7 +2453,8 @@ function loginUser() {
 
     else {
 
-        message.style.color = "#ff5c5c";
+        message.style.color =
+            "#ff5c5c";
 
         message.innerText =
             "Invalid email or password.";
@@ -2236,7 +2467,10 @@ function loginUser() {
 
 function logoutUser() {
 
-    localStorage.removeItem("loggedIn");
+    localStorage.removeItem(
+        "loggedIn"
+    );
+
 
     document.getElementById(
         "mainWebsite"
@@ -2249,6 +2483,7 @@ function logoutUser() {
 
 
     showLogin();
+
 }
 
 
@@ -2270,9 +2505,9 @@ function openWebsite() {
 
 
     /*
-       IMPORTANT:
-       Wait until the website is visible
-       before creating the Leaflet map.
+       Important:
+       Leaflet must be initialized after
+       the map container becomes visible.
     */
 
     setTimeout(function() {
@@ -2294,7 +2529,9 @@ window.addEventListener(
     function() {
 
         const loggedIn =
-            localStorage.getItem("loggedIn");
+            localStorage.getItem(
+                "loggedIn"
+            );
 
 
         if (loggedIn === "true") {
@@ -2316,21 +2553,26 @@ function initializeMap() {
 
     if (map !== null) {
 
-        map.invalidateSize();
+        setTimeout(function() {
+
+            map.invalidateSize();
+
+        }, 200);
 
         return;
-
     }
 
 
     const mapElement =
-        document.getElementById("map");
+        document.getElementById(
+            "map"
+        );
 
 
     if (!mapElement) {
 
         console.error(
-            "Map element not found."
+            "Map container not found."
         );
 
         return;
@@ -2338,26 +2580,30 @@ function initializeMap() {
 
 
     /*
-       Default center = India
+       Default view
+       India
     */
 
-    map = L.map(
-        "map",
-        {
-            zoomControl: true
-        }
-    ).setView(
-        [20.5937, 78.9629],
-        5
-    );
+    map =
+        L.map(
+            "map"
+        ).setView(
+            [
+                20.5937,
+                78.9629
+            ],
+            5
+        );
 
 
     /*
-       OpenStreetMap tiles
+       OpenStreetMap
     */
 
     L.tileLayer(
+
         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
         {
 
             maxZoom: 19,
@@ -2366,25 +2612,26 @@ function initializeMap() {
                 "&copy; OpenStreetMap contributors"
 
         }
+
     ).addTo(map);
 
 
     /*
-       Force map redraw
+       Force redraw
     */
 
     setTimeout(function() {
 
         map.invalidateSize();
 
-    }, 300);
+    }, 500);
 
 }
 
 
 
 /* =====================================================
-   GET USER LOCATION
+   GET LOCATION
 ===================================================== */
 
 function getLocation() {
@@ -2475,14 +2722,14 @@ function getLocation() {
 
 
             /*
-               Make sure map exists
+               Initialize map
             */
 
             initializeMap();
 
 
             /*
-               Create marker
+               User marker
             */
 
             if (userMarker === null) {
@@ -2497,7 +2744,7 @@ function getLocation() {
                     .addTo(map)
                     .bindPopup(
                         "<b>📍 YOUR CURRENT LOCATION</b><br>" +
-                        "Live browser GPS location"
+                        "Browser GPS location"
                     );
 
             }
@@ -2515,7 +2762,7 @@ function getLocation() {
 
 
             /*
-               Move map to user
+               Move map
             */
 
             map.setView(
@@ -2535,16 +2782,18 @@ function getLocation() {
             */
 
             addTimeline(
-
                 "📍 Current device location acquired."
-
             );
-
 
         },
 
 
         function(error) {
+
+            console.error(
+                "GPS error:",
+                error
+            );
 
 
             status.innerText =
@@ -2555,16 +2804,36 @@ function getLocation() {
                 "#ff5c5c";
 
 
-            console.error(
-                "Location error:",
-                error
-            );
+            let errorMessage =
+                "Unable to get your location.";
 
 
-            alert(
-                "Location could not be obtained. " +
-                "Please allow location permission in Chrome."
-            );
+            if (error.code === 1) {
+
+                errorMessage =
+                    "Location permission was denied. " +
+                    "Allow location access in Chrome.";
+
+            }
+
+            else if (error.code === 2) {
+
+                errorMessage =
+                    "Location unavailable. " +
+                    "Please check your device location.";
+
+            }
+
+            else if (error.code === 3) {
+
+                errorMessage =
+                    "Location request timed out. " +
+                    "Please try again.";
+
+            }
+
+
+            alert(errorMessage);
 
         },
 
@@ -2586,7 +2855,7 @@ function getLocation() {
 
 
 /* =====================================================
-   CENTER ON LOCATION
+   CENTER MAP
 ===================================================== */
 
 function centerOnLocation() {
@@ -2624,10 +2893,14 @@ function centerOnLocation() {
 
 
 /* =====================================================
-   SHOW SIMULATED INCIDENT
+   REAL ROAD ROUTING
 ===================================================== */
 
-function showIncident() {
+async function showIncident() {
+
+    /*
+       Check location
+    */
 
     if (
         currentLatitude === null ||
@@ -2643,15 +2916,33 @@ function showIncident() {
 
 
     /*
-       Create a small simulated distance
-       from the user's location.
+       Make a simulated emergency
+       location near the user.
+
+       This is ONLY for demonstration.
     */
 
     const incidentLatitude =
         currentLatitude + 0.002;
 
+
     const incidentLongitude =
         currentLongitude + 0.002;
+
+
+    /*
+       Remove previous incident
+    */
+
+    if (incidentMarker) {
+
+        map.removeLayer(
+            incidentMarker
+        );
+
+        incidentMarker = null;
+
+    }
 
 
     /*
@@ -2670,98 +2961,416 @@ function showIncident() {
 
 
     /*
-       Create emergency marker
+       Hide old route information
     */
 
-    if (incidentMarker === null) {
+    document.getElementById(
+        "routeInfo"
+    ).style.display = "none";
 
-        incidentMarker =
-            L.marker(
-                [
-                    incidentLatitude,
-                    incidentLongitude
-                ]
-            )
-            .addTo(map)
-            .bindPopup(
-                "<b>🚨 SIMULATED EMERGENCY</b><br>" +
-                "Prototype incident location"
-            );
 
-    }
+    /*
+       Emergency marker
+    */
 
-    else {
-
-        incidentMarker.setLatLng(
+    incidentMarker =
+        L.marker(
             [
                 incidentLatitude,
                 incidentLongitude
             ]
-        );
-
-    }
-
-
-    /*
-       Draw route line
-    */
-
-    routeLine =
-        L.polyline(
-            [
-                [
-                    currentLatitude,
-                    currentLongitude
-                ],
-
-                [
-                    incidentLatitude,
-                    incidentLongitude
-                ]
-            ],
-            {
-                weight: 6,
-                dashArray: "10,10"
-            }
         )
-        .addTo(map);
+        .addTo(map)
+        .bindPopup(
 
+            "<b>🚨 SIMULATED EMERGENCY</b><br>" +
 
-    /*
-       Fit map around both locations
-    */
+            "Incident location"
 
-    const bounds =
-        L.latLngBounds(
-            [
-                currentLatitude,
-                currentLongitude
-            ],
-            [
-                incidentLatitude,
-                incidentLongitude
-            ]
         );
-
-
-    map.fitBounds(
-        bounds,
-        {
-            padding: [50, 50]
-        }
-    );
 
 
     incidentMarker.openPopup();
 
 
+    /*
+       Show loading
+    */
+
+    document.getElementById(
+        "responseInfo"
+    ).innerHTML =
+
+        "<strong style='color:#ffcf5a;'>" +
+
+        "🛣️ CALCULATING ROAD ROUTE..." +
+
+        "</strong>" +
+
+        "<br><br>" +
+
+        "Finding the best available route.";
+
+    
     addTimeline(
-        "🚨 Simulated incident location identified."
+        "🚨 Simulated emergency location identified."
     );
 
-    addTimeline(
-        "🛣️ Emergency route visualized."
-    );
+
+    /*
+       OSRM URL
+
+       IMPORTANT:
+       OSRM expects:
+
+       longitude,latitude
+    */
+
+    const routeURL =
+
+        "https://router.project-osrm.org/route/v1/driving/" +
+
+        currentLongitude +
+        "," +
+        currentLatitude +
+
+        ";" +
+
+        incidentLongitude +
+        "," +
+        incidentLatitude +
+
+        "?overview=full&geometries=geojson";
+
+
+    try {
+
+
+        /*
+           Request route
+        */
+
+        const response =
+            await fetch(
+                routeURL
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Routing service unavailable"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !data.routes ||
+            data.routes.length === 0
+        ) {
+
+            throw new Error(
+                "No route found"
+            );
+
+        }
+
+
+        /*
+           First route
+        */
+
+        const route =
+            data.routes[0];
+
+
+        /*
+           Distance
+        */
+
+        const distanceKm =
+            (
+                route.distance /
+                1000
+            ).toFixed(2);
+
+
+        /*
+           Time
+        */
+
+        const durationMinutes =
+            Math.ceil(
+                route.duration /
+                60
+            );
+
+
+        /*
+           Convert coordinates
+
+           OSRM:
+           [longitude, latitude]
+
+           Leaflet:
+           [latitude, longitude]
+        */
+
+        const routeCoordinates =
+
+            route.geometry.coordinates.map(
+
+                function(coordinate) {
+
+                    return [
+
+                        coordinate[1],
+
+                        coordinate[0]
+
+                    ];
+
+                }
+
+            );
+
+
+        /*
+           Draw road route
+        */
+
+        routeLine =
+
+            L.polyline(
+
+                routeCoordinates,
+
+                {
+
+                    weight: 7,
+
+                    opacity: 0.9
+
+                }
+
+            )
+            .addTo(map);
+
+
+        /*
+           Fit map
+        */
+
+        map.fitBounds(
+
+            routeLine.getBounds(),
+
+            {
+
+                padding: [
+                    50,
+                    50
+                ]
+
+            }
+
+        );
+
+
+        /*
+           Show route information
+        */
+
+        document.getElementById(
+            "routeInfo"
+        ).style.display =
+            "grid";
+
+
+        document.getElementById(
+            "routeDistance"
+        ).innerText =
+            distanceKm + " km";
+
+
+        document.getElementById(
+            "routeTime"
+        ).innerText =
+            durationMinutes + " min";
+
+
+        /*
+           Response panel
+        */
+
+        document.getElementById(
+            "responseInfo"
+        ).innerHTML =
+
+            "<strong style='color:#22d3ee;'>" +
+
+            "🚨 EMERGENCY ROUTE CALCULATED" +
+
+            "</strong>" +
+
+            "<br><br>" +
+
+            "📍 Incident location identified" +
+
+            "<br>" +
+
+            "🛣️ Road route calculated" +
+
+            "<br>" +
+
+            "📏 Distance: " +
+            distanceKm +
+            " km" +
+
+            "<br>" +
+
+            "⏱️ Estimated travel time: " +
+            durationMinutes +
+            " min" +
+
+            "<br><br>" +
+
+            "✓ Route prepared" +
+
+            "<br>" +
+
+            "✓ Incident location mapped" +
+
+            "<br>" +
+
+            "✓ Response information available";
+
+
+        /*
+           Timeline
+        */
+
+        addTimeline(
+
+            "🛣️ Road route calculated: " +
+
+            distanceKm +
+
+            " km"
+
+        );
+
+
+        addTimeline(
+
+            "⏱️ Estimated travel time: " +
+
+            durationMinutes +
+
+            " minutes"
+
+        );
+
+
+        addTimeline(
+
+            "🚑 Emergency response route prepared."
+
+        );
+
+
+    }
+
+    catch (error) {
+
+
+        console.error(
+            "Routing error:",
+            error
+        );
+
+
+        /*
+           FALLBACK ROUTE
+
+           If OSRM is temporarily unavailable,
+           show a straight line so the demo
+           doesn't completely fail.
+        */
+
+        routeLine =
+
+            L.polyline(
+
+                [
+
+                    [
+                        currentLatitude,
+                        currentLongitude
+                    ],
+
+                    [
+                        incidentLatitude,
+                        incidentLongitude
+                    ]
+
+                ],
+
+                {
+
+                    weight: 6,
+
+                    dashArray: "10,10"
+
+                }
+
+            )
+            .addTo(map);
+
+
+        map.fitBounds(
+
+            routeLine.getBounds(),
+
+            {
+
+                padding: [
+                    50,
+                    50
+                ]
+
+            }
+
+        );
+
+
+        document.getElementById(
+            "responseInfo"
+        ).innerHTML =
+
+            "<strong style='color:#ffcf5a;'>" +
+
+            "⚠️ ROAD ROUTING TEMPORARILY UNAVAILABLE" +
+
+            "</strong>" +
+
+            "<br><br>" +
+
+            "The simulated incident is visible " +
+
+            "on the map. Please try again.";
+
+        
+        addTimeline(
+            "⚠️ Road routing service unavailable."
+        );
+
+    }
 
 }
 
@@ -2772,6 +3381,7 @@ function showIncident() {
 ===================================================== */
 
 function simulateEmergency() {
+
 
     const banner =
         document.getElementById(
@@ -2912,25 +3522,9 @@ function simulateEmergency() {
 
         "<strong style='color:#22d3ee;'>" +
 
-        "Recommended Response" +
+        "🚨 ANALYZING EMERGENCY..." +
 
-        "</strong>" +
-
-        "<br><br>" +
-
-        "✓ Verify incident location" +
-
-        "<br>" +
-
-        "✓ Notify emergency responder" +
-
-        "<br>" +
-
-        "✓ Monitor sensor signals" +
-
-        "<br>" +
-
-        "✓ Maintain incident timeline";
+        "</strong>";
 
 
     /*
@@ -2945,8 +3539,24 @@ function simulateEmergency() {
     setTimeout(function() {
 
         addTimeline(
-            "🤖 AI analysis initiated."
+            "🤖 AI situation analysis initiated."
         );
+
+        response.innerHTML =
+
+            "<strong style='color:#22d3ee;'>" +
+
+            "🤖 AI SITUATION ANALYSIS" +
+
+            "</strong>" +
+
+            "<br><br>" +
+
+            "Potential emergency event identified." +
+
+            "<br>" +
+
+            "Checking location intelligence...";
 
     }, 700);
 
@@ -2961,7 +3571,7 @@ function simulateEmergency() {
 
 
     /*
-       Automatically show incident
+       Calculate route
     */
 
     if (
@@ -2983,6 +3593,21 @@ function simulateEmergency() {
             "📍 Location unavailable. Get location first."
         );
 
+
+        response.innerHTML =
+
+            "<strong style='color:#ffcf5a;'>" +
+
+            "📍 LOCATION REQUIRED" +
+
+            "</strong>" +
+
+            "<br><br>" +
+
+            "Click GET MY LOCATION to enable " +
+
+            "emergency route calculation.";
+
     }
 
 }
@@ -2996,11 +3621,19 @@ function simulateEmergency() {
 function resetSystem() {
 
 
+    /*
+       Banner
+    */
+
     document.getElementById(
         "incidentBanner"
     ).style.display =
         "none";
 
+
+    /*
+       System
+    */
 
     document.getElementById(
         "systemStatus"
@@ -3014,6 +3647,10 @@ function resetSystem() {
         "online";
 
 
+    /*
+       Risk
+    */
+
     document.getElementById(
         "risk"
     ).innerText =
@@ -3026,12 +3663,20 @@ function resetSystem() {
         "low";
 
 
+    /*
+       Alerts
+    */
+
     document.getElementById(
         "alerts"
     ).innerText =
         "0";
 
 
+    /*
+       Motion
+    */
+
     document.getElementById(
         "motionStatus"
     ).innerText =
@@ -3044,6 +3689,10 @@ function resetSystem() {
         "sensor-value";
 
 
+    /*
+       Environment
+    */
+
     document.getElementById(
         "environmentStatus"
     ).innerText =
@@ -3055,6 +3704,10 @@ function resetSystem() {
     ).className =
         "sensor-value";
 
+
+    /*
+       AI analysis
+    */
 
     document.getElementById(
         "analysis"
@@ -3067,6 +3720,10 @@ function resetSystem() {
         "No critical anomaly detected.";
 
 
+    /*
+       Response
+    */
+
     document.getElementById(
         "responseInfo"
     ).innerHTML =
@@ -3078,6 +3735,16 @@ function resetSystem() {
         "Response recommendations will " +
 
         "appear when an emergency is simulated.";
+
+
+    /*
+       Route information
+    */
+
+    document.getElementById(
+        "routeInfo"
+    ).style.display =
+        "none";
 
 
     /*
@@ -3111,7 +3778,7 @@ function resetSystem() {
 
 
     /*
-       Return map to user
+       Return to current location
     */
 
     if (
@@ -3120,70 +3787,46 @@ function resetSystem() {
     ) {
 
         map.setView(
+
             [
                 currentLatitude,
                 currentLongitude
             ],
+
             16
+
         );
 
     }
-
-
     addTimeline(
         "System reset. Monitoring normal."
     );
-
 }
-
-
-
 /* =====================================================
-   TIMELINE
+  TIMELINE
 ===================================================== */
-
 function addTimeline(message) {
-
     const timeline =
         document.getElementById(
             "timeline"
         );
-
-
     const item =
         document.createElement(
             "div"
         );
-
-
     item.className =
         "timeline-item";
-
-
     const now =
         new Date();
-
-
     item.innerHTML =
-
         message +
-
         "<span>" +
-
         now.toLocaleTimeString() +
-
         "</span>";
-
-
     timeline.prepend(
         item
     );
-
 }
-
 </script>
-
-
 </body>
-
 </html>
