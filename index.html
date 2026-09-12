@@ -1,22 +1,34 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>RESILIENCE OS AI</title>
+
     <style>
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             background: #081B24;
             color: white;
             min-height: 100vh;
         }
-        /* ================= NAVIGATION ================= */
+
+        /* ================= NAVBAR ================= */
+
         nav {
             display: flex;
             justify-content: space-between;
@@ -28,19 +40,142 @@
             top: 0;
             z-index: 100;
         }
+
         .logo {
             font-size: 22px;
             font-weight: bold;
             color: #19D3E6;
         }
+
         nav a {
             color: white;
             text-decoration: none;
-            margin-left: 25px;
+            margin-left: 22px;
         }
+
         nav a:hover {
             color: #19D3E6;
         }
+
+        .logout-btn {
+            background: transparent;
+            color: #FF6B6B;
+            border: 1px solid #FF6B6B;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 20px;
+        }
+
+        /* ================= LOGIN ================= */
+
+        #authScreen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            background: #081B24;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 430px;
+            background: #0F2D38;
+            border: 1px solid #214653;
+            border-radius: 18px;
+            padding: 35px;
+            box-shadow: 0 0 35px rgba(0,0,0,0.3);
+        }
+
+        .auth-logo {
+            text-align: center;
+            color: #19D3E6;
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: #8FAAB3;
+            margin-bottom: 30px;
+        }
+
+        .auth-container h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #B7C8CE;
+            margin-bottom: 7px;
+            font-size: 14px;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 13px;
+            background: #081B24;
+            color: white;
+            border: 1px solid #214653;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: #19D3E6;
+        }
+
+        .auth-button {
+            width: 100%;
+            background: #19D3E6;
+            color: #081B24;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .auth-button:hover {
+            opacity: 0.9;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: #8FAAB3;
+        }
+
+        .auth-switch span {
+            color: #19D3E6;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .auth-message {
+            text-align: center;
+            margin-top: 15px;
+            color: #FF6B6B;
+            font-size: 14px;
+        }
+
+        /* ================= MAIN ================= */
+
+        #mainWebsite {
+            display: none;
+        }
+
         /* ================= HERO ================= */
 
         .hero {
@@ -51,9 +186,11 @@
             text-align: center;
             padding: 60px 20px;
         }
+
         .hero-content {
             max-width: 900px;
         }
+
         .tag {
             color: #19D3E6;
             font-size: 15px;
@@ -65,21 +202,25 @@
             font-size: 64px;
             margin-bottom: 20px;
         }
+
         h1 span {
             color: #19D3E6;
         }
+
         .hero p {
             color: #B7C8CE;
             font-size: 20px;
             line-height: 1.7;
             margin-bottom: 35px;
         }
+
         .buttons {
             display: flex;
             justify-content: center;
             gap: 15px;
             flex-wrap: wrap;
         }
+
         button {
             border: none;
             padding: 15px 25px;
@@ -88,35 +229,43 @@
             cursor: pointer;
             transition: 0.3s;
         }
+
         button:hover {
             transform: translateY(-2px);
         }
+
         .primary {
             background: #19D3E6;
             color: #081B24;
             font-weight: bold;
         }
+
         .secondary {
             background: transparent;
             color: white;
             border: 1px solid #19D3E6;
         }
-        /* ================= GENERAL SECTIONS ================= */
+
+        /* ================= SECTIONS ================= */
 
         section {
             padding: 70px 7%;
         }
+
         .section-title {
             text-align: center;
             font-size: 36px;
             margin-bottom: 45px;
         }
+
         /* ================= CARDS ================= */
+
         .cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
         }
+
         .card {
             background: #0F2D38;
             border: 1px solid #214653;
@@ -128,11 +277,14 @@
             color: #19D3E6;
             margin-bottom: 15px;
         }
+
         .card p {
             color: #B7C8CE;
             line-height: 1.6;
         }
+
         /* ================= NEO 1 ================= */
+
         .neo1-container {
             display: flex;
             align-items: center;
@@ -144,42 +296,106 @@
             border-radius: 18px;
             border: 1px solid #214653;
         }
+
         .neo1-image {
             flex: 1;
             text-align: center;
         }
+
         .neo1-image img {
             width: 100%;
             max-width: 350px;
             border-radius: 15px;
         }
+
         .neo1-info {
             flex: 1;
         }
+
         .neo1-info h3 {
             color: #19D3E6;
             font-size: 28px;
             margin-bottom: 15px;
         }
+
         .neo1-info p {
             color: #B7C8CE;
             line-height: 1.7;
         }
+
         .hardware-points {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
+
         .hardware-points div {
             background: #081B24;
             padding: 15px;
             border-radius: 8px;
             border: 1px solid #214653;
         }
-        .hardware-points div:hover {
-            border-color: #19D3E6;
+
+        /* ================= LOCATION ================= */
+
+        .location-card {
+            max-width: 1000px;
+            margin: auto;
+            background: #0F2D38;
+            border: 1px solid #214653;
+            border-radius: 18px;
+            padding: 30px;
         }
-        /* ================= HOW IT WORKS ================= */
+
+        .location-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .location-header h3 {
+            color: #19D3E6;
+        }
+
+        .location-status {
+            color: #35D07F;
+        }
+
+        .coordinates {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .coordinate-box {
+            background: #081B24;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #214653;
+        }
+
+        .coordinate-box small {
+            color: #8FAAB3;
+        }
+
+        .coordinate-box strong {
+            display: block;
+            margin-top: 8px;
+            font-size: 18px;
+            color: white;
+        }
+
+        .location-note {
+            color: #8FAAB3;
+            margin-top: 18px;
+            line-height: 1.5;
+        }
+
+        /* ================= PROCESS ================= */
+
         .process {
             display: flex;
             justify-content: center;
@@ -187,6 +403,7 @@
             gap: 15px;
             flex-wrap: wrap;
         }
+
         .process div {
             background: #0F2D38;
             border: 1px solid #19D3E6;
@@ -194,11 +411,14 @@
             border-radius: 10px;
             text-align: center;
         }
+
         .arrow {
             color: #FF7A1A;
             font-size: 25px;
         }
-        /* ================= PROFESSIONAL DASHBOARD ================= */
+
+        /* ================= DASHBOARD ================= */
+
         .dashboard {
             max-width: 1200px;
             margin: auto;
@@ -206,23 +426,26 @@
             border-radius: 20px;
             padding: 30px;
             border: 1px solid #214653;
-            box-shadow: 0 0 30px rgba(0,0,0,0.25);
         }
+
         .dashboard-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 25px;
-            gap: 20px;
             flex-wrap: wrap;
+            gap: 15px;
         }
+
         .dashboard-header h3 {
             font-size: 24px;
         }
+
         .live-indicator {
             color: #35D07F;
             font-size: 14px;
         }
+
         .live-dot {
             display: inline-block;
             width: 9px;
@@ -232,38 +455,43 @@
             margin-right: 7px;
             box-shadow: 0 0 10px #35D07F;
         }
-        /* STATUS CARDS */
+
         .status {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             margin-bottom: 20px;
         }
+
         .status-box {
             background: #081B24;
             padding: 22px;
             border-radius: 12px;
             border: 1px solid #214653;
         }
+
         .status-box small {
             color: #8FAAB3;
-            font-size: 13px;
         }
+
         .status-box strong {
             display: block;
             font-size: 28px;
             margin-top: 8px;
         }
+
         .safe {
             color: #35D07F;
         }
+
         .warning {
             color: #FF7A1A;
         }
+
         .danger {
             color: #FF3B3B;
         }
-        /* AI ANALYSIS */
+
         .analysis-box {
             background: #0F2D38;
             border: 1px solid #214653;
@@ -271,15 +499,17 @@
             padding: 25px;
             margin-bottom: 20px;
         }
+
         .analysis-title {
             display: flex;
-            align-items: center;
             gap: 10px;
             margin-bottom: 18px;
         }
+
         .analysis-title h3 {
             color: #19D3E6;
         }
+
         .analysis-content {
             background: #081B24;
             padding: 20px;
@@ -287,51 +517,52 @@
             color: #B7C8CE;
             line-height: 1.7;
         }
-        /* DASHBOARD GRID */
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 25px;
         }
+
         .panel {
             background: #0F2D38;
             border: 1px solid #214653;
             border-radius: 14px;
             padding: 25px;
         }
+
         .panel h3 {
             color: #19D3E6;
             margin-bottom: 20px;
         }
-        /* SENSOR SIGNALS */
+
         .sensor {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             padding: 14px;
             margin-bottom: 10px;
             background: #081B24;
             border-radius: 8px;
             border: 1px solid #214653;
         }
-        .sensor-name {
-            color: white;
-        }
+
         .sensor-status {
             color: #35D07F;
             font-size: 13px;
             font-weight: bold;
         }
-        /* TIMELINE */
+
         .timeline {
             border-left: 2px solid #214653;
             padding-left: 20px;
         }
+
         .timeline-item {
             position: relative;
             margin-bottom: 20px;
         }
+
         .timeline-item::before {
             content: "";
             position: absolute;
@@ -342,16 +573,17 @@
             left: -26px;
             top: 5px;
         }
+
         .timeline-item strong {
             display: block;
-            color: white;
             margin-bottom: 5px;
         }
+
         .timeline-item span {
             color: #8FAAB3;
             font-size: 13px;
         }
-        /* EMERGENCY AREA */
+
         .emergency-area {
             text-align: center;
             padding: 25px;
@@ -359,31 +591,30 @@
             border-radius: 14px;
             border: 1px solid #214653;
         }
-        .emergency-area h3 {
-            margin-bottom: 15px;
+
+        .emergency-area p {
+            color: #8FAAB3;
+            margin-bottom: 20px;
         }
+
         .emergency-btn {
             background: #FF3B3B;
             color: white;
             font-weight: bold;
-            padding: 17px 35px;
-            box-shadow: 0 0 20px rgba(255,59,59,0.25);
         }
+
         .reset-btn {
             background: transparent;
             color: #B7C8CE;
             border: 1px solid #214653;
             margin-left: 10px;
         }
-        /* EMERGENCY STATE */
+
         .dashboard.emergency {
             border-color: #FF3B3B;
             box-shadow: 0 0 35px rgba(255,59,59,0.15);
         }
-        .dashboard.emergency .live-dot {
-            background: #FF3B3B;
-            box-shadow: 0 0 12px #FF3B3B;
-        }
+
         .incident-banner {
             display: none;
             background: #35151A;
@@ -392,29 +623,27 @@
             border-radius: 12px;
             margin-bottom: 20px;
         }
+
         .incident-banner.active {
             display: block;
             animation: pulse 1.5s infinite;
         }
+
         .incident-banner h3 {
             color: #FF3B3B;
             margin-bottom: 8px;
         }
+
         .incident-banner p {
             color: #FFB4B4;
         }
-        @keyframes pulse {
 
-            0% {
-                box-shadow: 0 0 0 rgba(255,59,59,0);
-            }
-            50% {
-                box-shadow: 0 0 20px rgba(255,59,59,0.2);
-            }
-            100% {
-                box-shadow: 0 0 0 rgba(255,59,59,0);
-            }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 rgba(255,59,59,0); }
+            50% { box-shadow: 0 0 20px rgba(255,59,59,0.2); }
+            100% { box-shadow: 0 0 0 rgba(255,59,59,0); }
         }
+
         /* ================= FOOTER ================= */
 
         footer {
@@ -423,6 +652,7 @@
             background: #06141B;
             color: #8FAAB3;
         }
+
         /* ================= MOBILE ================= */
 
         @media (max-width: 800px) {
@@ -430,543 +660,1538 @@
             h1 {
                 font-size: 42px;
             }
+
             nav {
                 flex-direction: column;
                 gap: 15px;
             }
+
             nav a {
                 margin: 0 8px;
             }
+
             .neo1-container {
                 flex-direction: column;
             }
-            .hardware-points {
-                grid-template-columns: 1fr;
-            }
+
             .status {
                 grid-template-columns: 1fr 1fr;
             }
+
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
+
         }
+
         @media (max-width: 500px) {
+
             .status {
                 grid-template-columns: 1fr;
             }
-            .dashboard {
-                padding: 18px;
+
+            .coordinates {
+                grid-template-columns: 1fr;
             }
+
             .reset-btn {
                 margin-left: 0;
                 margin-top: 10px;
             }
+
+            .auth-container {
+                padding: 25px;
+            }
+
         }
+
     </style>
+
 </head>
+
+
 <body>
+
+
+<!-- ===================================================== -->
+<!-- LOGIN / REGISTER SCREEN -->
+<!-- ===================================================== -->
+
+<div id="authScreen">
+
+    <div class="auth-container">
+
+        <div class="auth-logo">
+            RESILIENCE OS AI
+        </div>
+
+        <div class="auth-subtitle">
+            AI-Powered Emergency Intelligence
+        </div>
+
+
+        <!-- LOGIN -->
+
+        <div id="loginForm">
+
+            <h2>Welcome Back</h2>
+
+            <div class="input-group">
+
+                <label>Email</label>
+
+                <input
+                    type="email"
+                    id="loginEmail"
+                    placeholder="Enter your email"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>Password</label>
+
+                <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Enter your password"
+                >
+
+            </div>
+
+
+            <button
+                class="auth-button"
+                onclick="loginUser()"
+            >
+                LOGIN
+            </button>
+
+
+            <div class="auth-switch">
+
+                Don't have an account?
+
+                <span onclick="showRegister()">
+                    Register
+                </span>
+
+            </div>
+
+
+            <div
+                class="auth-message"
+                id="loginMessage"
+            ></div>
+
+        </div>
+
+
+        <!-- REGISTER -->
+
+        <div
+            id="registerForm"
+            style="display:none;"
+        >
+
+            <h2>Create Account</h2>
+
+
+            <div class="input-group">
+
+                <label>Full Name</label>
+
+                <input
+                    type="text"
+                    id="registerName"
+                    placeholder="Enter your name"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>Email</label>
+
+                <input
+                    type="email"
+                    id="registerEmail"
+                    placeholder="Enter your email"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>Password</label>
+
+                <input
+                    type="password"
+                    id="registerPassword"
+                    placeholder="Create a password"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>Role</label>
+
+                <select id="registerRole">
+
+                    <option value="User">
+                        User
+                    </option>
+
+                    <option value="Responder">
+                        Responder
+                    </option>
+
+                    <option value="Admin">
+                        Admin
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button
+                class="auth-button"
+                onclick="registerUser()"
+            >
+                CREATE ACCOUNT
+            </button>
+
+
+            <div class="auth-switch">
+
+                Already have an account?
+
+                <span onclick="showLogin()">
+                    Login
+                </span>
+
+            </div>
+
+
+            <div
+                class="auth-message"
+                id="registerMessage"
+            ></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- MAIN WEBSITE -->
+<!-- ===================================================== -->
+
+<div id="mainWebsite">
+
+
     <!-- ================= NAVIGATION ================= -->
+
     <nav>
+
         <div class="logo">
             RESILIENCE OS AI
         </div>
+
         <div>
+
             <a href="#home">Home</a>
             <a href="#problem">Problem</a>
             <a href="#solution">Solution</a>
             <a href="#neo1">Neo 1</a>
+            <a href="#location">Location</a>
             <a href="#dashboard">Dashboard</a>
+
+            <button
+                class="logout-btn"
+                onclick="logoutUser()"
+            >
+                Logout
+            </button>
+
         </div>
+
     </nav>
+
+
     <!-- ================= HERO ================= -->
-    <section class="hero" id="home">
+
+    <section
+        class="hero"
+        id="home"
+    >
+
         <div class="hero-content">
+
             <div class="tag">
                 AI-POWERED RESILIENCE PLATFORM
             </div>
+
             <h1>
                 Sense.<br>
                 <span>Understand. Respond.</span>
             </h1>
+
             <p>
                 RESILIENCE OS AI combines wearable hardware,
                 sensor signals and artificial intelligence to
                 understand risky situations and coordinate
                 faster emergency responses.
             </p>
+
             <div class="buttons">
-                <button class="primary" onclick="showDashboard()">
+
+                <button
+                    class="primary"
+                    onclick="showDashboard()"
+                >
                     Open Live Dashboard
                 </button>
-                <button class="secondary" onclick="scrollToSolution()">
-                    How It Works
+
+                <button
+                    class="secondary"
+                    onclick="getLocation()"
+                >
+                    📍 Get My Location
                 </button>
+
             </div>
+
         </div>
+
     </section>
+
+
     <!-- ================= PROBLEM ================= -->
+
     <section id="problem">
-     <h2 class="section-title">
+
+        <h2 class="section-title">
             The Problem
         </h2>
+
         <div class="cards">
+
             <div class="card">
-                <h3>⚠️ Risk Goes Unnoticed</h3>
+
+                <h3>
+                    ⚠️ Risk Goes Unnoticed
+                </h3>
+
                 <p>
                     Important signals from people, devices and
                     environments can be missed during critical
                     situations.
                 </p>
+
             </div>
+
+
             <div class="card">
-                <h3>📡 Scattered Signals</h3>
+
+                <h3>
+                    📡 Scattered Signals
+                </h3>
+
                 <p>
-                    Sensor information and incident information
-                    may exist in different systems without a
-                    unified intelligence layer.
+                    Sensor information may exist in different
+                    systems without a unified intelligence layer.
                 </p>
+
             </div>
+
+
             <div class="card">
-                <h3>⏱️ Slow Response</h3>
+
+                <h3>
+                    ⏱️ Slow Response
+                </h3>
+
                 <p>
                     Delays in understanding an incident can lead
                     to delays in taking the right action.
                 </p>
+
             </div>
+
         </div>
+
     </section>
+
+
     <!-- ================= SOLUTION ================= -->
+
     <section id="solution">
+
         <h2 class="section-title">
             Our Solution
         </h2>
+
         <div class="cards">
+
             <div class="card">
+
                 <h3>📡 Sense</h3>
+
                 <p>
                     Capture relevant signals through Neo 1 and
                     the prototype sensor layer.
                 </p>
+
             </div>
+
+
             <div class="card">
+
                 <h3>🧠 Understand</h3>
+
                 <p>
                     AI analyzes available signals and context
                     to estimate the situation and risk level.
                 </p>
+
             </div>
+
+
             <div class="card">
+
                 <h3>🚨 Respond</h3>
+
                 <p>
                     The system presents alerts, incident details
                     and recommended response actions.
                 </p>
+
             </div>
+
         </div>
+
     </section>
+
+
     <!-- ================= NEO 1 ================= -->
+
     <section id="neo1">
+
         <h2 class="section-title">
             Neo 1 Hardware
         </h2>
+
         <div class="neo1-container">
+
             <div class="neo1-image">
+
                 <img
                     src="neo1.png"
                     alt="Neo 1 wearable AI hardware"
                 >
+
             </div>
+
+
             <div class="neo1-info">
+
                 <h3>
                     Neo 1 — Wearable AI Interface
                 </h3>
+
                 <p>
                     Neo 1 acts as the wearable hardware interface
                     for RESILIENCE OS AI.
                 </p>
+
                 <br>
+
                 <p>
                     The system can combine the wearable interface
                     with prototype sensor signals and AI analysis
                     to understand situations and support faster
                     response.
                 </p>
+
                 <br>
+
                 <div class="hardware-points">
+
                     <div>📡 Wearable Interface</div>
                     <div>🧠 AI Intelligence</div>
                     <div>📊 Sensor Signals</div>
                     <div>🚨 Emergency Response</div>
+
                 </div>
+
             </div>
+
         </div>
+
     </section>
+
+
+    <!-- ================= LOCATION ================= -->
+
+    <section id="location">
+
+        <h2 class="section-title">
+            📍 Location Intelligence
+        </h2>
+
+
+        <div class="location-card">
+
+
+            <div class="location-header">
+
+                <h3>
+                    Current Device Location
+                </h3>
+
+                <span
+                    class="location-status"
+                    id="locationStatus"
+                >
+                    ● LOCATION NOT ACTIVE
+                </span>
+
+            </div>
+
+
+            <div class="coordinates">
+
+                <div class="coordinate-box">
+
+                    <small>
+                        LATITUDE
+                    </small>
+
+                    <strong id="latitude">
+                        Not available
+                    </strong>
+
+                </div>
+
+
+                <div class="coordinate-box">
+
+                    <small>
+                        LONGITUDE
+                    </small>
+
+                    <strong id="longitude">
+                        Not available
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <br>
+
+
+            <button
+                class="primary"
+                onclick="getLocation()"
+            >
+                📍 GET MY LOCATION
+            </button>
+
+
+            <p class="location-note">
+
+                Location access requires browser permission.
+                Coordinates are displayed locally in this
+                prototype for demonstration purposes.
+
+            </p>
+
+        </div>
+
+    </section>
+
+
     <!-- ================= HOW IT WORKS ================= -->
+
     <section>
+
         <h2 class="section-title">
             How It Works
         </h2>
+
+
         <div class="process">
+
             <div>
-                <h3>Neo 1</h3>
-                <p>Wearable Interface</p>
+
+                <h3>
+                    Neo 1
+                </h3>
+
+                <p>
+                    Wearable Interface
+                </p>
+
             </div>
-            <div class="arrow">→</div>
+
+
+            <div class="arrow">
+                →
+            </div>
+
+
             <div>
-                <h3>Sensor Layer</h3>
-                <p>Real-world Signals</p>
+
+                <h3>
+                    Sensor Layer
+                </h3>
+
+                <p>
+                    Real-world Signals
+                </p>
+
             </div>
-            <div class="arrow">→</div>
+
+
+            <div class="arrow">
+                →
+            </div>
+
+
             <div>
-                <h3>AI Engine</h3>
-                <p>Risk Analysis</p>
+
+                <h3>
+                    AI Engine
+                </h3>
+
+                <p>
+                    Risk Analysis
+                </p>
+
             </div>
-            <div class="arrow">→</div>
+
+
+            <div class="arrow">
+                →
+            </div>
+
+
             <div>
-                <h3>Dashboard</h3>
-                <p>Response</p>
+
+                <h3>
+                    Dashboard
+                </h3>
+
+                <p>
+                    Response
+                </p>
+
             </div>
+
         </div>
+
     </section>
-    <!-- ================= PROFESSIONAL DASHBOARD ================= -->
+
+
+    <!-- ================= DASHBOARD ================= -->
+
     <section id="dashboard">
+
         <h2 class="section-title">
             Live Incident Dashboard
         </h2>
-        <div class="dashboard" id="dashboardBox">
-            <!-- HEADER -->
+
+
+        <div
+            class="dashboard"
+            id="dashboardBox"
+        >
+
+
             <div class="dashboard-header">
-                <div>
-                    <h3>
-                        RESILIENCE OS AI — LIVE MONITORING
-                    </h3>
-                </div>
+
+                <h3>
+                    RESILIENCE OS AI — LIVE MONITORING
+                </h3>
+
                 <div class="live-indicator">
+
                     <span class="live-dot"></span>
+
                     LIVE MONITORING
+
                 </div>
+
             </div>
-            <!-- INCIDENT BANNER -->
+
+
+            <!-- INCIDENT -->
+
             <div
                 class="incident-banner"
                 id="incidentBanner"
             >
+
                 <h3>
                     🔴 HIGH RISK — INCIDENT DETECTED
                 </h3>
+
                 <p>
-                    Abnormal sensor pattern detected.
-                    AI assessment indicates a potential emergency situation.
+                    Abnormal prototype sensor pattern detected.
+                    AI assessment indicates a potential emergency
+                    situation.
                 </p>
+
             </div>
+
+
             <!-- STATUS -->
+
             <div class="status">
+
+
                 <div class="status-box">
+
                     <small>
                         SYSTEM STATUS
                     </small>
+
                     <strong
                         id="systemStatus"
                         class="safe"
                     >
                         ONLINE
                     </strong>
+
                 </div>
+
+
                 <div class="status-box">
+
                     <small>
                         RISK LEVEL
                     </small>
+
                     <strong
                         id="risk"
                         class="safe"
                     >
                         LOW
                     </strong>
+
                 </div>
+
+
                 <div class="status-box">
+
                     <small>
                         ACTIVE ALERTS
                     </small>
+
                     <strong id="alerts">
                         0
                     </strong>
+
                 </div>
+
+
                 <div class="status-box">
+
                     <small>
                         DEVICES ONLINE
                     </small>
-                    <strong> 
+
+                    <strong>
                         01
                     </strong>
+
                 </div>
+
             </div>
+
+
             <!-- AI ANALYSIS -->
+
             <div class="analysis-box">
+
                 <div class="analysis-title">
+
                     <span>🧠</span>
+
                     <h3>
                         AI SITUATION ANALYSIS
                     </h3>
+
                 </div>
+
+
                 <div
                     class="analysis-content"
                     id="analysis"
                 >
+
                     <strong>
                         ✓ No active incident
                     </strong>
-                    <br>
-                    Monitoring sensor signals and
-                    environmental conditions...
+
+                    <br><br>
+
+                    Monitoring prototype sensor signals
+                    and environmental conditions...
+
                 </div>
+
             </div>
+
+
             <!-- SENSOR + TIMELINE -->
-            <div class="dashboard-grid"
-                <!-- SENSOR SIGNALS -->
+
+            <div class="dashboard-grid">
+
+
                 <div class="panel">
+
                     <h3>
                         📡 SENSOR SIGNALS
                     </h3>
+
+
                     <div class="sensor">
-                        <span class="sensor-name">
+
+                        <span>
                             Motion
                         </span>
+
                         <span
                             class="sensor-status"
                             id="motionStatus"
                         >
                             NORMAL
                         </span>
+
                     </div>
+
+
                     <div class="sensor">
-                        <span class="sensor-name">
+
+                        <span>
                             Location
                         </span>
+
                         <span
                             class="sensor-status"
-                            id="locationStatus"
+                            id="dashboardLocationStatus"
                         >
-                            ACTIVE
+                            INACTIVE
                         </span>
+
                     </div>
+
+
                     <div class="sensor">
-                        <span class="sensor-name">
+
+                        <span>
                             Environment
                         </span>
+
                         <span
                             class="sensor-status"
                             id="environmentStatus"
                         >
                             NORMAL
                         </span>
+
                     </div>
+
                 </div>
-                <!-- INCIDENT TIMELINE -->
+
+
+                <!-- TIMELINE -->
+
                 <div class="panel">
+
                     <h3>
                         🕐 INCIDENT TIMELINE
                     </h3>
+
+
                     <div
                         class="timeline"
                         id="timeline"
                     >
+
                         <div class="timeline-item">
+
                             <strong>
                                 System online
                             </strong>
+
                             <span>
-                                10:30 — Monitoring initialized
+                                Monitoring initialized
                             </span>
+
                         </div>
+
+
                         <div class="timeline-item">
+
                             <strong>
                                 Sensors ready
                             </strong>
+
                             <span>
-                                10:31 — Prototype signals connected
+                                Prototype signals connected
                             </span>
+
                         </div>
+
+
                         <div class="timeline-item">
+
                             <strong>
                                 AI monitoring active
                             </strong>
+
                             <span>
-                                10:32 — Situation analysis started
+                                Situation analysis started
                             </span>
+
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
-            <!-- EMERGENCY BUTTON -->
+
+
+            <!-- EMERGENCY -->
+
             <div class="emergency-area">
+
                 <h3>
                     🚨 Emergency Simulation
                 </h3>
-                <p
-                    style="color:#8FAAB3; margin-bottom:20px;"
-                >
-                    Demonstrate how the system responds
+
+                <p>
+                    Demonstrate how the prototype responds
                     to an abnormal sensor pattern.
                 </p>
+
+
                 <button
                     class="emergency-btn"
                     onclick="simulateEmergency()"
                 >
                     🚨 SIMULATE EMERGENCY
                 </button>
+
+
                 <button
                     class="reset-btn"
                     onclick="resetSystem()"
                 >
                     Reset System
                 </button>
+
             </div>
+
         </div>
+
     </section>
+
+
     <!-- ================= FOOTER ================= -->
+
     <footer>
+
         <p>
             RESILIENCE OS AI
         </p>
+
         <p>
             AI-Powered Resilience & Emergency Intelligence
         </p>
+
         <br>
+
         <small>
             Prototype • Hackathon Demonstration
         </small>
+
     </footer>
-    <!-- ================= JAVASCRIPT ================= -->
-    <script>
-        function showDashboard() {
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- JAVASCRIPT -->
+<!-- ===================================================== -->
+
+<script>
+
+
+/* ===================================================== */
+/* LOGIN / REGISTER */
+/* ===================================================== */
+
+
+function showRegister() {
+
+    document
+        .getElementById("loginForm")
+        .style.display = "none";
+
+    document
+        .getElementById("registerForm")
+        .style.display = "block";
+
+}
+
+
+function showLogin() {
+
+    document
+        .getElementById("registerForm")
+        .style.display = "none";
+
+    document
+        .getElementById("loginForm")
+        .style.display = "block";
+
+}
+
+
+function registerUser() {
+
+    const name =
+        document.getElementById("registerName").value;
+
+    const email =
+        document.getElementById("registerEmail").value;
+
+    const password =
+        document.getElementById("registerPassword").value;
+
+    const role =
+        document.getElementById("registerRole").value;
+
+
+    if (!name || !email || !password) {
+
+        document
+            .getElementById("registerMessage")
+            .innerText =
+            "Please fill all fields.";
+
+        return;
+
+    }
+
+
+    const user = {
+
+        name: name,
+        email: email,
+        password: password,
+        role: role
+
+    };
+
+
+    localStorage.setItem(
+        "resilienceUser",
+        JSON.stringify(user)
+    );
+
+
+    document
+        .getElementById("registerMessage")
+        .style.color = "#35D07F";
+
+
+    document
+        .getElementById("registerMessage")
+        .innerText =
+        "Account created successfully. Please login.";
+
+
+    setTimeout(
+        showLogin,
+        1000
+    );
+
+}
+
+
+function loginUser() {
+
+    const email =
+        document.getElementById("loginEmail").value;
+
+    const password =
+        document.getElementById("loginPassword").value;
+
+
+    const storedUser =
+        localStorage.getItem("resilienceUser");
+
+
+    if (!storedUser) {
+
+        document
+            .getElementById("loginMessage")
+            .innerText =
+            "No account found. Please register first.";
+
+        return;
+
+    }
+
+
+    const user =
+        JSON.parse(storedUser);
+
+
+    if (
+        email === user.email &&
+        password === user.password
+    ) {
+
+        localStorage.setItem(
+            "loggedIn",
+            "true"
+        );
+
+
+        openWebsite();
+
+    }
+
+    else {
+
+        document
+            .getElementById("loginMessage")
+            .innerText =
+            "Incorrect email or password.";
+
+    }
+
+}
+
+
+function logoutUser() {
+
+    localStorage.removeItem("loggedIn");
+
+    document
+        .getElementById("mainWebsite")
+        .style.display = "none";
+
+    document
+        .getElementById("authScreen")
+        .style.display = "flex";
+
+}
+
+
+function openWebsite() {
+
+    document
+        .getElementById("authScreen")
+        .style.display = "none";
+
+    document
+        .getElementById("mainWebsite")
+        .style.display = "block";
+
+}
+
+
+/* ===================================================== */
+/* CHECK LOGIN */
+/* ===================================================== */
+
+
+window.onload = function () {
+
+    if (
+        localStorage.getItem("loggedIn") === "true"
+    ) {
+
+        openWebsite();
+
+    }
+
+};
+
+
+/* ===================================================== */
+/* NAVIGATION */
+/* ===================================================== */
+
+
+function showDashboard() {
+
+    document
+        .getElementById("dashboard")
+        .scrollIntoView({
+            behavior: "smooth"
+        });
+
+}
+
+
+/* ===================================================== */
+/* LOCATION */
+/* ===================================================== */
+
+
+function getLocation() {
+
+
+    if (!navigator.geolocation) {
+
+        alert(
+            "Geolocation is not supported by this browser."
+        );
+
+        return;
+
+    }
+
+
+    document
+        .getElementById("locationStatus")
+        .innerText =
+        "● REQUESTING LOCATION...";
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position) {
+
+
+            const latitude =
+                position.coords.latitude.toFixed(6);
+
+            const longitude =
+                position.coords.longitude.toFixed(6);
+
+
             document
-                .getElementById("dashboard")
-                .scrollIntoView({
-                    behavior: "smooth"
-                });
-        }
-        function scrollToSolution() {
+                .getElementById("latitude")
+                .innerText =
+                latitude;
+
+
             document
-                .getElementById("solution")
-                .scrollIntoView({
-                    behavior: "smooth"
-                });
-        }
-        function simulateEmergency() {
-            /* Dashboard */
-            document
-                .getElementById("dashboardBox")
-                .classList.add("emergency");
-            /* Incident banner */
-            document
-                .getElementById("incidentBanner")
-                .classList.add("active");
-            /* Risk */
-            const risk =
-                document.getElementById("risk");
-            risk.innerText = "HIGH";
-            risk.className = "danger";
-            /* Alerts */
-            document
-                .getElementById("alerts")
-                .innerText = "1";
-            /* System */
-            const systemStatus =
-                document.getElementById("systemStatus");
-            systemStatus.innerText =
-                "ALERT";
-            systemStatus.className =
-                "danger";
-            /* Sensor signals */
-            document
-                .getElementById("motionStatus")
-                .innerText = "ABNORMAL";
-            document
-                .getElementById("motionStatus")
-                .className = "sensor-status danger";
-            document
-                .getElementById("environmentStatus")
-                .innerText = "ELEVATED";
-            document
-                .getElementById("environmentStatus")
-                .className = "sensor-status warning";
-            /* AI Analysis */
-            document
-                .getElementById("analysis")
-                .innerHTML =
-                "<strong style='color:#FF3B3B;'>⚠️ INCIDENT DETECTED</strong>" +
-                "<br><br>" +
-                "Abnormal sensor pattern detected." +
-                "<br><br>" +
-                "<strong>AI Assessment:</strong><br>" +
-                "Potential emergency situation identified." +
-                "<br><br>" +
-                "<strong>Recommended Action:</strong><br>" +
-                "Verify the incident and initiate emergency response.";
-            /* Timeline */
-            const timeline =
-                document.getElementById("timeline");
-            const incident =
-                document.createElement("div");
-            incident.className =
-                "timeline-item";
-            incident.innerHTML =
-                "<strong style='color:#FF3B3B;'>🚨 Incident detected</strong>" +
-                "<span>NOW — AI identified abnormal sensor pattern</span>";
-        timeline.prepend(incident);
-        }
-        function resetSystem() {
-            /* Dashboard */
-            document
-                .getElementById("dashboardBox")
-                .classList.remove("emergency");
-            /* Banner */
-            document
-                .getElementById("incidentBanner")
-                .classList.remove("active");
-            /* Risk */
-            const risk =
-                document.getElementById("risk");
-            risk.innerText = "LOW";
-            risk.className = "safe";
-            /* Alerts */
-            document
-                .getElementById("alerts")
-                .innerText = "0";
-            /* System */
-            const systemStatus =
-                document.getElementById("systemStatus");
-            systemStatus.innerText =
-                "ONLINE";
-            systemStatus.className =
-                "safe";
-            /* Sensors */
-            document
-                .getElementById("motionStatus")
-                .innerText = "NORMAL";
-            document
-                .getElementById("motionStatus")
-                .className =
-                "sensor-status";
+                .getElementById("longitude")
+                .innerText =
+                longitude;
+
+
             document
                 .getElementById("locationStatus")
-                .innerText = "ACTIVE";
+                .innerText =
+                "● LOCATION ACTIVE";
+
+
             document
-                .getElementById("environmentStatus")
-                .innerText = "NORMAL";
+                .getElementById("locationStatus")
+                .style.color =
+                "#35D07F";
+
+
             document
-                .getElementById("environmentStatus")
-                .className =
-                "sensor-status";
-            /* AI */
+                .getElementById("dashboardLocationStatus")
+                .innerText =
+                "ACTIVE";
+
+
+            addTimeline(
+                "📍 Location acquired",
+                "Current device coordinates available"
+            );
+
+        },
+
+
+        function(error) {
+
             document
-                .getElementById("analysis")
-                .innerHTML =
-                "<strong>✓ No active incident</strong>" +
-                "<br><br>" +
-                "Monitoring sensor signals and " +
-                "environmental conditions...";
+                .getElementById("locationStatus")
+                .innerText =
+                "● LOCATION DENIED";
+
+
+            document
+                .getElementById("locationStatus")
+                .style.color =
+                "#FF3B3B";
+
+
+            alert(
+                "Location permission was denied or unavailable."
+            );
+
         }
-    </script>
+
+    );
+
+}
+
+
+/* ===================================================== */
+/* EMERGENCY SIMULATION */
+/* ===================================================== */
+
+
+function simulateEmergency() {
+
+
+    const dashboard =
+        document.getElementById("dashboardBox");
+
+
+    dashboard.classList.add("emergency");
+
+
+    document
+        .getElementById("incidentBanner")
+        .classList.add("active");
+
+
+    /* SYSTEM */
+
+    const systemStatus =
+        document.getElementById("systemStatus");
+
+    systemStatus.innerText =
+        "ALERT";
+
+    systemStatus.className =
+        "danger";
+
+
+    /* RISK */
+
+    const risk =
+        document.getElementById("risk");
+
+    risk.innerText =
+        "HIGH";
+
+    risk.className =
+        "danger";
+
+
+    /* ALERT */
+
+    document
+        .getElementById("alerts")
+        .innerText =
+        "1";
+
+
+    /* MOTION */
+
+    const motion =
+        document.getElementById("motionStatus");
+
+    motion.innerText =
+        "ABNORMAL";
+
+    motion.className =
+        "sensor-status danger";
+
+
+    /* ENVIRONMENT */
+
+    const environment =
+        document.getElementById("environmentStatus");
+
+    environment.innerText =
+        "ELEVATED";
+
+    environment.className =
+        "sensor-status warning";
+
+
+    /* AI ANALYSIS */
+
+    document
+        .getElementById("analysis")
+        .innerHTML =
+
+        "<strong style='color:#FF3B3B;'>⚠️ INCIDENT DETECTED</strong>" +
+
+        "<br><br>" +
+
+        "Abnormal prototype sensor pattern detected." +
+
+        "<br><br>" +
+
+        "<strong>AI Assessment:</strong><br>" +
+
+        "Potential emergency situation identified." +
+
+        "<br><br>" +
+
+        "<strong>Recommended Action:</strong><br>" +
+
+        "Verify the incident and initiate emergency response.";
+
+
+    addTimeline(
+        "🚨 Incident detected",
+        "AI identified abnormal prototype sensor pattern"
+    );
+
+
+    addTimeline(
+        "🧠 AI assessment completed",
+        "Risk level classified as HIGH"
+    );
+
+
+    addTimeline(
+        "🚑 Response recommendation generated",
+        "Verify incident and initiate response"
+    );
+
+}
+
+
+/* ===================================================== */
+/* RESET */
+/* ===================================================== */
+
+
+function resetSystem() {
+
+
+    document
+        .getElementById("dashboardBox")
+        .classList.remove("emergency");
+
+
+    document
+        .getElementById("incidentBanner")
+        .classList.remove("active");
+
+
+    const systemStatus =
+        document.getElementById("systemStatus");
+
+    systemStatus.innerText =
+        "ONLINE";
+
+    systemStatus.className =
+        "safe";
+
+
+    const risk =
+        document.getElementById("risk");
+
+    risk.innerText =
+        "LOW";
+
+    risk.className =
+        "safe";
+
+
+    document
+        .getElementById("alerts")
+        .innerText =
+        "0";
+
+
+    const motion =
+        document.getElementById("motionStatus");
+
+    motion.innerText =
+        "NORMAL";
+
+    motion.className =
+        "sensor-status";
+
+
+    const environment =
+        document.getElementById("environmentStatus");
+
+    environment.innerText =
+        "NORMAL";
+
+    environment.className =
+        "sensor-status";
+
+
+    document
+        .getElementById("analysis")
+        .innerHTML =
+
+        "<strong>✓ No active incident</strong>" +
+
+        "<br><br>" +
+
+        "Monitoring prototype sensor signals " +
+
+        "and environmental conditions...";
+
+}
+
+
+/* ===================================================== */
+/* TIMELINE */
+/* ===================================================== */
+
+
+function addTimeline(title, description) {
+
+
+    const timeline =
+        document.getElementById("timeline");
+
+
+    const item =
+        document.createElement("div");
+
+
+    item.className =
+        "timeline-item";
+
+
+    item.innerHTML =
+
+        "<strong>" +
+        title +
+        "</strong>" +
+
+        "<span>" +
+        description +
+        "</span>";
+
+
+    timeline.prepend(item);
+
+}
+
+</script>
+
+
 </body>
 </html>
+```
