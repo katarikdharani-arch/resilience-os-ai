@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/png" href="logo.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>RESILIENCE OS AI | AI-Powered Disaster Resilience</title>
 <meta name="description" content="RESILIENCE OS AI is an AI-powered disaster resilience platform for incident monitoring, risk analysis, SOS alerts, and emergency response support.">
 <meta name="robots" content="index, follow">
@@ -10,109 +12,138 @@
 <meta property="og:title" content="RESILIENCE OS AI">
 <meta property="og:description" content="AI-powered disaster resilience, incident monitoring, risk analysis, and emergency response support.">
 <meta property="og:type" content="website">
+
 <link
 rel="stylesheet"
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 />
+
 <style>
+
 /* =========================================================
 GLOBAL
 ========================================================= */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
 html {
     scroll-behavior: smooth;
 }
+
 body {
     font-family: Arial, Helvetica, sans-serif;
     background: #071820;
     color: #eaf7fa;
     line-height: 1.6;
 }
+
 a {
     text-decoration: none;
     color: inherit;
 }
+
 .container {
     max-width: 1200px;
     margin: auto;
     padding: 0 20px;
 }
+
 section {
     padding: 80px 0;
 }
+
 .section-title {
     font-size: 32px;
     margin-bottom: 12px;
 }
+
 .section-subtitle {
     color: #9fb8c0;
     margin-bottom: 30px;
 }
+
 .card {
     background: #0d2731;
     border: 1px solid #214653;
     border-radius: 18px;
     padding: 28px;
 }
+
 .grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 22px;
 }
+
 .grid-3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 22px;
 }
+
 /* =========================================================
 NAVBAR
 ========================================================= */
+
 .navbar {
     position: sticky;
     top: 0;
     z-index: 1000;
+
     background: rgba(7, 24, 32, 0.96);
+
     border-bottom: 1px solid #214653;
+
     backdrop-filter: blur(12px);
 }
+
 .nav-container {
     max-width: 1250px;
     margin: auto;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     padding: 16px 20px;
 }
+
 .logo {
     font-size: 21px;
     font-weight: bold;
     color: #8fd8e8;
 }
+
 .logo span {
     color: white;
 }
+
 .nav-links {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
+
 .nav-links a {
     padding: 8px 11px;
     border-radius: 7px;
     font-size: 13px;
     color: #a9c3ca;
 }
+
 .nav-links a:hover {
     background: #12333e;
     color: white;
 }
+
 /* =========================================================
 BUTTONS
 ========================================================= */
+
 button {
     border: none;
     cursor: pointer;
@@ -121,35 +152,44 @@ button {
     padding: 12px 17px;
     transition: 0.2s;
 }
+
 button:hover {
     transform: translateY(-1px);
 }
+
 .btn-primary {
     background: #63cfe2;
     color: #06161c;
 }
+
 .btn-secondary {
     background: #102f39;
     color: #bde8f0;
     border: 1px solid #2a5b68;
 }
+
 .btn-danger {
     background: #6d2730;
     color: #ffdce0;
     border: 1px solid #9c424d;
 }
+
 .btn-warning {
     background: #624e20;
     color: #ffe7a1;
     border: 1px solid #91772f;
 }
+
 /* =========================================================
 HERO
 ========================================================= */
+
 .hero {
     min-height: 88vh;
+
     display: flex;
     align-items: center;
+
     background:
         radial-gradient(
             circle at 80% 20%,
@@ -157,138 +197,200 @@ HERO
             transparent 35%
         );
 }
+
 .hero-content {
     max-width: 800px;
 }
+
 .badge {
     display: inline-block;
+
     padding: 7px 12px;
+
     background: #102f39;
+
     border: 1px solid #2b6674;
+
     color: #8fd8e8;
+
     border-radius: 30px;
+
     font-size: 12px;
+
     margin-bottom: 20px;
 }
+
 .hero h1 {
     font-size: clamp(45px, 7vw, 82px);
     line-height: 0.95;
     margin-bottom: 25px;
 }
+
 .hero h1 span {
     color: #67d5e8;
 }
+
 .hero p {
     max-width: 700px;
+
     color: #a9c3ca;
+
     font-size: 18px;
+
     margin-bottom: 30px;
 }
+
 .hero-buttons {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
 }
+
 /* =========================================================
 PROBLEM / SOLUTION
 ========================================================= */
+
 .problem-list,
 .solution-list {
     list-style: none;
 }
+
 .problem-list li,
 .solution-list li {
     padding: 13px 0;
+
     border-bottom: 1px solid #1c3b44;
+
     color: #b4cbd1;
 }
+
 .problem-list li:last-child,
 .solution-list li:last-child {
     border-bottom: none;
 }
+
 .problem-list li::before {
     content: "⚠ ";
 }
+
 .solution-list li::before {
     content: "✓ ";
     color: #70d7a3;
 }
+
 /* =========================================================
 NEO 1
 ========================================================= */
+
 .neo1-container {
     display: flex;
     align-items: center;
+
     gap: 50px;
+
     max-width: 1000px;
+
     margin: auto;
+
     background: #0f2d38;
+
     padding: 40px;
+
     border-radius: 18px;
+
     border: 1px solid #214653;
 }
+
 .neo1-image {
     width: 300px;
     max-width: 100%;
     border-radius: 15px;
 }
+
 .neo1-text {
     flex: 1;
 }
+
 .neo1-text h3 {
     font-size: 30px;
     margin-bottom: 12px;
 }
+
 .neo1-text p {
     color: #a9c3ca;
 }
+
 /* =========================================================
 MAP
 ========================================================= */
+
 #map {
     width: 100%;
     height: 450px;
+
     border-radius: 15px;
+
     margin-top: 20px;
 }
+
 .map-controls {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
+
 .location-info {
     margin-top: 15px;
+
     padding: 15px;
+
     background: #102f39;
+
     border-radius: 10px;
+
     color: #9fd9e3;
 }
+
 .route-info {
     margin-top: 15px;
+
     padding: 15px;
+
     background: #102f39;
+
     border-radius: 10px;
+
     color: #a9c3ca;
 }
+
 /* =========================================================
 DASHBOARD
 ========================================================= */
+
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+
     gap: 15px;
+
     margin-bottom: 25px;
 }
+
 .metric {
     background: #0d2731;
+
     border: 1px solid #214653;
+
     border-radius: 15px;
+
     padding: 20px;
 }
+
 .metric-label {
     color: #8faeb7;
     font-size: 13px;
 }
+
 .metric-value {
     font-size: 30px;
 
@@ -296,140 +398,212 @@ DASHBOARD
 
     margin-top: 8px;
 }
+
 .risk-high {
     color: #ff8c8c;
 }
+
 .risk-medium {
     color: #ffd27d;
 }
+
 .risk-low {
     color: #77e0a8;
 }
+
 .risk-critical {
     color: #ff5252;
 }
+
 /* =========================================================
 DASHBOARD SIGNALS
 ========================================================= */
+
 .signal {
     display: flex;
+
     justify-content: space-between;
+
     padding: 13px 0;
+
     border-bottom: 1px solid #1c3b44;
 }
+
 .signal:last-child {
     border-bottom: none;
 }
+
 .signal span:first-child {
     color: #9fb8c0;
 }
+
 /* =========================================================
 TIMELINE
 ========================================================= */
+
 .timeline {
     border-left: 2px solid #2d6877;
+
     padding-left: 20px;
 }
+
 .timeline-item {
     margin-bottom: 20px;
+
     position: relative;
 }
+
 .timeline-item::before {
     content: "";
+
     position: absolute;
+
     left: -27px;
+
     top: 7px;
+
     width: 10px;
+
     height: 10px;
+
     background: #63cfe2;
+
     border-radius: 50%;
 }
+
 .timeline-time {
     font-size: 12px;
+
     color: #71949e;
 }
+
 .timeline-text {
     color: #d8edf1;
 }
+
 /* =========================================================
 FORM
 ========================================================= */
+
 .form-group {
     margin-bottom: 18px;
 }
+
 label {
     display: block;
+
     margin-bottom: 7px;
+
     color: #bcd2d8;
+
     font-size: 14px;
 }
+
 input,
 select,
 textarea {
     width: 100%;
+
     padding: 13px 14px;
+
     border-radius: 9px;
+
     border: 1px solid #2a5360;
+
     background: #071e27;
+
     color: white;
+
     outline: none;
 }
+
 input:focus,
 select:focus,
 textarea:focus {
     border-color: #65ccdf;
 }
+
 textarea {
     min-height: 140px;
+
     resize: vertical;
 }
+
 input[type="file"] {
     padding: 10px;
 }
+
 .image-preview {
     margin-top: 15px;
+
     display: none;
+
     max-width: 350px;
+
     border-radius: 12px;
+
     border: 1px solid #315966;
 }
+
 /* =========================================================
 VOICE INPUT
 ========================================================= */
+
 .voice-input-panel {
     margin-top: 12px;
+
     padding: 18px;
+
     background: #0b2731;
+
     border: 1px solid #214653;
+
     border-radius: 13px;
 }
+
 .voice-input-panel h4 {
     margin-bottom: 5px;
 }
+
 .voice-input-panel p {
     color: #9fb8c0;
+
     font-size: 14px;
 }
+
 .voice-controls {
     display: flex;
+
     gap: 10px;
+
     flex-wrap: wrap;
+
     margin-top: 15px;
 }
+
 .voice-status {
     margin-top: 15px;
+
     padding: 11px;
+
     background: #102f39;
+
     border-radius: 8px;
+
     color: #8fd8e8;
+
     font-size: 13px;
 }
+
 /* =========================================================
 SOS PANEL
 ========================================================= */
+
 .sos-panel {
     margin-top: 25px;
+
     padding: 25px;
+
     background:
         linear-gradient(
             135deg,
@@ -438,56 +612,83 @@ SOS PANEL
         );
 
     border: 1px solid #7d303a;
+
     border-radius: 18px;
 }
+
 .sos-panel h3 {
     color: #ff9ba5;
+
     margin-bottom: 8px;
 }
+
 .sos-panel p {
     color: #cdaeb2;
+
     margin-bottom: 18px;
 }
+
 .sos-controls {
     display: flex;
+
     gap: 12px;
+
     flex-wrap: wrap;
 }
+
 .sos-button {
     background: #e74b58;
+
     color: white;
+
     font-size: 16px;
+
     padding: 15px 24px;
+
     box-shadow:
         0 0 0 0 rgba(231,75,88,0.5);
+
     animation: sosPulse 2s infinite;
 }
+
 @keyframes sosPulse {
+
     0% {
         box-shadow:
             0 0 0 0 rgba(231,75,88,0.5);
     }
+
     70% {
         box-shadow:
             0 0 0 12px rgba(231,75,88,0);
     }
+
     100% {
         box-shadow:
             0 0 0 0 rgba(231,75,88,0);
     }
+
 }
+
 .sos-cancel {
     display: none;
 }
+
 .sos-status {
     margin-top: 18px;
+
     padding: 14px;
+
     background: rgba(0,0,0,0.2);
+
     border-radius: 10px;
+
     color: #ffbdc3;
 }
+
 .sos-active {
     border-color: #ff5252;
+
     background:
         linear-gradient(
             135deg,
@@ -495,175 +696,272 @@ SOS PANEL
             #29151a
         );
 }
+
 /* =========================================================
 AI RESULT
 ========================================================= */
+
 .ai-result {
     margin-top: 25px;
+
     display: none;
 }
+
 .ai-header {
     display: flex;
+
     justify-content: space-between;
+
     align-items: center;
+
     gap: 15px;
+
     flex-wrap: wrap;
+
     margin-bottom: 20px;
 }
+
 .risk-badge {
     display: inline-block;
+
     padding: 9px 16px;
+
     border-radius: 30px;
+
     font-weight: bold;
+
     background: #381c22;
+
     color: #ff9ba5;
 }
+
 .score {
     font-size: 40px;
+
     font-weight: bold;
+
     color: #63cfe2;
 }
+
 .impact-grid {
     display: grid;
+
     grid-template-columns: repeat(3, 1fr);
+
     gap: 15px;
+
     margin: 20px 0;
 }
+
 .impact-box {
     padding: 18px;
+
     background: #102f39;
+
     border-radius: 12px;
 }
+
 .impact-box h4 {
     margin-bottom: 7px;
 }
+
 .impact-box p {
     color: #a9c3ca;
 }
+
 .action-list {
     list-style: none;
+
     margin-top: 15px;
 }
+
 .action-list li {
     padding: 12px;
+
     margin-bottom: 8px;
+
     background: #102f39;
+
     border-radius: 8px;
+
     color: #c9dce1;
 }
+
 .action-list li::before {
     content: "→ ";
+
     color: #67d5e8;
+
     font-weight: bold;
 }
+
 /* =========================================================
 VOICE BRIEFING
 ========================================================= */
+
 .voice-panel {
     margin-top: 25px;
+
     padding: 25px;
+
     background: #0b2731;
+
     border: 1px solid #214653;
+
     border-radius: 16px;
 }
+
 .voice-panel h3 {
     margin-bottom: 10px;
 }
+
 .voice-panel p {
     color: #9fb8c0;
+
     line-height: 1.6;
 }
+
 /* =========================================================
 HISTORY
 ========================================================= */
+
 .history-header {
     display: flex;
+
     justify-content: space-between;
+
     align-items: center;
+
     gap: 15px;
+
     flex-wrap: wrap;
+
     margin-bottom: 20px;
 }
+
 .history-count {
     color: #8fd8e8;
 }
+
 .table-wrapper {
     overflow-x: auto;
 }
+
 table {
     width: 100%;
+
     border-collapse: collapse;
+
     min-width: 900px;
 }
+
 th,
 td {
     padding: 13px;
+
     border-bottom: 1px solid #214653;
+
     text-align: left;
+
     font-size: 13px;
 }
+
 th {
     color: #82cbd8;
+
     background: #102f39;
 }
+
 td {
     color: #c5d8dd;
 }
+
 .status-pill {
     display: inline-block;
+
     padding: 5px 9px;
+
     border-radius: 20px;
+
     background: #163944;
+
     color: #aee5ee;
+
     font-size: 11px;
 }
+
 /* =========================================================
 REPORT
 ========================================================= */
+
 .report-box {
     display: none;
 }
+
 .report-header {
     display: flex;
+
     justify-content: space-between;
+
     gap: 20px;
+
     flex-wrap: wrap;
+
     padding-bottom: 20px;
+
     border-bottom: 1px solid #315966;
+
     margin-bottom: 25px;
 }
+
 .report-id {
     color: #74d6e6;
 
     font-family: monospace;
 }
+
 .report-section {
     margin-bottom: 25px;
 }
+
 .report-section h4 {
     margin-bottom: 8px;
+
     color: #83cfdd;
 }
+
 .report-section p {
     color: #bfd2d7;
 }
+
 .report-actions {
     display: flex;
+
     gap: 10px;
+
     flex-wrap: wrap;
+
     margin-top: 25px;
 }
+
 /* =========================================================
 RECOVERY
 ========================================================= */
+
 .progress-container {
     width: 100%;
+
     height: 20px;
+
     background: #102f39;
+
     border-radius: 20px;
+
     overflow: hidden;
+
     margin: 20px 0;
 }
+
 .progress-bar {
     width: 0%;
 
@@ -673,111 +971,166 @@ RECOVERY
 
     transition: width 0.5s;
 }
+
 .recovery-status {
     font-size: 20px;
+
     color: #8fd8e8;
+
     font-weight: bold;
 }
+
 .recovery-steps {
     display: grid;
+
     grid-template-columns: repeat(5, 1fr);
+
     gap: 10px;
+
     margin-top: 25px;
 }
+
 .recovery-step {
     padding: 15px;
+
     background: #102f39;
+
     border-radius: 10px;
+
     text-align: center;
+
     color: #7999a2;
+
     font-size: 13px;
 }
+
 .recovery-step.active {
     color: white;
+
     border: 1px solid #63cfe2;
+
     background: #153d48;
 }
+
 /* =========================================================
 FOOTER
 ========================================================= */
+
 footer {
     border-top: 1px solid #214653;
+
     padding: 30px 20px;
+
     text-align: center;
+
     color: #71949e;
+
     font-size: 13px;
 }
+
 /* =========================================================
 RESPONSIVE
 ========================================================= */
+
 @media (max-width: 900px) {
+
     .grid,
     .grid-3 {
         grid-template-columns: 1fr;
     }
+
     .dashboard-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
     .impact-grid {
         grid-template-columns: 1fr;
     }
+
     .recovery-steps {
         grid-template-columns: 1fr;
     }
+
     .neo1-container {
         flex-direction: column;
     }
+
 }
+
 @media (max-width: 600px) {
+
     .nav-container {
         flex-direction: column;
+
         align-items: flex-start;
+
         gap: 12px;
     }
+
     .nav-links {
         max-height: 150px;
+
         overflow-y: auto;
     }
+
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
+
     section {
         padding: 60px 0;
     }
+
     .hero h1 {
         font-size: 48px;
     }
+
 }
+
 /* =========================================================
 PRINT
 ========================================================= */
+
 @media print {
+
     body {
         background: white;
+
         color: black;
     }
+
     .navbar,
     footer,
     .report-actions {
         display: none !important;
     }
+
     section:not(#report) {
         display: none !important;
     }
+
     #report {
         display: block !important;
 
         padding: 0;
     }
+
     .card {
         border: none;
+
         background: white;
+
         color: black;
     }
+
 }
+
+
+
 /* =========================================================
 LOGIN SCREEN
 ========================================================= */
+
 #authScreen {
     position: fixed;
     inset: 0;
@@ -792,6 +1145,7 @@ LOGIN SCREEN
         #071820;
     overflow-y: auto;
 }
+
 .auth-card {
     width: min(430px, 100%);
     background: rgba(13, 39, 49, 0.98);
@@ -800,6 +1154,7 @@ LOGIN SCREEN
     padding: 34px;
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.45);
 }
+
 .auth-logo { text-align: center; font-size: 28px; font-weight: 800; color: #8fd8e8; margin-bottom: 8px; }
 .auth-logo span { color: white; }
 .auth-subtitle { text-align: center; color: #9fb8c0; margin-bottom: 25px; font-size: 14px; }
@@ -819,7 +1174,10 @@ body.auth-locked { overflow: hidden; }
 @media (max-width: 700px) { .auth-card { padding: 26px 20px; } }
 </style>
 </head>
+
+
 <body class="auth-locked">
+
 <!-- =========================================================
 LOGIN / SIGN UP SCREEN
 ========================================================= -->
@@ -846,15 +1204,24 @@ LOGIN / SIGN UP SCREEN
         </div>
     </div>
 </div>
+
+
+
+
 <!-- =====================================================
 NAVBAR
 ===================================================== -->
+
 <nav class="navbar">
+
 <div class="nav-container">
+
 <div class="logo">
 RESILIENCE <span>OS AI</span>
 </div>
+
 <div class="nav-links">
+
 <a href="#home">Home</a>
 <a href="#problem">Problem</a>
 <a href="#solution">Solution</a>
@@ -865,159 +1232,249 @@ RESILIENCE <span>OS AI</span>
 <a href="#history">History</a>
 <a href="#report">Report</a>
 <a href="#recovery">Recovery</a>
+
 </div>
+
         <button id="logoutButton" class="btn-secondary" type="button">Logout</button>
+
 </div>
+
 </nav>
+
+
 <!-- =====================================================
 HERO
 ===================================================== -->
+
 <section id="home" class="hero">
+
 <div class="container">
+
 <div class="hero-content">
+
 <div class="badge">
 AI-POWERED EMERGENCY INTELLIGENCE PROTOTYPE
 </div>
+
 <h1>
 Sense.<br>
 <span>Understand.</span><br>
 Respond.
 </h1>
+
 <p>
 RESILIENCE OS AI is a prototype emergency intelligence
 platform that converts incident information into
 risk assessment, impact analysis, recommended actions
 and recovery tracking.
 </p>
+
 <div class="hero-buttons">
+
 <a href="#dashboard">
 <button class="btn-primary">
 OPEN DASHBOARD
 </button>
 </a>
+
 <a href="#incident">
 <button class="btn-secondary">
 REPORT INCIDENT
 </button>
 </a>
+
 </div>
+
 </div>
+
 </div>
+
 </section>
+
+
 <!-- =====================================================
 PROBLEM
 ===================================================== -->
+
 <section id="problem">
+
 <div class="container">
+
 <h2 class="section-title">
 The Problem
 </h2>
+
 <p class="section-subtitle">
 Emergency situations generate information faster than
 people can understand and organize it.
 </p>
+
 <div class="grid">
+
 <div class="card">
+
 <h3>
 Traditional Response
 </h3>
+
 <ul class="problem-list">
+
 <li>Information is scattered</li>
+
 <li>Manual situation assessment</li>
+
 <li>Delayed decision making</li>
+
 <li>Difficult incident tracking</li>
+
 <li>Recovery status is often unclear</li>
+
 </ul>
+
 </div>
+
+
 <div class="card">
 
 <h3>
 What We Need
 </h3>
+
 <ul class="solution-list">
+
 <li>One emergency intelligence dashboard</li>
+
 <li>Fast incident analysis</li>
+
 <li>Risk prioritization</li>
+
 <li>Location intelligence</li>
+
 <li>Recovery monitoring</li>
+
 </ul>
+
 </div>
+
 </div>
+
 </div>
+
 </section>
+
+
 <!-- =====================================================
 SOLUTION
 ===================================================== -->
+
 <section id="solution">
+
 <div class="container">
+
 <h2 class="section-title">
 Our Solution
 </h2>
+
 <p class="section-subtitle">
 One interface connecting incident reporting,
 intelligence and recovery.
 </p>
+
 <div class="grid-3">
+
 <div class="card">
+
 <h3>
 01. Sense
 </h3>
+
 <p>
 Capture incident information through manual input,
 voice input, location and image evidence.
 </p>
+
 </div>
+
+
 <div class="card">
+
 <h3>
 02. Understand
 </h3>
+
 <p>
 Analyze the incident and estimate risk,
 people impact, infrastructure impact and access impact.
 </p>
+
 </div>
+
+
 <div class="card">
+
 <h3>
 03. Respond
 </h3>
+
 <p>
 Generate recommended actions, emergency SOS alerts,
 incident reports and recovery tracking information.
 </p>
+
 </div>
+
 </div>
+
 </div>
+
 </section>
+
+
 <!-- =====================================================
 NEO 1
 ===================================================== -->
+
 <section id="neo1">
+
 <div class="container">
+
 <div class="neo1-container">
+
 <img
 src="neo1.png"
 alt="Neo 1"
 class="neo1-image"
 >
+
 <div class="neo1-text">
+
 <h3>
 Neo 1
 </h3>
+
 <p>
 Neo 1 represents the intelligent sensing layer
 of RESILIENCE OS AI. In a future implementation,
 connected devices could provide environmental and
 emergency signals to the intelligence platform.
 </p>
+
 <br>
+
 <p>
 For this hackathon prototype, the sensing layer
 is simulated through dashboard signals.
 </p>
+
 </div>
+
 </div>
+
 </div>
+
 </section>
+
+
 <!-- =====================================================
 LOCATION
 ===================================================== -->
@@ -4982,466 +5439,733 @@ function startRecovery() {
                 addTimeline(
                     "Incident recovery completed."
                 );
+
             },
             20000
         )
+
     );
+
 }
+
+
 /* =========================================================
 SET RECOVERY
 ========================================================= */
+
 function setRecovery(
     percentage,
     status
 ) {
+
     document.getElementById(
         "recoveryProgress"
     ).style.width =
         percentage + "%";
+
+
     document.getElementById(
         "recoveryPercentage"
     ).innerText =
         `${percentage}% complete`;
+
+
     document.getElementById(
         "recoveryStatus"
     ).innerText =
         status;
+
+
     for (
         let i = 1;
         i <= 5;
         i++
     ) {
+
         document.getElementById(
             "step" + i
         ).classList.remove(
             "active"
         );
+
     }
+
+
     let activeStep =
         1;
+
+
     if (percentage >= 25)
         activeStep = 2;
+
+
     if (percentage >= 50)
         activeStep = 3;
+
+
     if (percentage >= 75)
         activeStep = 4;
+
+
     if (percentage >= 100)
         activeStep = 5;
+
+
     for (
         let i = 1;
         i <= activeStep;
         i++
     ) {
+
         document.getElementById(
             "step" + i
         ).classList.add(
             "active"
         );
+
     }
+
 }
+
+
 /* =========================================================
 REPORT
 ========================================================= */
+
 function generateReport() {
+
     if (!latestIncidentAnalysis) {
+
         alert(
             "Please analyze an incident first."
         );
+
         return;
+
     }
+
+
     const incident =
         latestIncidentAnalysis;
+
+
     document.getElementById(
         "reportBox"
     ).style.display =
         "block";
+
+
     document.getElementById(
         "reportId"
     ).innerText =
         incident.id;
+
+
     document.getElementById(
         "reportDate"
     ).innerText =
         new Date().toLocaleString();
+
+
     document.getElementById(
         "reportIncident"
     ).innerText =
         `${incident.type} — ${incident.title}`;
+
+
     document.getElementById(
         "reportLocation"
     ).innerText =
         incident.location;
+
+
     document.getElementById(
         "reportDescription"
     ).innerText =
         incident.description;
+
+
     document.getElementById(
         "reportRisk"
     ).innerText =
         incident.risk;
+
+
     document.getElementById(
         "reportScore"
     ).innerText =
         incident.score +
         " / 100";
+
+
     document.getElementById(
         "reportPeople"
     ).innerText =
         incident.peopleImpact;
+
+
     document.getElementById(
         "reportAccess"
     ).innerText =
         incident.accessImpact;
+
+
     document.getElementById(
         "reportInfrastructure"
     ).innerText =
         incident.infrastructureImpact;
+
+
     document.getElementById(
         "reportRecoveryStatus"
     ).innerText =
         incident.recoveryStatus;
+
+
     if (
         currentLatitude !== null &&
         currentLongitude !== null
     ) {
+
         document.getElementById(
             "reportCoordinates"
         ).innerText =
             `${currentLatitude.toFixed(6)}, ${currentLongitude.toFixed(6)}`;
+
     }
+
     else {
+
         document.getElementById(
             "reportCoordinates"
         ).innerText =
             "Not available";
+
     }
+
+
     const actions =
         document.getElementById(
             "reportActions"
         );
+
+
     actions.innerHTML =
         "";
+
+
     incident.actions.forEach(
         function(action) {
+
             const li =
                 document.createElement(
                     "li"
                 );
+
+
             li.innerText =
                 action;
+
+
             actions.appendChild(
                 li
             );
+
         }
     );
+
+
     const routeText =
         document.getElementById(
             "routeInfo"
         ).innerText;
+
+
     document.getElementById(
         "reportRoute"
     ).innerText =
         routeText;
+
+
     generateSOSReportData();
+
+
     document.getElementById(
         "report"
     ).scrollIntoView({
         behavior: "smooth"
     });
+
+
     addTimeline(
         "Incident report generated."
     );
+
 }
+
+
 /* =========================================================
 DASHBOARD
 ========================================================= */
+
 function updateDashboard() {
+
     document.getElementById(
         "systemStatus"
     ).innerText =
         "ONLINE";
+
+
     document.getElementById(
         "devicesOnline"
     ).innerText =
         "24";
+
 }
+
+
 /* =========================================================
 DASHBOARD INCIDENT UPDATE
 ========================================================= */
+
 function updateDashboardFromIncident() {
+
     if (!latestIncidentAnalysis) {
+
         return;
+
     }
+
+
     const incident =
         latestIncidentAnalysis;
+
+
     document.getElementById(
         "dashboardAlerts"
     ).innerText =
         "1";
+
+
     document.getElementById(
         "dashboardAnalysis"
     ).innerText =
         `${incident.type} detected at ${incident.location}. Risk classified as ${incident.risk} with a score of ${incident.score}/100. People impact: ${incident.peopleImpact}. Access impact: ${incident.accessImpact}. Infrastructure impact: ${incident.infrastructureImpact}.`;
+
+
     if (
         incident.type ===
         "Fire"
     ) {
+
         document.getElementById(
             "temperatureSignal"
         ).innerText =
             "Elevated";
+
+
         document.getElementById(
             "airSignal"
         ).innerText =
             "Poor";
+
     }
+
+
     else if (
         incident.type ===
         "Flood"
     ) {
+
         document.getElementById(
             "waterSignal"
         ).innerText =
             "Elevated";
+
     }
+
+
     else if (
         incident.type ===
         "Storm"
     ) {
+
         document.getElementById(
             "temperatureSignal"
         ).innerText =
             "Unstable";
+
     }
+
 }
+
+
 /* =========================================================
 TIMELINE
 ========================================================= */
+
 function addTimeline(
     message
 ) {
+
     const timeline =
         document.getElementById(
             "timeline"
         );
+
+
     if (!timeline) {
+
         return;
+
     }
+
+
     const item =
         document.createElement(
             "div"
         );
+
+
     item.className =
         "timeline-item";
+
+
     item.innerHTML = `
+
         <div class="timeline-time">
             ${new Date().toLocaleTimeString()}
         </div>
+
         <div class="timeline-text">
             ${escapeHTML(message)}
         </div>
+
     `;
+
+
     timeline.prepend(
         item
     );
+
 }
+
+
 /* =========================================================
 EMERGENCY SIMULATION
 ========================================================= */
+
 function simulateEmergency() {
+
     if (emergencyRunning) {
+
         return;
+
     }
+
+
     emergencyRunning =
         true;
+
+
     document.getElementById(
         "dashboardAlerts"
     ).innerText =
         "1";
+
+
     document.getElementById(
         "dashboardRisk"
     ).innerText =
         "CRITICAL";
+
+
     document.getElementById(
         "dashboardRisk"
     ).className =
         "metric-value risk-critical";
+
+
     document.getElementById(
         "dashboardAnalysis"
     ).innerText =
         "Critical emergency signal detected. Prototype intelligence is evaluating potential human, access and infrastructure impact.";
+
+
     document.getElementById(
         "temperatureSignal"
     ).innerText =
         "HIGH";
+
+
     document.getElementById(
         "airSignal"
     ).innerText =
         "POOR";
+
+
     document.getElementById(
         "waterSignal"
     ).innerText =
         "ELEVATED";
+
+
     addTimeline(
         "⚠ Emergency signal detected."
     );
+
+
     emergencyTimers.push(
+
         setTimeout(
             function() {
+
                 addTimeline(
                     "AI risk assessment initiated."
                 );
+
             },
             1000
         )
+
     );
+
+
     emergencyTimers.push(
+
         setTimeout(
             function() {
+
                 addTimeline(
                     "Potential impact identified."
                 );
+
             },
             2000
         )
+
     );
+
+
     emergencyTimers.push(
+
         setTimeout(
             function() {
+
                 addTimeline(
                     "Recommended response actions generated."
                 );
+
+
                 emergencyRunning =
                     false;
+
             },
             3000
         )
+
     );
+
 }
+
+
 /* =========================================================
 RESET
 ========================================================= */
+
 function resetSystem() {
+
     emergencyTimers.forEach(
         clearTimeout
     );
+
+
     recoveryTimers.forEach(
         clearTimeout
     );
+
+
     emergencyTimers =
         [];
+
+
     recoveryTimers =
         [];
+
+
     emergencyRunning =
         false;
+
+
     latestIncidentAnalysis =
         null;
+
+
     activeIncidentId =
         null;
+
+
     if (
         "speechSynthesis" in window
     ) {
+
         window.speechSynthesis.cancel();
 
     }
+
+
     if (
         recognition &&
         isListening
     ) {
 
         recognition.stop();
+
     }
+
+
     if (sosMarker) {
+
         map.removeLayer(
             sosMarker
         );
+
         sosMarker =
             null;
+
     }
+
+
     sosActive =
         false;
+
+
     currentSOS =
         null;
+
+
     document.getElementById(
         "activateSOSButton"
     ).style.display =
         "inline-block";
+
+
     document.getElementById(
         "cancelSOSButton"
     ).style.display =
         "none";
+
+
     document.getElementById(
         "sosPanel"
     ).classList.remove(
         "sos-active"
     );
+
+
     document.getElementById(
         "sosStatus"
     ).innerText =
         "SOS system ready. No active emergency alert.";
+
+
     document.getElementById(
         "systemStatus"
     ).innerText =
         "ONLINE";
+
+
     document.getElementById(
         "dashboardRisk"
     ).innerText =
         "LOW";
+
+
     document.getElementById(
         "dashboardRisk"
     ).className =
         "metric-value risk-low";
+
+
     document.getElementById(
         "dashboardAlerts"
     ).innerText =
         "0";
+
+
     document.getElementById(
         "dashboardAnalysis"
     ).innerText =
         "No active incident. System monitoring environment and waiting for new information.";
+
+
     document.getElementById(
         "temperatureSignal"
     ).innerText =
         "Normal";
+
+
     document.getElementById(
         "airSignal"
     ).innerText =
         "Good";
+
+
     document.getElementById(
         "waterSignal"
     ).innerText =
         "Normal";
+
+
     document.getElementById(
         "aiResult"
     ).style.display =
         "none";
+
+
     document.getElementById(
         "reportBox"
     ).style.display =
         "none";
+
+
     setRecovery(
         0,
         "WAITING FOR INCIDENT"
     );
+
+
     addTimeline(
         "System reset completed."
     );
+
 }
+
+
 /* =========================================================
 ESCAPE HTML
 ========================================================= */
+
 function escapeHTML(
     value
 ) {
+
     const div =
         document.createElement(
             "div"
         );
+
+
     div.textContent =
         value ?? "";
+
+
     return div.innerHTML;
+
 }
+
 </script>
+
 <!-- =========================================================
 FIREBASE WEB INTEGRATION + LOGIN
 ========================================================= -->
@@ -5455,6 +6179,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     signOut
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
   import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyC0LjcBj175G5GdADPoZreiyx-zHJIXDqA",
     authDomain: "resilience-os-ai.firebaseapp.com",
@@ -5464,13 +6189,16 @@ FIREBASE WEB INTEGRATION + LOGIN
     appId: "1:1089911052030:web:ec7e2f738928904937b7af",
     measurementId: "G-G9S0YK7WGT"
   };
+
   const firebaseApp = initializeApp(firebaseConfig);
   const auth = getAuth(firebaseApp);
+
   try {
     if (await isSupported()) getAnalytics(firebaseApp);
   } catch (e) {
     console.warn("Firebase Analytics unavailable:", e.message);
   }
+
   const authScreen = document.getElementById("authScreen");
   const authForm = document.getElementById("authForm");
   const authEmail = document.getElementById("authEmail");
@@ -5481,11 +6209,14 @@ FIREBASE WEB INTEGRATION + LOGIN
   const authSwitchText = document.getElementById("authSwitchText");
   const authSwitchButton = document.getElementById("authSwitchButton");
   const logoutButton = document.getElementById("logoutButton");
+
   let isSignUpMode = false;
+
   function showAuthMessage(message, success = false) {
     authMessage.textContent = message;
     authMessage.style.color = success ? "#8fd8e8" : "#ffdce0";
   }
+
   function setAuthMode(signUp) {
     isSignUpMode = signUp;
     authTitle.textContent = signUp ? "Create Account" : "Login";
@@ -5495,6 +6226,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     authPassword.autocomplete = signUp ? "new-password" : "current-password";
     showAuthMessage("");
   }
+
   function showSparkles() {
     for (let i = 0; i < 45; i++) {
       const sparkle = document.createElement("span");
@@ -5508,6 +6240,7 @@ FIREBASE WEB INTEGRATION + LOGIN
       setTimeout(() => sparkle.remove(), 1200);
     }
   }
+
   async function handleAuthSubmit(event) {
     event.preventDefault();
     const email = authEmail.value.trim();
@@ -5517,6 +6250,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     authSubmit.disabled = true;
     authSubmit.textContent = isSignUpMode ? "Creating..." : "Logging in...";
     showAuthMessage("");
+
     try {
       if (isSignUpMode) {
         await createUserWithEmailAndPassword(auth, email, password);
@@ -5535,18 +6269,21 @@ FIREBASE WEB INTEGRATION + LOGIN
         "auth/user-not-found": "No account was found with this email.",
         "auth/wrong-password": "Incorrect password."
       };
-     showAuthMessage(`${error.code}: ${error.message}`);
+      showAuthMessage(messages[error.code] || "Authentication failed. Please try again.");
     } finally {
       authSubmit.disabled = false;
       authSubmit.textContent = isSignUpMode ? "Create Account" : "Login";
     }
   }
+
   authSwitchButton.addEventListener("click", () => setAuthMode(!isSignUpMode));
   authForm.addEventListener("submit", handleAuthSubmit);
+
   logoutButton.addEventListener("click", async () => {
     try { await signOut(auth); }
     catch (error) { console.error("Logout failed:", error); }
   });
+
   window.resilienceFirebase = {
     app: firebaseApp,
     auth,
@@ -5563,6 +6300,7 @@ FIREBASE WEB INTEGRATION + LOGIN
           resolve(user);
           return;
         }
+
         authScreen.style.display = "flex";
         document.body.classList.add("auth-locked");
         logoutButton.style.display = "none";
@@ -5575,6 +6313,7 @@ FIREBASE WEB INTEGRATION + LOGIN
       return user ? user.getIdToken() : null;
     }
   };
+
   async function apiRequest(path, options = {}) {
     const token = await window.resilienceFirebase.token();
     if (!token) return null;
@@ -5588,7 +6327,9 @@ FIREBASE WEB INTEGRATION + LOGIN
     if (!response.ok) throw new Error(data.message || `API request failed (${response.status})`);
     return data;
   }
+
   window.resilienceApi = { request: apiRequest };
+
   window.resilienceFirebase.ready.then(async (user) => {
     if (!user) return;
     try {
@@ -5600,6 +6341,7 @@ FIREBASE WEB INTEGRATION + LOGIN
       console.warn("User sync skipped:", error.message);
     }
   });
+
   const originalSaveSOSHistory = window.saveSOSHistory;
   if (typeof originalSaveSOSHistory === "function") {
     window.saveSOSHistory = function () {
@@ -5623,6 +6365,7 @@ FIREBASE WEB INTEGRATION + LOGIN
         .catch((error) => console.warn("SOS Firebase sync failed:", error.message));
     };
   }
+
   const originalSaveIncidentHistory = window.saveIncidentHistory;
   if (typeof originalSaveIncidentHistory === "function") {
     window.saveIncidentHistory = function () {
