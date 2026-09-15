@@ -1,45 +1,32 @@
-```javascript
 // ============================================================
 // RESILIENCE OS AI - FIREBASE CONFIGURATION
 // ============================================================
-// Firebase App
 import {
   initializeApp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-// Firebase Authentication
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import {
   getAuth,
   setPersistence,
   browserLocalPersistence
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 // ============================================================
 // FIREBASE PROJECT CONFIGURATION
 // ============================================================
-// IMPORTANT:
-// Replace the values below with the EXACT values from:
-//
-// Firebase Console
-// → Project Settings
-// → General
-// → Your apps
-// → Web app
-// → SDK setup and configuration
-// → Config
-// ============================================================
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyC0LjcBj175G5GdADPoZreiyx-zHJIXDqA",
+  authDomain: "resilience-os-ai.firebaseapp.com",
+  projectId: "resilience-os-ai",
+  storageBucket: "resilience-os-ai.firebasestorage.app",
+  messagingSenderId: "1089911052030",
+  appId: "1:1089911052030:web:ec7e2f738928904937b7af",
+  measurementId: "G-G9S0YK7WGT"
 };
 // ============================================================
 // INITIALIZE FIREBASE
 // ============================================================
 const app = initializeApp(firebaseConfig);
 // ============================================================
-// INITIALIZE FIREBASE AUTHENTICATION
+// INITIALIZE AUTHENTICATION
 // ============================================================
 const auth = getAuth(app);
 // ============================================================
@@ -50,16 +37,10 @@ setPersistence(auth, browserLocalPersistence)
     console.log("Firebase authentication persistence enabled.");
   })
   .catch((error) => {
-    console.error(
-      "Firebase persistence error:",
-      error
-    );
+    console.error("Firebase persistence error:", error);
   });
 // ============================================================
 // EXPORT
 // ============================================================
-export {
-  app,
-  auth
-};
-```
+
+export { app, auth };
