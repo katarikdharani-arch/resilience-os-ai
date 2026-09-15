@@ -5535,7 +5535,7 @@ FIREBASE WEB INTEGRATION + LOGIN
         "auth/user-not-found": "No account was found with this email.",
         "auth/wrong-password": "Incorrect password."
       };
-      showAuthMessage(messages[error.code] || "Authentication failed. Please try again.");
+     showAuthMessage(`${error.code}: ${error.message}`);
     } finally {
       authSubmit.disabled = false;
       authSubmit.textContent = isSignUpMode ? "Create Account" : "Login";
