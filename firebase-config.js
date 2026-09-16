@@ -1,47 +1,45 @@
-// ============================================================
-// RESILIENCE OS AI - FIREBASE CONFIGURATION
-// ============================================================
-
+ // ============================================================
+ // RESILIENCE OS AI - FIREBASE CONFIGURATION
+ // ============================================================
 import {
   initializeApp
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-
 import {
   getAuth,
   setPersistence,
   browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-
+import {
+  getDatabase
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 // ============================================================
 // FIREBASE PROJECT CONFIGURATION
 // ============================================================
-
 const firebaseConfig = {
   apiKey: "AIzaSyC0LjcBj175G5GdADPoZreiyx-zHJIXDqA",
   authDomain: "resilience-os-ai.firebaseapp.com",
+  databaseURL: "https://resilience-os-ai-default-rtdb.firebaseio.com",
   projectId: "resilience-os-ai",
   storageBucket: "resilience-os-ai.firebasestorage.app",
   messagingSenderId: "1089911052030",
   appId: "1:1089911052030:web:ec7e2f738928904937b7af",
   measurementId: "G-G9S0YK7WGT"
 };
-
 // ============================================================
 // INITIALIZE FIREBASE
 // ============================================================
-
 const app = initializeApp(firebaseConfig);
-
 // ============================================================
 // INITIALIZE AUTHENTICATION
 // ============================================================
-
 const auth = getAuth(app);
-
+// ============================================================
+// INITIALIZE REALTIME DATABASE
+// ============================================================
+const database = getDatabase(app);
 // ============================================================
 // KEEP USER LOGGED IN
 // ============================================================
-
 setPersistence(auth, browserLocalPersistence)
   .then(() => {
     console.log("Firebase authentication persistence enabled.");
@@ -49,9 +47,7 @@ setPersistence(auth, browserLocalPersistence)
   .catch((error) => {
     console.error("Firebase persistence error:", error);
   });
-
 // ============================================================
 // EXPORT
 // ============================================================
-
-export { app, auth };
+export { app, auth, database };
