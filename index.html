@@ -1033,6 +1033,28 @@ DEDICATED PROFILE PAGE
 <style>
 .command-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}.command-stat{padding:18px;border-radius:16px;background:rgba(7,25,35,.72);border:1px solid rgba(117,214,231,.18)}.command-stat b{display:block;font-size:28px;margin-top:5px}.command-layout{display:grid;grid-template-columns:1.6fr .8fr;gap:18px}.command-map{height:520px;border-radius:18px;overflow:hidden;border:1px solid rgba(117,214,231,.2);background:#071923}.command-panel{padding:18px;border-radius:18px;background:rgba(7,25,35,.72);border:1px solid rgba(117,214,231,.18);max-height:520px;overflow:auto}.command-item{padding:12px;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px}.command-item:last-child{border-bottom:0}.command-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px}.cmd-legend{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0;color:#b8d2da;font-size:12px}.cmd-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}@media(max-width:900px){.command-layout{grid-template-columns:1fr}.command-grid{grid-template-columns:repeat(2,1fr)}.command-map{height:420px}}
 </style>
+
+<style id="step16DispatchStyles">
+  .dispatch-grid{display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.35fr);gap:20px;margin-top:20px}
+  .dispatch-form,.dispatch-list{background:rgba(8,25,31,.78);border:1px solid rgba(110,180,190,.18);border-radius:18px;padding:20px}
+  .dispatch-form label{display:block;margin:12px 0 6px;color:#b8cbd0;font-size:.9rem}
+  .dispatch-form select,.dispatch-form textarea{width:100%;box-sizing:border-box;background:#06171d;color:#e8f4f6;border:1px solid rgba(130,190,200,.25);border-radius:10px;padding:11px}
+  .dispatch-form textarea{min-height:75px;resize:vertical}
+  .dispatch-card{border:1px solid rgba(110,180,190,.15);border-radius:14px;padding:14px;margin-bottom:12px;background:rgba(3,15,20,.65)}
+  .dispatch-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
+  .dispatch-status{font-size:.78rem;padding:5px 9px;border-radius:999px;border:1px solid rgba(120,190,200,.25)}
+  .dispatch-meta{color:#9fb8c0;font-size:.85rem;line-height:1.6;margin-top:7px}
+  .dispatch-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .dispatch-actions button{border:1px solid rgba(130,190,200,.22);background:#0a2229;color:#dff4f7;border-radius:9px;padding:7px 10px;cursor:pointer}
+  .dispatch-actions button:hover{background:#10313a}
+  .dispatch-empty{color:#9fb8c0;padding:12px 0}
+  .dispatch-status.ASSIGNED{background:rgba(53,167,255,.12)}
+  .dispatch-status.RESPONDING{background:rgba(255,176,32,.12)}
+  .dispatch-status.ARRIVED{background:rgba(65,210,130,.12)}
+  .dispatch-status.RESOLVED{background:rgba(100,180,180,.10)}
+  .dispatch-status.CANCELLED{background:rgba(255,77,77,.10)}
+  @media(max-width:900px){.dispatch-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body class="auth-locked">
 <!-- =========================================================
@@ -7727,6 +7749,135 @@ setTimeout(updateSecurityCenter, 1500);
       <div class="command-panel">
         <h3 style="margin-top:0;">Live Operations</h3>
         <div id="commandFeed">Waiting for authorized responder access...</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 16 - EMERGENCY DISPATCH & RESPONSE ASSIGNMENT -->
+<script>
+(function(){
+  let unsub=[], authorized=false;
+  let data={sos:[],incidents:[],teams:[],dispatches:[]};
+  const E=id=>document.getElementById(id);
+  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const fs=()=>window.resilienceFirebase?.firestore;
+  const db=()=>window.resilienceFirebase?.db;
+  const user=()=>window.resilienceFirebase?.auth?.currentUser;
+  const val=(o,...keys)=>{for(const k of keys)if(o&&o[k]!==undefined&&o[k]!==null&&o[k]!=="")return o[k];return ""};
+  const sourceLabel=o=>val(o,"title","type","incidentType","description")||"Emergency event";
+  function stop(){unsub.forEach(u=>{try{u()}catch(e){}});unsub=[]}
+  async function responder(){
+    const f=fs(),d=db(),u=user();
+    if(!f||!d||!u)return null;
+    const snap=await f.getDoc(f.doc(d,"responders",u.uid));
+    return snap.exists()&&snap.data().active===true?{user:u,profile:snap.data()}:null;
+  }
+  function setStatus(t,msg){if(E("dispatchAccess"))E("dispatchAccess").textContent=msg}
+  function listen(name,key){
+    const f=fs(),d=db();
+    if(!f||!d)return;
+    unsub.push(f.onSnapshot(f.collection(d,name),snap=>{data[key]=snap.docs.map(x=>({id:x.id,...x.data()}));render()},err=>{console.error("Dispatch listener",name,err);setStatus("","⚠️ Some dispatch data could not be loaded.")}));
+  }
+  function fillSelect(id,items,placeholder,fn){
+    const s=E(id);if(!s)return;
+    const old=s.value;
+    s.innerHTML=`<option value="">${esc(placeholder)}</option>`+items.map(x=>`<option value="${esc(x.id)}">${esc(fn(x))}</option>`).join("");
+    if(items.some(x=>x.id===old))s.value=old;
+  }
+  function renderSelectors(){
+    const activeS=data.sos.filter(x=>String(x.status||"ACTIVE").toUpperCase()!=="RESOLVED");
+    const openI=data.incidents.filter(x=>String(x.status||"OPEN").toUpperCase()!=="RESOLVED");
+    const teams=data.teams.filter(x=>String(x.status||"ACTIVE").toUpperCase()!="INACTIVE");
+    fillSelect("dispatchSos",activeS,"Select an active SOS…",x=>`🚨 ${sourceLabel(x)}`);
+    fillSelect("dispatchIncident",openI,"Select an open incident…",x=>`⚠️ ${sourceLabel(x)}`);
+    fillSelect("dispatchTeam",teams,"Select a rescue team…",x=>`🚑 ${val(x,"teamName","name")||"Rescue Team"} · ${val(x,"city","country")||"Location unknown"}`);
+  }
+  function sourceFor(d){
+    if(d.sourceType==="SOS")return data.sos.find(x=>x.id===d.sourceId);
+    return data.incidents.find(x=>x.id===d.sourceId);
+  }
+  function render(){
+    if(!authorized)return;
+    renderSelectors();
+    const active=data.dispatches.slice().sort((a,b)=>String(b.createdAt?.seconds||b.createdAt||"").localeCompare(String(a.createdAt?.seconds||a.createdAt||"")));
+    E("dispatchCount").textContent=active.filter(x=>!['RESOLVED','CANCELLED'].includes(String(x.status||"ASSIGNED").toUpperCase())).length;
+    E("dispatchTotal").textContent=active.length;
+    E("dispatchList").innerHTML=active.length?active.map(d=>{
+      const team=data.teams.find(x=>x.id===d.teamId);const src=sourceFor(d);
+      const st=String(d.status||"ASSIGNED").toUpperCase();
+      return `<div class="dispatch-card">
+        <div class="dispatch-head"><strong>${esc(d.sourceType||"EMERGENCY")} → ${esc(val(team,"teamName","name")||d.teamName||"Rescue Team")}</strong><span class="dispatch-status ${esc(st)}">${esc(st)}</span></div>
+        <div class="dispatch-meta">${esc(sourceLabel(src||d))}<br>Team: ${esc(val(team,"teamType","role")||d.teamType||"Response team")} · ${esc(val(team,"city","country")||d.teamLocation||"Location unknown")}<br>${d.notes?`Note: ${esc(d.notes)}<br>`:""}Assigned by: ${esc(d.assignedByName||"Responder")}</div>
+        <div class="dispatch-actions">${st!=="RESPONDING"&&st!=="RESOLVED"&&st!=="CANCELLED"?`<button onclick="dispatchUpdate('${esc(d.id)}','RESPONDING')">▶ Responding</button>`:""}${!['ARRIVED','RESOLVED','CANCELLED'].includes(st)?`<button onclick="dispatchUpdate('${esc(d.id)}','ARRIVED')">📍 Arrived</button>`:""}${!['RESOLVED','CANCELLED'].includes(st)?`<button onclick="dispatchUpdate('${esc(d.id)}','RESOLVED')">✅ Resolve</button><button onclick="dispatchUpdate('${esc(d.id)}','CANCELLED')">✖ Cancel</button>`:""}</div>
+      </div>`;
+    }).join(""):"<div class='dispatch-empty'>No dispatch assignments yet.</div>";
+  }
+  async function notifyTeam(team,title,message,dispatchId){
+    const f=fs(),d=db(),u=user();
+    if(!f||!d||!u||!team?.userId)return;
+    const id=`${u.uid}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+    await f.setDoc(f.doc(d,"notifications",id),{senderUserId:u.uid,senderName:u.displayName||"Responder",senderEmail:u.email||"",recipientTeamId:team.id,recipientUserId:team.userId,title,message,type:"DISPATCH",status:"UNREAD",dispatchId,createdAt:f.serverTimestamp()});
+  }
+  window.createDispatch=async function(){
+    if(!authorized)return alert("Responder authorization is required.");
+    const sourceType=E("dispatchSourceType").value,sourceId=sourceType==="SOS"?E("dispatchSos").value:E("dispatchIncident").value,teamId=E("dispatchTeam").value,notes=E("dispatchNotes").value.trim();
+    if(!sourceId)return alert("Select an emergency source.");
+    if(!teamId)return alert("Select a rescue team.");
+    const src=(sourceType==="SOS"?data.sos:data.incidents).find(x=>x.id===sourceId),team=data.teams.find(x=>x.id===teamId),u=user(),f=fs(),d=db();
+    if(!src||!team||!u||!f||!d)return alert("Required emergency or rescue-team data is unavailable.");
+    try{
+      const id=`${u.uid}_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+      await f.setDoc(f.doc(d,"dispatches",id),{dispatchId:id,sourceType,sourceId,sourceTitle:sourceLabel(src),teamId,teamName:val(team,"teamName","name")||"Rescue Team",teamType:val(team,"teamType","role")||"Response team",teamOwnerUserId:team.userId||"",teamLocation:`${val(team,"city")||""}${val(team,"city")&&val(team,"country")?", ":""}${val(team,"country")||""}`,notes,status:"ASSIGNED",assignedByUserId:u.uid,assignedByName:u.displayName||"Responder",assignedByEmail:u.email||"",createdAt:f.serverTimestamp(),updatedAt:f.serverTimestamp()});
+      if(sourceType==="SOS")await f.setDoc(f.doc(d,"sos",sourceId),{status:"DISPATCHED",updatedAt:f.serverTimestamp()},{merge:true});
+      else await f.setDoc(f.doc(d,"incidents",sourceId),{status:"DISPATCHED",updatedAt:f.serverTimestamp()},{merge:true});
+      await notifyTeam(team,"🚨 Emergency dispatch assigned",`${sourceType}: ${sourceLabel(src)}. Status: ASSIGNED.`,id);
+      if(window.writeAuditEvent)await window.writeAuditEvent("DISPATCH_ASSIGNED",id,`${sourceType} ${sourceId} assigned to ${val(team,"teamName","name")||team.id}`);
+      E("dispatchNotes").value="";alert("Dispatch assigned successfully.");
+    }catch(e){console.error(e);alert("Unable to create dispatch: "+(e.message||e));}
+  };
+  window.dispatchUpdate=async function(id,status){
+    if(!authorized)return;
+    const item=data.dispatches.find(x=>x.id===id),u=user(),f=fs(),d=db();if(!item||!u||!f||!d)return;
+    try{
+      await f.setDoc(f.doc(d,"dispatches",id),{status,updatedAt:f.serverTimestamp(),lastUpdatedByUserId:u.uid,lastUpdatedByName:u.displayName||"Responder"},{merge:true});
+      const team=data.teams.find(x=>x.id===item.teamId);
+      await notifyTeam(team,`Dispatch status: ${status}`,`${item.sourceType}: ${item.sourceTitle||"Emergency event"}. New status: ${status}.`,id);
+      if(window.writeAuditEvent)await window.writeAuditEvent("DISPATCH_STATUS_CHANGED",id,`Dispatch status changed to ${status}`);
+    }catch(e){console.error(e);alert("Unable to update dispatch: "+(e.message||e));}
+  };
+  window.dispatchSourceChanged=function(){const type=E("dispatchSourceType").value;E("dispatchSosWrap").style.display=type==="SOS"?"block":"none";E("dispatchIncidentWrap").style.display=type==="INCIDENT"?"block":"none"};
+  async function start(){
+    stop();const r=await responder();if(!r){authorized=false;setStatus("","🔒 Active responder authorization is required for Emergency Dispatch.");render();return}authorized=true;setStatus("",`✅ Authorized · ${esc(r.profile.role||"RESPONDER")} · Dispatch system ready`);listen("sos","sos");listen("incidents","incidents");listen("rescueTeams","teams");listen("dispatches","dispatches");render();
+  }
+  window.addEventListener("load",()=>setTimeout(start,1300));window.addEventListener("beforeunload",stop);
+})();
+</script>
+<section id="emergencyDispatch">
+  <div class="container">
+    <h2 class="section-title">Emergency Dispatch & Response Assignment</h2>
+    <p class="section-subtitle">Assign an active SOS or incident to a registered rescue team and track the response lifecycle in real time.</p>
+    <div id="dispatchAccess" style="margin:10px 0;color:#9fb8c0;">Checking responder authorization...</div>
+    <div class="command-grid">
+      <div class="command-stat"><span>🚑 Active Dispatches</span><b id="dispatchCount">0</b></div>
+      <div class="command-stat"><span>📋 Total Dispatches</span><b id="dispatchTotal">0</b></div>
+    </div>
+    <div class="dispatch-grid">
+      <div class="dispatch-form">
+        <h3 style="margin-top:0;">📡 Create Dispatch</h3>
+        <label for="dispatchSourceType">Emergency source</label>
+        <select id="dispatchSourceType" onchange="dispatchSourceChanged()">
+          <option value="SOS">🚨 SOS</option><option value="INCIDENT">⚠️ Incident</option>
+        </select>
+        <div id="dispatchSosWrap"><label for="dispatchSos">Active SOS</label><select id="dispatchSos"><option value="">Loading…</option></select></div>
+        <div id="dispatchIncidentWrap" style="display:none"><label for="dispatchIncident">Open incident</label><select id="dispatchIncident"><option value="">Loading…</option></select></div>
+        <label for="dispatchTeam">Rescue team</label><select id="dispatchTeam"><option value="">Loading…</option></select>
+        <label for="dispatchNotes">Dispatch note</label><textarea id="dispatchNotes" placeholder="Optional instructions for the rescue team"></textarea>
+        <button class="btn-primary" style="margin-top:14px;width:100%;" onclick="createDispatch()">🚑 ASSIGN RESCUE TEAM</button>
+      </div>
+      <div class="dispatch-list">
+        <h3 style="margin-top:0;">Live Dispatches</h3>
+        <div id="dispatchList"><div class="dispatch-empty">Waiting for authorized responder access...</div></div>
       </div>
     </div>
   </div>
