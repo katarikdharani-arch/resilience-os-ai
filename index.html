@@ -1332,6 +1332,20 @@ onclick="showTestIncident()"
 🚨 SHOW TEST INCIDENT
 </button>
 
+<button
+class="btn-secondary"
+onclick="showWorldwideMap()"
+>
+🌍 WORLD VIEW
+</button>
+
+<button
+class="btn-secondary"
+onclick="showGlobalDemoIncidents()"
+>
+🌐 GLOBAL DEMO INCIDENTS
+</button>
+
 </div>
 
 
@@ -1352,6 +1366,10 @@ class="route-info"
 >
 Route information will appear when an incident
 location is available.
+</div>
+
+<div class="location-info" style="margin-top:12px;">
+🌍 <strong>Worldwide map:</strong> Use <strong>WORLD VIEW</strong> to see the global map. The global demonstration markers are sample data only.
 </div>
 
 </div>
@@ -2860,10 +2878,11 @@ MAP
 
 function initializeMap() {
 
+    // Worldwide starting view. The user can zoom into any country or city.
     map =
         L.map("map").setView(
-            [16.3067, 80.4365],
-            13
+            [20, 0],
+            2
         );
 
 
@@ -2977,6 +2996,43 @@ function getMyLocation() {
 /* =========================================================
 CENTER MAP
 ========================================================= */
+
+function showWorldwideMap() {
+
+    if (!map) return;
+
+    map.setView([20, 0], 2);
+
+    addTimeline("Worldwide map view opened.");
+}
+
+
+function showGlobalDemoIncidents() {
+
+    if (!map) return;
+
+    const demoIncidents = [
+        { lat: 28.6139, lng: 77.2090, title: "Demo Incident — New Delhi", type: "Flood" },
+        { lat: 35.6762, lng: 139.6503, title: "Demo Incident — Tokyo", type: "Storm" },
+        { lat: 40.7128, lng: -74.0060, title: "Demo Incident — New York", type: "Fire" },
+        { lat: -33.8688, lng: 151.2093, title: "Demo Incident — Sydney", type: "Emergency" }
+    ];
+
+    demoIncidents.forEach(function(item) {
+        L.marker([item.lat, item.lng])
+            .addTo(map)
+            .bindPopup(
+                `<strong>${item.title}</strong><br>Type: ${item.type}<br><small>Demo data only — not a live emergency.</small>`
+            );
+    });
+
+    map.fitBounds(demoIncidents.map(function(item) {
+        return [item.lat, item.lng];
+    }), { padding: [30, 30] });
+
+    addTimeline("Global demonstration incident markers displayed.");
+}
+
 
 function centerMap() {
 
