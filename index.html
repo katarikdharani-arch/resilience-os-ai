@@ -8206,5 +8206,80 @@ setTimeout(updateSecurityCenter, 1500);
 })();
 </script>
 
+
+<!-- =====================================================
+STEP 19 - EMERGENCY ANALYTICS & PERFORMANCE DASHBOARD
+===================================================== -->
+<section id="emergencyAnalyticsCenter">
+  <div class="container">
+    <h2 class="section-title">Emergency Analytics & Performance Dashboard</h2>
+    <p class="section-subtitle">Authorized responders can monitor emergency volume, status, priority, and operational performance from live Firestore data.</p>
+
+    <div id="analyticsAccess" class="card" style="margin-bottom:18px">Checking responder authorization...</div>
+
+    <div class="grid-3">
+      <div class="card"><h3>🚨 Total SOS</h3><p id="analyticsTotalSOS">0</p></div>
+      <div class="card"><h3>⚠️ Total Incidents</h3><p id="analyticsTotalIncidents">0</p></div>
+      <div class="card"><h3>📂 Open Emergencies</h3><p id="analyticsOpen">0</p></div>
+      <div class="card"><h3>✅ Resolved</h3><p id="analyticsResolved">0</p></div>
+      <div class="card"><h3>🔴 Critical / High</h3><p id="analyticsCriticalHigh">0</p></div>
+      <div class="card"><h3>📈 24h Emergencies</h3><p id="analytics24h">0</p></div>
+    </div>
+
+    <div class="grid-3" style="margin-top:18px">
+      <div class="card"><h3>Priority Distribution</h3><div id="analyticsPriorityBars"></div></div>
+      <div class="card"><h3>Emergency Type</h3><div id="analyticsTypeBars"></div></div>
+      <div class="card"><h3>Status Distribution</h3><div id="analyticsStatusBars"></div></div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+        <div><h3 style="margin-bottom:4px">Operational Performance</h3><small>Calculated from the emergency records currently visible to the authorized responder.</small></div>
+        <button type="button" onclick="refreshEmergencyAnalytics()">🔄 Refresh</button>
+      </div>
+      <div class="grid-3" style="margin-top:15px">
+        <div><strong>Open SOS</strong><p id="analyticsOpenSOS">0</p></div>
+        <div><strong>Open Incidents</strong><p id="analyticsOpenIncidents">0</p></div>
+        <div><strong>Average Age of Open Emergencies</strong><p id="analyticsAvgAge">—</p></div>
+      </div>
+      <div id="analyticsLastUpdated" style="margin-top:10px;font-size:.9em;opacity:.75">Waiting for live data...</div>
+    </div>
+  </div>
+</section>
+
+<style>
+#emergencyAnalyticsCenter .card p[id^="analytics"]{font-size:1.7rem;font-weight:700;margin:.45rem 0}
+.analytics-bar{margin:10px 0}.analytics-bar-head{display:flex;justify-content:space-between;margin-bottom:5px;font-size:.9rem}.analytics-track{height:10px;border-radius:8px;background:rgba(127,127,127,.18);overflow:hidden}.analytics-fill{height:100%;border-radius:8px;background:currentColor}.analytics-empty{opacity:.65;font-size:.9rem}
+</style>
+
+<script>
+(function(){
+  const A={sos:[],incidents:[],unsub:[]};
+  const E=id=>document.getElementById(id);
+  const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  function ts(v){if(!v)return 0;if(typeof v==='number')return v;if(typeof v==='string'){const n=Date.parse(v);return isNaN(n)?0:n}if(v.seconds)return v.seconds*1000+(v.nanoseconds||0)/1e6;if(typeof v.toMillis==='function')return v.toMillis();return 0}
+  function val(o,...keys){for(const k of keys){if(o&&o[k]!==undefined&&o[k]!==null&&String(o[k]).trim()!=='')return o[k]}return ''}
+  function isResolved(x){const s=String(val(x,'status','recoveryStatus','responseStatus')).toUpperCase();return ['RESOLVED','CLOSED','COMPLETED','RECOVERED','RESOLVE'].includes(s)}
+  function priority(x){if(window.calculateAIPriority){try{return window.calculateAIPriority(x)}catch(e){}}const s=String(val(x,'severity','risk','priority')).toUpperCase();return s.includes('CRIT')?'CRITICAL':s.includes('HIGH')?'HIGH':s.includes('MED')?'MEDIUM':'LOW'}
+  function priorityObj(x){const p=priority(x);return typeof p==='string'?p:(p?.level||'LOW')}
+  function age(x){const t=ts(val(x,'createdAt','clientCreatedAt','reportedAt','timestamp'));return t?Math.max(0,Date.now()-t):0}
+  function bar(id,obj){const el=E(id);if(!el)return;const entries=Object.entries(obj).sort((a,b)=>b[1]-a[1]);const max=Math.max(1,...entries.map(x=>x[1]));el.innerHTML=entries.length?entries.map(([k,n])=>`<div class="analytics-bar"><div class="analytics-bar-head"><span>${esc(k)}</span><strong>${n}</strong></div><div class="analytics-track"><div class="analytics-fill" style="width:${(n/max)*100}%"></div></div></div>`).join(''):'<div class="analytics-empty">No data available.</div>'}
+  function render(){
+    const all=[...A.sos.map(x=>({...x,_type:'SOS'})),...A.incidents.map(x=>({...x,_type:'INCIDENT'}))];
+    const open=all.filter(x=>!isResolved(x)),resolved=all.filter(isResolved),recent=all.filter(x=>age(x)<=86400000);
+    const ph={CRITICAL:0,HIGH:0,MEDIUM:0,LOW:0};all.forEach(x=>ph[priorityObj(x)]=(ph[priorityObj(x)]||0)+1);
+    const th={SOS:A.sos.length,INCIDENT:A.incidents.length};
+    const sh={};all.forEach(x=>{const s=String(val(x,'status','recoveryStatus','responseStatus')||'OPEN').toUpperCase();sh[s]=(sh[s]||0)+1});
+    E('analyticsTotalSOS').textContent=A.sos.length;E('analyticsTotalIncidents').textContent=A.incidents.length;E('analyticsOpen').textContent=open.length;E('analyticsResolved').textContent=resolved.length;E('analyticsCriticalHigh').textContent=(ph.CRITICAL||0)+(ph.HIGH||0);E('analytics24h').textContent=recent.length;
+    E('analyticsOpenSOS').textContent=A.sos.filter(x=>!isResolved(x)).length;E('analyticsOpenIncidents').textContent=A.incidents.filter(x=>!isResolved(x)).length;
+    const avg=open.filter(x=>age(x)>0);E('analyticsAvgAge').textContent=avg.length?Math.round(avg.reduce((a,x)=>a+age(x),0)/avg.length/3600000*10)/10+' h':'—';
+    bar('analyticsPriorityBars',ph);bar('analyticsTypeBars',th);bar('analyticsStatusBars',sh);E('analyticsLastUpdated').textContent='Live data updated: '+new Date().toLocaleString();
+  }
+  function stop(){A.unsub.forEach(u=>{try{u()}catch(e){}});A.unsub=[]}
+  function listen(col,key){const f=window.resilienceFirebase?.firestore,d=window.resilienceFirebase?.db;if(!f||!d)return;A.unsub.push(f.onSnapshot(f.collection(d,col),snap=>{A[key]=snap.docs.map(doc=>({id:doc.id,...doc.data()}));render()},err=>{console.error('Analytics listener',col,err)}))}
+  async function start(){const access=E('analyticsAccess'),auth=window.resilienceFirebase?.auth,f=window.resilienceFirebase?.firestore,d=window.resilienceFirebase?.db;if(!auth||!f||!d){access.textContent='⚠️ Firebase is not ready.';return}const u=auth.currentUser;if(!u){access.textContent='🔒 Sign in to use emergency analytics.';return}try{const snap=await f.getDoc(f.doc(d,'responders',u.uid)),p=snap.exists()?snap.data():null;if(!p||p.active!==true){access.textContent='🔒 Responder authorization required.';return}access.textContent='✅ Authorized · Live emergency analytics';stop();listen('sos','sos');listen('incidents','incidents')}catch(e){access.textContent='⚠️ Unable to verify responder access: '+(e.message||'')}}
+  window.refreshEmergencyAnalytics=()=>start();window.addEventListener('beforeunload',stop);window.addEventListener('load',()=>setTimeout(start,1300));
+})();
+</script>
 </body>
 </html>
