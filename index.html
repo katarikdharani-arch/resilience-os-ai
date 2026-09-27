@@ -1077,6 +1077,7 @@ NAVBAR
 <a href="#rescueScanner">Rescue Scanner</a>
 <a href="#emergencyNotifications">Emergency Alerts</a>
 <a href="#securityScalability">Security</a>
+<a href="#adminResponderCenter">Responder Center</a>
 <a href="#dashboard">Dashboard</a>
 <a href="#incident">Incident</a>
 <a href="#history">History</a>
@@ -7207,6 +7208,162 @@ function renderStep8LocalAlert(item) {
   `;
   list.prepend(card);
 }
+</script>
+
+<!-- =====================================================
+STEP 11 - ADMIN / RESPONDER CONTROL CENTER
+===================================================== -->
+<section id="adminResponderCenter">
+  <div class="container">
+    <h2 class="section-title">Admin / Responder Control Center</h2>
+    <p class="section-subtitle">Authorized responders can monitor SOS alerts, incident reports and emergency notifications from one secure control panel.</p>
+
+    <div class="grid-3">
+      <div class="card"><h3>🛡️ Access</h3><p id="arcAccessStatus">Checking responder authorization...</p></div>
+      <div class="card"><h3>🚨 Active SOS</h3><p id="arcSosCount">—</p></div>
+      <div class="card"><h3>📋 Open Incidents</h3><p id="arcIncidentCount">—</p></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+        <h3>🚨 Incoming SOS Alerts</h3>
+        <button class="btn-primary" type="button" onclick="loadAdminResponderCenter()">🔄 REFRESH</button>
+      </div>
+      <div id="arcSosList" style="margin-top:15px;"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>📋 Incident Queue</h3>
+      <div id="arcIncidentList" style="margin-top:15px;"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>🔔 Emergency Notifications</h3>
+      <div id="arcNotificationList" style="margin-top:15px;"></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>🔐 Responder Access Setup</h3>
+      <p style="color:#9fb8c0;line-height:1.7;">For security, responder access is controlled by a Firestore <code>responders/{uid}</code> record created by an administrator. A normal signed-in user is not automatically a responder.</p>
+      <p id="arcSetupHint" style="color:#bde8f0;">Example role values: <strong>ADMIN</strong> or <strong>RESPONDER</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  let arcAuthorized = false;
+
+  function arcEscape(value){
+    if (typeof escapeHtml === "function") return escapeHtml(String(value ?? ""));
+    return String(value ?? "").replace(/[&<>'"]/g, function(ch){ return ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"})[ch]; });
+  }
+
+  function arcSet(id, html){
+    const el=document.getElementById(id); if(el) el.innerHTML=html;
+  }
+
+  async function arcGetResponderProfile(){
+    const user = window.resilienceFirebase?.auth?.currentUser;
+    if(!user) return null;
+    const db = window.resilienceFirebase?.db;
+    if(!db) return null;
+    try{
+      const snap = await getDoc(doc(db,"responders",user.uid));
+      if(!snap.exists()) return null;
+      const data=snap.data()||{};
+      return data.active !== false ? data : null;
+    }catch(error){
+      console.warn("Responder authorization check failed:",error.message);
+      return null;
+    }
+  }
+
+  function arcEmpty(id,message){ arcSet(id,`<div style="padding:14px;border:1px solid #214653;border-radius:12px;color:#9fb8c0;">${arcEscape(message)}</div>`); }
+
+  function arcSosCard(docSnap){
+    const d=docSnap.data()||{};
+    const status=String(d.status||"ACTIVE").toUpperCase();
+    return `<div style="padding:16px;margin-bottom:12px;border:1px solid #4a2630;border-radius:12px;background:#160f14;">
+      <strong>🚨 ${arcEscape(d.title||"Emergency SOS")}</strong>
+      <div style="margin-top:7px;line-height:1.7;">ID: ${arcEscape(d.sosId||docSnap.id)}<br>Type: ${arcEscape(d.type||"Emergency")}<br>Location: ${arcEscape(d.location||"GPS location available")}<br>User: ${arcEscape(d.userName||d.userEmail||d.userId||"Unknown")}<br>Status: <strong>${arcEscape(status)}</strong></div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-secondary" type="button" onclick="arcUpdateSOS('${arcEscape(docSnap.id)}','ACKNOWLEDGED')">Acknowledge</button>
+        <button class="btn-primary" type="button" onclick="arcUpdateSOS('${arcEscape(docSnap.id)}','RESOLVED')">Resolve</button>
+      </div>
+    </div>`;
+  }
+
+  function arcIncidentCard(docSnap){
+    const d=docSnap.data()||{};
+    const status=String(d.recoveryStatus||"ASSESSMENT").toUpperCase();
+    return `<div style="padding:16px;margin-bottom:12px;border:1px solid #214653;border-radius:12px;background:#0b2731;">
+      <strong>📋 ${arcEscape(d.title||"Incident Report")}</strong>
+      <div style="margin-top:7px;line-height:1.7;">ID: ${arcEscape(d.incidentId||docSnap.id)}<br>Type: ${arcEscape(d.type||"Incident")}<br>Risk: ${arcEscape(d.risk||"UNKNOWN")} (${arcEscape(d.score||0)}/100)<br>Location: ${arcEscape(d.location||"Not provided")}<br>User: ${arcEscape(d.userName||d.userEmail||d.userId||"Unknown")}<br>Status: <strong>${arcEscape(status)}</strong></div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-secondary" type="button" onclick="arcUpdateIncident('${arcEscape(docSnap.id)}','RESPONSE')">Start Response</button>
+        <button class="btn-primary" type="button" onclick="arcUpdateIncident('${arcEscape(docSnap.id)}','RESOLVED')">Resolve</button>
+      </div>
+    </div>`;
+  }
+
+  function arcNotificationCard(docSnap){
+    const d=docSnap.data()||{};
+    return `<div style="padding:16px;margin-bottom:12px;border:1px solid #214653;border-radius:12px;background:#0b2731;">
+      <strong>🔔 ${arcEscape(d.title||"Emergency Notification")}</strong>
+      <div style="margin-top:7px;line-height:1.7;">Team: ${arcEscape(d.recipientTeamId||"—")}<br>Message: ${arcEscape(d.message||"")}<br>From: ${arcEscape(d.senderName||d.senderEmail||d.senderUserId||"Unknown")}<br>Status: ${arcEscape(d.status||"SENT")}</div>
+    </div>`;
+  }
+
+  window.loadAdminResponderCenter=async function(){
+    const access=document.getElementById("arcAccessStatus");
+    const user=window.resilienceFirebase?.auth?.currentUser;
+    if(!user){ arcAuthorized=false; if(access) access.textContent="⚠️ Please sign in."; arcEmpty("arcSosList","Sign in to access the responder center."); arcEmpty("arcIncidentList","Sign in to access the responder center."); arcEmpty("arcNotificationList","Sign in to access the responder center."); return; }
+    if(access) access.textContent="Checking authorized responder account…";
+    const profile=await arcGetResponderProfile();
+    arcAuthorized=!!profile;
+    if(!arcAuthorized){
+      if(access) access.textContent="⛔ Access denied. This account is not an active responder.";
+      arcSet("arcSosCount","—"); arcSet("arcIncidentCount","—");
+      arcEmpty("arcSosList","No responder access."); arcEmpty("arcIncidentList","No responder access."); arcEmpty("arcNotificationList","No responder access."); return;
+    }
+    if(access) access.innerHTML=`✅ Authorized · ${arcEscape(profile.role||"RESPONDER")}`;
+    try{
+      const db=window.resilienceFirebase.db;
+      const [sosSnap,incSnap,notSnap]=await Promise.all([
+        getDocs(collection(db,"sos")),
+        getDocs(collection(db,"incidents")),
+        getDocs(collection(db,"notifications"))
+      ]);
+      const sos=sosSnap.docs.filter(d=>String(d.data()?.status||"ACTIVE").toUpperCase()!=="RESOLVED" && String(d.data()?.status||"ACTIVE").toUpperCase()!=="CANCELLED");
+      const inc=incSnap.docs.filter(d=>String(d.data()?.recoveryStatus||"ASSESSMENT").toUpperCase()!=="RESOLVED");
+      document.getElementById("arcSosCount").textContent=String(sos.length);
+      document.getElementById("arcIncidentCount").textContent=String(inc.length);
+      arcSet("arcSosList",sos.length?sos.map(arcSosCard).join(""):"<div style='color:#9fb8c0;'>No active SOS alerts.</div>");
+      arcSet("arcIncidentList",inc.length?inc.map(arcIncidentCard).join(""):"<div style='color:#9fb8c0;'>No open incidents.</div>");
+      const notes=notSnap.docs.slice(-20).reverse();
+      arcSet("arcNotificationList",notes.length?notes.map(arcNotificationCard).join(""):"<div style='color:#9fb8c0;'>No emergency notifications.</div>");
+    }catch(error){
+      console.error("Responder center load failed:",error);
+      if(access) access.textContent="⚠️ Responder access is configured, but Firestore rules/data access need to be enabled.";
+      arcEmpty("arcSosList",error.message||"Could not load SOS alerts."); arcEmpty("arcIncidentList",error.message||"Could not load incidents."); arcEmpty("arcNotificationList",error.message||"Could not load notifications.");
+    }
+  };
+
+  window.arcUpdateSOS=async function(id,status){
+    if(!arcAuthorized)return;
+    try{ await setDoc(doc(window.resilienceFirebase.db,"sos",id),{status,updatedAt:serverTimestamp()},{merge:true}); await loadAdminResponderCenter(); }
+    catch(error){alert("Could not update SOS: "+error.message);}
+  };
+
+  window.arcUpdateIncident=async function(id,recoveryStatus){
+    if(!arcAuthorized)return;
+    try{ await setDoc(doc(window.resilienceFirebase.db,"incidents",id),{recoveryStatus,updatedAt:serverTimestamp()},{merge:true}); await loadAdminResponderCenter(); }
+    catch(error){alert("Could not update incident: "+error.message);}
+  };
+
+  window.addEventListener("load",function(){ setTimeout(loadAdminResponderCenter,1800); });
+})();
 </script>
 
 <!-- =====================================================
