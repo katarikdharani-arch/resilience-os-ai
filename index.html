@@ -1055,6 +1055,22 @@ DEDICATED PROFILE PAGE
   .dispatch-status.CANCELLED{background:rgba(255,77,77,.10)}
   @media(max-width:900px){.dispatch-grid{grid-template-columns:1fr}}
 </style>
+
+<style>
+  #rescueLiveTrackingCenter{margin:28px 0;padding:22px;border:1px solid rgba(120,220,235,.18);border-radius:20px;background:linear-gradient(145deg,rgba(8,24,30,.96),rgba(5,16,21,.96));box-shadow:0 18px 50px rgba(0,0,0,.22)}
+  .tracking-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+  .tracking-stat{padding:15px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+  .tracking-stat span{display:block;color:#9fb8c0;font-size:12px;margin-bottom:5px}.tracking-stat b{font-size:24px;color:#eafcff}
+  .tracking-grid{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:16px;align-items:stretch}
+  .tracking-panel{padding:16px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07)}
+  .tracking-panel label{display:block;margin:10px 0 6px;color:#b9cdd2;font-size:13px}.tracking-panel select{width:100%;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0a1a20;color:#eafcff}
+  .tracking-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.tracking-actions button{border:0;border-radius:10px;padding:10px 13px;cursor:pointer;font-weight:700}
+  .tracking-live{color:#8fe7a8!important}.tracking-status{min-height:22px;margin-top:12px;color:#9fb8c0;font-size:13px}
+  #rescueTrackingMap{height:440px;border-radius:16px;overflow:hidden;background:#071217}
+  .tracking-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;color:#9fb8c0;font-size:12px}.tracking-legend span{display:inline-flex;align-items:center;gap:6px}.tracking-dot{width:9px;height:9px;border-radius:50%;display:inline-block}.tracking-dot.live{background:#45e48b}.tracking-dot.stale{background:#f3b44b}.tracking-dot.offline{background:#89979c}
+  @media(max-width:850px){.tracking-grid{grid-template-columns:1fr}.tracking-stats{grid-template-columns:1fr 1fr 1fr}#rescueTrackingMap{height:360px}}
+  @media(max-width:560px){.tracking-stats{grid-template-columns:1fr}}
+</style>
 </head>
 <body class="auth-locked">
 <!-- =========================================================
@@ -7882,5 +7898,188 @@ setTimeout(updateSecurityCenter, 1500);
     </div>
   </div>
 </section>
+
+
+<!-- =========================================================
+     STEP 17 - LIVE RESCUE TEAM TRACKING
+     ========================================================= -->
+<section id="rescueLiveTrackingCenter" class="section" aria-labelledby="liveTrackingTitle">
+  <h2 id="liveTrackingTitle" class="section-title">📍 Live Rescue Team Tracking</h2>
+  <p class="section-subtitle">Authorized responders can monitor active rescue-team locations in real time. A registered rescue-team owner can voluntarily start or stop location sharing from this dashboard.</p>
+
+  <div class="tracking-stats">
+    <div class="tracking-stat"><span>🚑 Tracked teams</span><b id="trackingTeamCount">0</b></div>
+    <div class="tracking-stat"><span>🟢 Live now</span><b id="trackingLiveCount">0</b></div>
+    <div class="tracking-stat"><span>🕒 Last update</span><b id="trackingLastUpdate">—</b></div>
+  </div>
+
+  <div class="tracking-grid">
+    <div class="tracking-panel">
+      <strong>Team location sharing</strong>
+      <label for="trackingTeamSelect">Your registered rescue team</label>
+      <select id="trackingTeamSelect"><option value="">Checking your teams…</option></select>
+      <div class="tracking-actions">
+        <button type="button" onclick="startRescueLiveTracking()">📍 Start live tracking</button>
+        <button type="button" onclick="stopRescueLiveTracking()">⏹ Stop tracking</button>
+      </div>
+      <div id="trackingOwnerStatus" class="tracking-status">Location sharing is off until you start it.</div>
+      <div class="tracking-legend">
+        <span><i class="tracking-dot live"></i>Live</span>
+        <span><i class="tracking-dot stale"></i>Stale (&gt; 2 min)</span>
+        <span><i class="tracking-dot offline"></i>Offline</span>
+      </div>
+    </div>
+
+    <div class="tracking-panel">
+      <strong>Responder live map</strong>
+      <div id="rescueTrackingMap" aria-label="Live rescue team tracking map"></div>
+      <div id="trackingAccessStatus" class="tracking-status">Checking responder authorization…</div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const TRACK_COLLECTION = "rescueTeamLocations";
+  let trackingWatchId = null;
+  let trackingMap = null;
+  let trackingMarkers = new Map();
+  let trackingUnsub = null;
+  let trackingData = [];
+  let trackingUser = null;
+
+  const E = id => document.getElementById(id);
+  const esc = value => String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
+
+  function fb(){ return window.resilienceFirebase || null; }
+  function fs(){ return fb()?.firestore || null; }
+  function db(){ return fb()?.db || null; }
+  function currentUser(){ return fb()?.auth?.currentUser || trackingUser || null; }
+
+  function trackingStatus(message, live=false){
+    const el=E("trackingOwnerStatus");
+    if(!el) return;
+    el.textContent=message;
+    el.classList.toggle("tracking-live", !!live);
+  }
+
+  function initTrackingMap(){
+    if(trackingMap || !window.L || !E("rescueTrackingMap")) return;
+    trackingMap=L.map("rescueTrackingMap",{worldCopyJump:true}).setView([20,0],2);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors",maxZoom:19}).addTo(trackingMap);
+  }
+
+  function markerIcon(status){
+    const live=String(status||"").toUpperCase()==="LIVE";
+    const html=`<div style="width:18px;height:18px;border-radius:50%;background:${live?'#45e48b':'#89979c'};border:3px solid #071217;box-shadow:0 0 0 4px ${live?'rgba(69,228,139,.22)':'rgba(137,151,156,.18)'}"></div>`;
+    return L.divIcon({className:"",html,iconSize:[18,18],iconAnchor:[9,9],popupAnchor:[0,-9]});
+  }
+
+  function toMillis(v){
+    if(v?.toMillis) return v.toMillis();
+    if(typeof v?.seconds === "number") return v.seconds*1000;
+    if(typeof v === "number") return v;
+    const n=Date.parse(v); return Number.isFinite(n)?n:0;
+  }
+
+  function renderTrackingMap(){
+    initTrackingMap();
+    if(!trackingMap) return;
+    const activeIds=new Set();
+    trackingData.forEach(item=>{
+      const lat=Number(item.latitude),lng=Number(item.longitude);
+      if(!Number.isFinite(lat)||!Number.isFinite(lng)) return;
+      activeIds.add(item.id);
+      let m=trackingMarkers.get(item.id);
+      if(!m){m=L.marker([lat,lng],{icon:markerIcon(item.status)}).addTo(trackingMap);trackingMarkers.set(item.id,m)}
+      else {m.setLatLng([lat,lng]);m.setIcon(markerIcon(item.status));}
+      const age=Date.now()-toMillis(item.updatedAt||item.clientUpdatedAt);
+      const stale=age>120000;
+      const status=String(item.status||"OFFLINE").toUpperCase();
+      m.bindPopup(`<b>🚑 ${esc(item.teamName||"Rescue Team")}</b><br>${esc(item.teamType||"Response team")}<br>${esc(item.city||"")}${item.country?`, ${esc(item.country)}`:""}<br><b>Status:</b> ${esc(status)}${stale&&status==="LIVE"?"<br>⚠️ Last location update is over 2 minutes old.":""}`);
+    });
+    for(const [id,m] of trackingMarkers){if(!activeIds.has(id)){trackingMap.removeLayer(m);trackingMarkers.delete(id)}}
+  }
+
+  function renderTrackingStats(){
+    const live=trackingData.filter(x=>String(x.status||"").toUpperCase()==="LIVE");
+    E("trackingTeamCount").textContent=trackingData.length;
+    E("trackingLiveCount").textContent=live.length;
+    const latest=trackingData.map(x=>toMillis(x.updatedAt||x.clientUpdatedAt)).filter(Boolean).sort((a,b)=>b-a)[0];
+    E("trackingLastUpdate").textContent=latest?new Date(latest).toLocaleTimeString():"—";
+    renderTrackingMap();
+  }
+
+  async function loadOwnedTeams(){
+    const f=fs(),d=db(),u=currentUser(),sel=E("trackingTeamSelect");
+    if(!f||!d||!sel) return;
+    if(!u){sel.innerHTML='<option value="">Login required</option>';return;}
+    try{
+      const snap=await f.getDocs(f.collection(d,"rescueTeams"));
+      const teams=snap.docs.map(x=>({id:x.id,...x.data()})).filter(x=>x.userId===u.uid);
+      sel.innerHTML=teams.length?teams.map(t=>`<option value="${esc(t.id)}">${esc(t.teamName||"Rescue Team")} · ${esc(t.rescueId||t.id)}</option>`).join(""): '<option value="">No registered team found</option>';
+    }catch(e){sel.innerHTML='<option value="">Unable to load teams</option>';trackingStatus("❌ Unable to load your rescue teams: "+(e.message||"Firestore read failed."));}
+  }
+
+  async function startRescueLiveTracking(){
+    const f=fs(),d=db(),u=currentUser(),sel=E("trackingTeamSelect");
+    if(!u){trackingStatus("❌ Please log in first.");return;}
+    if(!navigator.geolocation){trackingStatus("❌ This browser does not support GPS location.");return;}
+    const teamId=sel?.value;
+    if(!teamId){trackingStatus("❌ Register a rescue team before starting live tracking.");return;}
+    if(trackingWatchId!==null){trackingStatus("🟢 Live tracking is already running.",true);return;}
+    const selected=trackingData.find(x=>x.teamDocId===teamId) || null;
+    trackingStatus("📍 Waiting for GPS permission…");
+    const writePosition=async pos=>{
+      const snap=await f.getDocs(f.collection(d,"rescueTeams"));
+      const teamDoc=snap.docs.find(x=>x.id===teamId);
+      if(!teamDoc) throw new Error("Selected rescue team no longer exists.");
+      const team=teamDoc.data();
+      const payload={teamDocId:teamId,rescueId:team.rescueId||"",teamName:team.teamName||"Rescue Team",teamType:team.teamType||"",city:team.city||"",country:team.country||"",userId:u.uid,latitude:Number(pos.coords.latitude.toFixed(6)),longitude:Number(pos.coords.longitude.toFixed(6)),accuracy:Number.isFinite(pos.coords.accuracy)?Number(pos.coords.accuracy.toFixed(1)):null,status:"LIVE",clientUpdatedAt:Date.now(),updatedAt:f.serverTimestamp()};
+      await f.setDoc(f.doc(d,TRACK_COLLECTION,teamId),payload,{merge:true});
+      trackingStatus(`🟢 Live tracking active · ±${payload.accuracy??"—"} m GPS accuracy`,true);
+    };
+    const onError=err=>{trackingStatus("❌ GPS error: "+(err.message||"Location unavailable"));if(trackingWatchId!==null){navigator.geolocation.clearWatch(trackingWatchId);trackingWatchId=null;}};
+    trackingWatchId=navigator.geolocation.watchPosition(pos=>{writePosition(pos).catch(e=>trackingStatus("❌ Could not publish location: "+(e.message||"Firestore write failed.")));},onError,{enableHighAccuracy:true,maximumAge:10000,timeout:15000});
+  }
+
+  async function stopRescueLiveTracking(){
+    const f=fs(),d=db(),u=currentUser(),teamId=E("trackingTeamSelect")?.value;
+    if(trackingWatchId!==null){navigator.geolocation.clearWatch(trackingWatchId);trackingWatchId=null;}
+    if(!u||!teamId){trackingStatus("⏹ Location tracking stopped.");return;}
+    try{
+      await f.setDoc(f.doc(d,TRACK_COLLECTION,teamId),{status:"OFFLINE",userId:u.uid,clientUpdatedAt:Date.now(),updatedAt:f.serverTimestamp()},{merge:true});
+      trackingStatus("⏹ Live location sharing stopped.");
+    }catch(e){trackingStatus("⚠️ Tracking stopped locally, but cloud status could not be updated: "+(e.message||""));}
+  }
+
+  window.startRescueLiveTracking=startRescueLiveTracking;
+  window.stopRescueLiveTracking=stopRescueLiveTracking;
+
+  async function init(){
+    const api=fb();
+    if(!api?.ready) return;
+    const u=await api.ready; trackingUser=u||null;
+    if(!u){E("trackingAccessStatus").textContent="🔒 Sign in to use live rescue-team tracking.";return;}
+    await loadOwnedTeams();
+    initTrackingMap();
+    const f=fs(),d=db();
+    try{
+      const rp=await f.getDoc(f.doc(d,"responders",u.uid));
+      const profile=rp.exists()?rp.data():null;
+      if(!profile?.active){E("trackingAccessStatus").textContent="🔒 Responder authorization is required to view the live tracking map.";return;}
+      E("trackingAccessStatus").textContent=`✅ Authorized · ${esc(profile.role||"RESPONDER")} · Live tracking enabled`;
+      trackingUnsub=f.onSnapshot(f.collection(d,TRACK_COLLECTION),snap=>{
+        trackingData=snap.docs.map(x=>({id:x.id,...x.data()}));
+        renderTrackingStats();
+      },err=>{console.error(err);E("trackingAccessStatus").textContent="⚠️ Live tracking stream unavailable: "+(err.message||"Firestore read failed.");});
+    }catch(e){E("trackingAccessStatus").textContent="⚠️ Unable to verify responder access: "+(e.message||"");}
+  }
+
+  window.addEventListener("beforeunload",()=>{if(trackingWatchId!==null)navigator.geolocation.clearWatch(trackingWatchId);if(trackingUnsub)trackingUnsub();});
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+})();
+</script>
+
 </body>
 </html>
