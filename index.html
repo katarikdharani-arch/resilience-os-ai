@@ -1053,14 +1053,10 @@ NAVBAR
             <div id="profileCard" class="profile-card">
                 <h3 id="profileDisplayName">Logged-in User</h3>
                 <p class="profile-subtitle">Your RESILIENCE OS AI account</p>
-                <div class="profile-row"><span>Email</span><strong id="profileEmail">—</strong></div>
-                <div class="profile-row"><span>Account ID</span><strong id="profileUid">—</strong></div>
-                <div class="profile-row"><span>Email verification</span><strong id="profileVerified">—</strong></div>
-                <div class="profile-row"><span>Account created</span><strong id="profileCreated">—</strong></div>
-                <div class="profile-row"><span>Last sign-in</span><strong id="profileLastSignIn">—</strong></div>
-                <div class="profile-row"><span>Phone</span><strong id="profilePhone">—</strong></div>
-                <div class="profile-row"><span>City</span><strong id="profileCity">—</strong></div>
-                <div class="profile-row"><span>Emergency contact</span><strong id="profileEmergencyContact">—</strong></div>
+                <div class="profile-row"><span>Name</span><strong id="profileDisplayName">—</strong></div>
+                <div class="profile-row"><span>Email ID</span><strong id="profileEmail">—</strong></div>
+                <div class="profile-row"><span>Phone Number</span><strong id="profilePhone">—</strong></div>
+                <div class="profile-row"><span>Account Number</span><strong id="profileUid">—</strong></div>
                 <button id="editProfileButton" class="profile-edit-btn" type="button">✏️ Edit Personal Details</button>
             </div>
         </div>
@@ -1073,10 +1069,10 @@ EDIT PROFILE MODAL
   <div class="profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="editProfileTitle">
     <h3 id="editProfileTitle">Edit Personal Details</h3>
     <p class="modal-subtitle">Update the details shown in your RESILIENCE OS AI profile.</p>
-    <div class="profile-form-field"><label for="editProfileName">Full name</label><input id="editProfileName" type="text" maxlength="80" placeholder="Enter your full name"></div>
-    <div class="profile-form-field"><label for="editProfilePhone">Phone number</label><input id="editProfilePhone" type="tel" maxlength="20" placeholder="Enter your phone number"></div>
-    <div class="profile-form-field"><label for="editProfileCity">City</label><input id="editProfileCity" type="text" maxlength="80" placeholder="Enter your city"></div>
-    <div class="profile-form-field"><label for="editProfileEmergency">Emergency contact</label><input id="editProfileEmergency" type="text" maxlength="100" placeholder="Name and phone number"></div>
+    <div class="profile-form-field"><label for="editProfileName">Name</label><input id="editProfileName" type="text" maxlength="80" placeholder="Enter your name"></div>
+    <div class="profile-form-field"><label>Email ID</label><input id="editProfileEmail" type="email" readonly></div>
+    <div class="profile-form-field"><label for="editProfilePhone">Phone Number</label><input id="editProfilePhone" type="tel" maxlength="20" placeholder="Enter your phone number"></div>
+    <div class="profile-form-field"><label>Account Number</label><input id="editProfileAccount" type="text" readonly></div>
     <div id="profileEditStatus" class="profile-edit-status" aria-live="polite"></div>
     <div class="profile-modal-actions">
       <button id="cancelProfileEdit" class="btn-secondary" type="button">Cancel</button>
@@ -1094,22 +1090,20 @@ DEDICATED PROFILE PAGE
 <div id="profilePageAvatar" class="profile-page-avatar">U</div>
 <div>
 <h2 id="profilePageName">My Profile</h2>
-<p>Manage your personal information and emergency details.</p>
+<p>Manage your basic account details.</p>
 </div>
 </div>
 <div class="profile-details-grid">
-<div class="profile-detail-card"><label>Full Name</label><div id="profilePageFullName" class="profile-detail-value">Not added</div></div>
-<div class="profile-detail-card"><label>Email</label><div id="profilePageEmail" class="profile-detail-value">Not available</div></div>
+<div class="profile-detail-card"><label>Name</label><div id="profilePageFullName" class="profile-detail-value">Not added</div></div>
+<div class="profile-detail-card"><label>Email ID</label><div id="profilePageEmail" class="profile-detail-value">Not available</div></div>
 <div class="profile-detail-card"><label>Phone Number</label><div id="profilePagePhone" class="profile-detail-value">Not added</div></div>
-<div class="profile-detail-card"><label>City</label><div id="profilePageCity" class="profile-detail-value">Not added</div></div>
-<div class="profile-detail-card"><label>Emergency Contact</label><div id="profilePageEmergency" class="profile-detail-value">Not added</div></div>
-<div class="profile-detail-card"><label>Account Status</label><div id="profilePageStatus" class="profile-detail-value">—</div></div>
+<div class="profile-detail-card"><label>Account Number</label><div id="profilePageAccount" class="profile-detail-value">Not available</div></div>
 </div>
 <div class="profile-page-actions">
 <button class="btn-primary" type="button" onclick="openProfileEditor()">✏️ EDIT PROFILE</button>
 <button class="btn-secondary" type="button" onclick="document.getElementById('profilePage').scrollIntoView({behavior:'smooth'})">🔄 REFRESH PROFILE</button>
 </div>
-<p class="profile-page-note">Your email and account ID are controlled by your login account. Personal details such as phone, city and emergency contact can be edited here.</p>
+<p class="profile-page-note">Your Email ID and Account Number are linked to your login account. You can edit your Name and Phone Number.</p>
 </div>
 </div>
 </section>
@@ -6155,20 +6149,15 @@ FIREBASE WEB INTEGRATION + LOGIN
   const profileDisplayName = document.getElementById("profileDisplayName");
   const profileEmail = document.getElementById("profileEmail");
   const profileUid = document.getElementById("profileUid");
-  const profileVerified = document.getElementById("profileVerified");
-  const profileCreated = document.getElementById("profileCreated");
-  const profileLastSignIn = document.getElementById("profileLastSignIn");
   const profilePhone = document.getElementById("profilePhone");
-  const profileCity = document.getElementById("profileCity");
-  const profileEmergencyContact = document.getElementById("profileEmergencyContact");
   const editProfileButton = document.getElementById("editProfileButton");
   const profileModal = document.getElementById("profileModal");
   const cancelProfileEdit = document.getElementById("cancelProfileEdit");
   const saveProfileEdit = document.getElementById("saveProfileEdit");
   const editProfileName = document.getElementById("editProfileName");
+  const editProfileEmail = document.getElementById("editProfileEmail");
   const editProfilePhone = document.getElementById("editProfilePhone");
-  const editProfileCity = document.getElementById("editProfileCity");
-  const editProfileEmergency = document.getElementById("editProfileEmergency");
+  const editProfileAccount = document.getElementById("editProfileAccount");
   const profileEditStatus = document.getElementById("profileEditStatus");
   let currentProfileUser = null;
   let isSignUpMode = false;
@@ -6193,29 +6182,21 @@ FIREBASE WEB INTEGRATION + LOGIN
     profileDisplayName.textContent = displayName;
     profileEmail.textContent = email;
     profileUid.textContent = user.uid || "Not available";
-    profileVerified.textContent = user.emailVerified ? "Verified ✓" : "Not verified";
-    profileCreated.textContent = formatProfileDate(user.metadata?.creationTime);
-    profileLastSignIn.textContent = formatProfileDate(user.metadata?.lastSignInTime);
+
     const saved = JSON.parse(localStorage.getItem(`resilienceProfile_${user.uid}`) || "{}");
     profilePhone.textContent = saved.phone || "Not added";
-    profileCity.textContent = saved.city || "Not added";
-    profileEmergencyContact.textContent = saved.emergencyContact || "Not added";
     const pageName = document.getElementById("profilePageName");
     const pageAvatar = document.getElementById("profilePageAvatar");
     const pageFullName = document.getElementById("profilePageFullName");
     const pageEmail = document.getElementById("profilePageEmail");
     const pagePhone = document.getElementById("profilePagePhone");
-    const pageCity = document.getElementById("profilePageCity");
-    const pageEmergency = document.getElementById("profilePageEmergency");
-    const pageStatus = document.getElementById("profilePageStatus");
+    const pageAccount = document.getElementById("profilePageAccount");
     if(pageName) pageName.textContent = displayName;
     if(pageAvatar) pageAvatar.textContent = initials;
     if(pageFullName) pageFullName.textContent = displayName;
     if(pageEmail) pageEmail.textContent = email;
     if(pagePhone) pagePhone.textContent = saved.phone || "Not added";
-    if(pageCity) pageCity.textContent = saved.city || "Not added";
-    if(pageEmergency) pageEmergency.textContent = saved.emergencyContact || "Not added";
-    if(pageStatus) pageStatus.textContent = user.emailVerified ? "Email verified ✓" : "Email not verified";
+    if(pageAccount) pageAccount.textContent = user.uid || "Not available";
     currentProfileUser = user;
     profileWrap.style.display = "flex";
     editProfileNavButton.style.display = "inline-flex";
@@ -6224,9 +6205,9 @@ FIREBASE WEB INTEGRATION + LOGIN
     if(!currentProfileUser) return;
     const saved = JSON.parse(localStorage.getItem(`resilienceProfile_${currentProfileUser.uid}`) || "{}");
     editProfileName.value = currentProfileUser.displayName || currentProfileUser.email?.split("@")[0] || "";
+    editProfileEmail.value = currentProfileUser.email || "";
     editProfilePhone.value = saved.phone || "";
-    editProfileCity.value = saved.city || "";
-    editProfileEmergency.value = saved.emergencyContact || "";
+    editProfileAccount.value = currentProfileUser.uid || "";
     profileEditStatus.textContent = "";
     profileModal.classList.add("show");
     profileModal.setAttribute("aria-hidden","false");
@@ -6246,9 +6227,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     try{
       await updateProfile(currentProfileUser, { displayName: name });
       localStorage.setItem(`resilienceProfile_${currentProfileUser.uid}`, JSON.stringify({
-        phone: editProfilePhone.value.trim(),
-        city: editProfileCity.value.trim(),
-        emergencyContact: editProfileEmergency.value.trim()
+        phone: editProfilePhone.value.trim()
       }));
       updateUserProfile(currentProfileUser);
       profileEditStatus.textContent = "✅ Personal details updated successfully.";
