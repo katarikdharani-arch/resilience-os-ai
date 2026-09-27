@@ -1029,6 +1029,10 @@ DEDICATED PROFILE PAGE
 @media(max-width:700px){.step8-notification-grid{grid-template-columns:1fr}}
 </style>
 
+
+<style>
+.command-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}.command-stat{padding:18px;border-radius:16px;background:rgba(7,25,35,.72);border:1px solid rgba(117,214,231,.18)}.command-stat b{display:block;font-size:28px;margin-top:5px}.command-layout{display:grid;grid-template-columns:1.6fr .8fr;gap:18px}.command-map{height:520px;border-radius:18px;overflow:hidden;border:1px solid rgba(117,214,231,.2);background:#071923}.command-panel{padding:18px;border-radius:18px;background:rgba(7,25,35,.72);border:1px solid rgba(117,214,231,.18);max-height:520px;overflow:auto}.command-item{padding:12px;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px}.command-item:last-child{border-bottom:0}.command-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px}.cmd-legend{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0;color:#b8d2da;font-size:12px}.cmd-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}@media(max-width:900px){.command-layout{grid-template-columns:1fr}.command-grid{grid-template-columns:repeat(2,1fr)}.command-map{height:420px}}
+</style>
 </head>
 <body class="auth-locked">
 <!-- =========================================================
@@ -7625,5 +7629,90 @@ window.addEventListener("load", updateSecurityCenter);
 setTimeout(updateSecurityCenter, 1500);
 </script>
 
+
+<script>
+(function(){
+  let cmdMap=null, cmdLayer=null, cmdUnsubs=[], cmdAuthorized=false, cmdInitialFit=true;
+  let cmdData={sos:[],incidents:[],teams:[],notifications:[]};
+  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  function el(id){return document.getElementById(id)}
+  function val(o,...keys){for(const k of keys){if(o&&o[k]!==undefined&&o[k]!==null&&o[k]!=="")return o[k]}return ""}
+  function coords(o){const lat=Number(val(o,"lat","latitude")),lng=Number(val(o,"lng","longitude","lon"));return Number.isFinite(lat)&&Number.isFinite(lng)&&Math.abs(lat)<=90&&Math.abs(lng)<=180?[lat,lng]:null}
+  function markerColor(type){return type==="sos"?"#ff4d4d":type==="incident"?"#ffb020":"#35a7ff"}
+  function popup(o,type){
+    if(type==="sos") return `<b>🚨 SOS</b><br>${esc(val(o,"title","type","description")||"Emergency alert")}<br><small>Status: ${esc(val(o,"status")||"ACTIVE")}</small>`;
+    if(type==="incident") return `<b>⚠️ Incident</b><br>${esc(val(o,"title","incidentType","description")||"Incident report")}<br><small>Risk: ${esc(val(o,"risk","severity")||"Unknown")}</small>`;
+    return `<b>🚑 ${esc(val(o,"teamName","name")||"Rescue Team")}</b><br>${esc(val(o,"teamType","role")||"Response team")}<br><small>${esc(val(o,"city")||"")}${val(o,"city")&&val(o,"country")?", ":""}${esc(val(o,"country")||"")} · ${esc(val(o,"status")||"ACTIVE")}</small>`;
+  }
+  function initMap(){
+    if(cmdMap||!window.L)return;
+    cmdMap=L.map("commandCenterMap",{worldCopyJump:true}).setView([20,0],2);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap contributors",maxZoom:19}).addTo(cmdMap);
+    cmdLayer=L.layerGroup().addTo(cmdMap);
+    setTimeout(()=>cmdMap.invalidateSize(),300);
+  }
+  function render(){
+    el("cmdSosCount").textContent=cmdData.sos.filter(x=>String(x.status||"ACTIVE").toUpperCase()!=="RESOLVED").length;
+    el("cmdIncidentCount").textContent=cmdData.incidents.filter(x=>String(x.status||"OPEN").toUpperCase()!=="RESOLVED").length;
+    el("cmdTeamCount").textContent=cmdData.teams.length;
+    el("cmdNotificationCount").textContent=cmdData.notifications.length;
+    if(!cmdMap) initMap(); if(!cmdLayer)return; cmdLayer.clearLayers();
+    const bounds=[];
+    [[cmdData.sos,"sos"],[cmdData.incidents,"incident"],[cmdData.teams,"team"]].forEach(([arr,type])=>arr.forEach(o=>{const c=coords(o);if(!c)return;bounds.push(c);const m=L.circleMarker(c,{radius:type==="team"?8:9,weight:2,fillOpacity:.82,color:markerColor(type),fillColor:markerColor(type)}).bindPopup(popup(o,type));m.addTo(cmdLayer)}));
+    if(cmdInitialFit&&bounds.length){cmdMap.fitBounds(bounds,{padding:[35,35],maxZoom:12});cmdInitialFit=false}
+    const feed=[...cmdData.sos.map(x=>({kind:"🚨 SOS",text:val(x,"title","type","description")||"Emergency alert",status:val(x,"status")||"ACTIVE"})),...cmdData.incidents.map(x=>({kind:"⚠️ Incident",text:val(x,"title","incidentType","description")||"Incident report",status:val(x,"status")||"OPEN"})),...cmdData.teams.map(x=>({kind:"🚑 Team",text:val(x,"teamName","name")||"Rescue team",status:val(x,"status")||"ACTIVE"}))].slice(0,30);
+    el("commandFeed").innerHTML=feed.length?feed.map(x=>`<div class="command-item"><b>${esc(x.kind)}</b> ${esc(x.text)}<br><small>Status: ${esc(x.status)}</small></div>`).join(""):"<div class='command-item'>No live operational records.</div>";
+  }
+  function listen(name,key){
+    const fs=window.resilienceFirebase?.firestore,db=window.resilienceFirebase?.db;if(!fs||!db)return;
+    cmdUnsubs.push(fs.onSnapshot(fs.collection(db,name),snap=>{cmdData[key]=snap.docs.map(d=>({id:d.id,...d.data()}));render()},err=>console.error("Command center listener "+name,err)));
+  }
+  function stop(){cmdUnsubs.forEach(u=>{try{u()}catch(e){}});cmdUnsubs=[]}
+  async function start(){
+    const access=el("commandAccess"); const auth=window.resilienceFirebase?.auth; const fs=window.resilienceFirebase?.firestore,db=window.resilienceFirebase?.db;
+    if(!auth||!fs||!db)return; const user=auth.currentUser;
+    if(!user){access.textContent="🔒 Sign in to access the Emergency Command Center.";return}
+    try{const snap=await fs.getDoc(fs.doc(db,"responders",user.uid));const p=snap.exists()?snap.data():null;
+      if(!p||p.active!==true){access.textContent="🔒 Responder authorization required.";return}
+      cmdAuthorized=true;access.textContent=`✅ Authorized · ${esc(p.role||"RESPONDER")} · LIVE`;initMap();stop();listen("sos","sos");listen("incidents","incidents");listen("rescueTeams","teams");listen("notifications","notifications");
+    }catch(e){console.error(e);access.textContent="⚠️ Unable to verify responder authorization."}
+  }
+  window.cmdFitAll=function(){if(!cmdMap)return;const bounds=[];[...cmdData.sos,...cmdData.incidents,...cmdData.teams].forEach(o=>{const c=coords(o);if(c)bounds.push(c)});if(bounds.length)cmdMap.fitBounds(bounds,{padding:[35,35],maxZoom:12});else cmdMap.setView([20,0],2)};
+  window.cmdRefresh=function(){if(cmdAuthorized){cmdInitialFit=true;start()}};
+  window.addEventListener("load",()=>setTimeout(start,900));
+  window.addEventListener("beforeunload",stop);
+})();
+</script>
 </body>
-</html>
+</html
+<!-- STEP 15 - EMERGENCY COMMAND CENTER + GLOBAL INCIDENT MAP -->
+<section id="emergencyCommandCenter">
+  <div class="container">
+    <h2 class="section-title">Emergency Command Center</h2>
+    <p class="section-subtitle">Live operational view for authorized responders: SOS alerts, incidents, rescue teams and emergency notifications.</p>
+    <div id="commandAccess" style="margin:10px 0;color:#9fb8c0;">Checking responder authorization...</div>
+    <div class="command-grid">
+      <div class="command-stat"><span>🚨 Active SOS</span><b id="cmdSosCount">0</b></div>
+      <div class="command-stat"><span>⚠️ Open Incidents</span><b id="cmdIncidentCount">0</b></div>
+      <div class="command-stat"><span>🚑 Rescue Teams</span><b id="cmdTeamCount">0</b></div>
+      <div class="command-stat"><span>🔔 Notifications</span><b id="cmdNotificationCount">0</b></div>
+    </div>
+    <div class="cmd-actions">
+      <button class="btn-primary" onclick="cmdFitAll()">🌍 FIT ALL EVENTS</button>
+      <button class="btn-primary" onclick="cmdRefresh()">↻ REFRESH COMMAND CENTER</button>
+    </div>
+    <div class="cmd-legend">
+      <span><i class="command-dot" style="background:#ff4d4d"></i>SOS</span>
+      <span><i class="command-dot" style="background:#ffb020"></i>Incident</span>
+      <span><i class="command-dot" style="background:#35a7ff"></i>Rescue Team</span>
+    </div>
+    <div class="command-layout">
+      <div id="commandCenterMap" class="command-map"></div>
+      <div class="command-panel">
+        <h3 style="margin-top:0;">Live Operations</h3>
+        <div id="commandFeed">Waiting for authorized responder access...</div>
+      </div>
+    </div>
+  </div>
+</section>
+>
