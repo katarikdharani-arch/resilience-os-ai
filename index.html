@@ -5165,7 +5165,7 @@ function stopIncidentVoice() {
 INCIDENT HISTORY
 ========================================================= */
 
-function saveIncidentHistory() {
+async function saveIncidentHistory() {
 
     if (!latestIncidentAnalysis) {
 
@@ -5174,6 +5174,11 @@ function saveIncidentHistory() {
     }
 
 
+    const incident =
+        latestIncidentAnalysis;
+
+
+    // Keep the existing browser history for the History page.
     let history =
         JSON.parse(
             localStorage.getItem(
@@ -5182,11 +5187,7 @@ function saveIncidentHistory() {
         );
 
 
-    const incident =
-        latestIncidentAnalysis;
-
-
-    history.unshift({
+    const historyItem = {
 
         id:
             incident.id,
@@ -5215,7 +5216,34 @@ function saveIncidentHistory() {
         createdAt:
             new Date().toLocaleString()
 
-    });
+    };
+
+
+    const existingIndex =
+        history.findIndex(
+            item =>
+                item.id ===
+                incident.id
+        );
+
+
+    if (existingIndex >= 0) {
+
+        history[existingIndex] =
+            {
+                ...history[existingIndex],
+                ...historyItem
+            };
+
+    }
+
+    else {
+
+        history.unshift(
+            historyItem
+        );
+
+    }
 
 
     history =
@@ -5233,8 +5261,43 @@ function saveIncidentHistory() {
 
     loadHistory();
 
-}
 
+    // Save the same incident to Firestore.
+    if (
+        window.resilienceFirebase &&
+        typeof window.resilienceFirebase.saveIncidentToFirestore === "function"
+    ) {
+
+        try {
+
+            await window.resilienceFirebase.saveIncidentToFirestore(
+                incident
+            );
+
+
+            addTimeline(
+                "☁️ Incident saved securely to Firebase Firestore."
+            );
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "Firestore incident sync failed:",
+                error.message
+            );
+
+
+            addTimeline(
+                "⚠️ Incident saved locally, but cloud save failed."
+            );
+
+        }
+
+    }
+
+}
 
 /* =========================================================
 LOAD HISTORY
@@ -5489,12 +5552,6 @@ function updateActiveIncidentStatus(
 
 
     loadHistory();
-
-    if (window.resilienceFirebase && window.resilienceFirebase.updateIncidentStatusInFirestore) {
-        window.resilienceFirebase.updateIncidentStatusInFirestore(activeIncidentId, status)
-            .then(() => console.log("Incident recovery status updated in Firestore."))
-            .catch((error) => console.warn("Firestore incident status sync failed:", error.message));
-    }
 
 }
 
@@ -6452,6 +6509,77 @@ FIREBASE WEB INTEGRATION + LOGIN
 
   window.resilienceFirebase.saveSOSToFirestore = saveSOSToFirestore;
 
+  // =========================================================
+  // CLOUD INCIDENT STORAGE
+  // Saves each authenticated incident directly to Firestore.
+  // One document is reused for the same user + incident ID,
+  // so later recovery/status updates can update the same record.
+  // =========================================================
+  async function saveIncidentToFirestore(item) {
+    if (!item) return null;
+
+    const user = auth.currentUser;
+
+    if (!user) {
+      throw new Error("User is not logged in.");
+    }
+
+    const incidentDocumentId =
+      `${user.uid}_${item.id}`;
+
+    await setDoc(
+      doc(db, "incidents", incidentDocumentId),
+      {
+        incidentId: item.id,
+        userId: user.uid,
+        userName: user.displayName || "",
+        userEmail: user.email || "",
+
+        type: item.type || "Emergency",
+        title: item.title || "Incident Report",
+        description: item.description || "",
+        location: item.location || "",
+
+        latitude:
+          typeof window.currentLatitude === "number"
+            ? window.currentLatitude
+            : null,
+
+        longitude:
+          typeof window.currentLongitude === "number"
+            ? window.currentLongitude
+            : null,
+
+        risk: item.risk || "MEDIUM",
+        score: Number(item.score || 0),
+
+        peopleImpact: item.peopleImpact || "",
+        accessImpact: item.accessImpact || "",
+        infrastructureImpact: item.infrastructureImpact || "",
+
+        actions: Array.isArray(item.actions)
+          ? item.actions
+          : [],
+
+        recoveryStatus:
+          item.recoveryStatus || "ASSESSMENT",
+
+        clientCreatedAt:
+          item.createdAt || new Date().toLocaleString(),
+
+        updatedAt:
+          serverTimestamp()
+      },
+      { merge: true }
+    );
+
+    return incidentDocumentId;
+  }
+
+  window.resilienceFirebase.saveIncidentToFirestore =
+    saveIncidentToFirestore;
+
+
   const originalSaveSOSHistory = window.saveSOSHistory;
   if (typeof originalSaveSOSHistory === "function") {
     window.saveSOSHistory = async function () {
@@ -6501,119 +6629,6 @@ FIREBASE WEB INTEGRATION + LOGIN
       }
     };
   }
-  // =========================================================
-  // CLOUD INCIDENT STORAGE
-  // Saves analyzed incidents directly to Firestore.
-  // Each authenticated user's incident gets a stable document ID.
-  // =========================================================
-  async function saveIncidentToFirestore(item) {
-    if (!item) return null;
-
-    const user = auth.currentUser;
-    if (!user) {
-      throw new Error("User is not logged in.");
-    }
-
-    const incidentDocumentId = `${user.uid}_${item.id}`;
-
-    await setDoc(
-      doc(db, "incidents", incidentDocumentId),
-      {
-        incidentId: item.id,
-        userId: user.uid,
-        userName: user.displayName || "",
-        userEmail: user.email || "",
-        type: item.type || "Unknown",
-        title: item.title || "Incident",
-        description: item.description || "",
-        location: item.location || "",
-        latitude: (typeof currentLatitude !== "undefined" && Number.isFinite(Number(currentLatitude))) ? Number(currentLatitude) : null,
-        longitude: (typeof currentLongitude !== "undefined" && Number.isFinite(Number(currentLongitude))) ? Number(currentLongitude) : null,
-        risk: item.risk || "MEDIUM",
-        score: Number(item.score || 0),
-        peopleImpact: item.peopleImpact || "MEDIUM",
-        accessImpact: item.accessImpact || "MEDIUM",
-        infrastructureImpact: item.infrastructureImpact || "MEDIUM",
-        actions: Array.isArray(item.actions) ? item.actions : [],
-        recoveryStatus: item.recoveryStatus || "ASSESSMENT",
-        status: "ACTIVE",
-        clientCreatedAt: item.createdAt || new Date().toLocaleString(),
-        updatedAt: serverTimestamp()
-      },
-      { merge: true }
-    );
-
-    return incidentDocumentId;
-  }
-
-  async function updateIncidentStatusInFirestore(incidentId, status) {
-    if (!incidentId) return;
-
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const incidentDocumentId = `${user.uid}_${incidentId}`;
-
-    await setDoc(
-      doc(db, "incidents", incidentDocumentId),
-      {
-        recoveryStatus: status,
-        updatedAt: serverTimestamp()
-      },
-      { merge: true }
-    );
-  }
-
-  window.resilienceFirebase.saveIncidentToFirestore = saveIncidentToFirestore;
-  window.resilienceFirebase.updateIncidentStatusInFirestore = updateIncidentStatusInFirestore;
-
-  const originalSaveIncidentHistory = window.saveIncidentHistory;
-  if (typeof originalSaveIncidentHistory === "function") {
-    window.saveIncidentHistory = async function () {
-      // Keep the existing browser history.
-      originalSaveIncidentHistory();
-
-      const item = window.latestIncidentAnalysis || (typeof latestIncidentAnalysis !== "undefined" ? latestIncidentAnalysis : null);
-      if (!item) return;
-
-      // Save directly to Firestore.
-      try {
-        await saveIncidentToFirestore(item);
-        console.log("Incident saved to Firestore.");
-
-        const statusBox = document.getElementById("sosStatus");
-        if (statusBox) {
-          const existing = statusBox.innerHTML;
-          if (!existing.includes("Incident saved securely to cloud")) {
-            statusBox.innerHTML = existing + "<br>☁️ Incident saved securely to cloud.";
-          }
-        }
-      } catch (error) {
-        console.warn("Firestore incident sync failed:", error.message);
-      }
-
-      // Keep the existing backend API sync if the project backend is available.
-      if (!window.resilienceApi) return;
-      try {
-        await window.resilienceApi.request("/api/incidents", {
-          method: "POST",
-          body: JSON.stringify({
-            clientId: item.id,
-            type: item.type,
-            title: item.title,
-            description: item.description,
-            location: item.location,
-            risk: item.risk,
-            score: item.score,
-            recoveryStatus: item.recoveryStatus
-          })
-        });
-      } catch (error) {
-        console.warn("Backend incident sync failed:", error.message);
-      }
-    };
-  }
-
 </script>
 </body>
 </html>
