@@ -1007,6 +1007,13 @@ DEDICATED PROFILE PAGE
 .profile-page-note{margin-top:15px;color:#8daab3;font-size:12px}
 @media(max-width:760px){.profile-details-grid{grid-template-columns:1fr}.profile-page-card{padding:20px}.profile-page-header{align-items:flex-start}}
 </style>
+
+<style>
+.ai-rescue-match-panel{margin-top:22px;padding:22px;border:1px solid rgba(56,189,248,.22);border-radius:16px;background:rgba(7,20,28,.72)}
+.ai-rescue-match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:16px}
+.ai-rescue-match-card{padding:16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.ai-rescue-match-card h4{margin:0 0 8px;color:#fff}.ai-rescue-match-card p{margin:5px 0;color:#b9cbd2}.ai-rescue-match-distance{font-weight:700;color:#67e8f9}.ai-rescue-match-empty{padding:14px;border-radius:12px;background:rgba(245,158,11,.08);color:#ffd27a}
+</style>
 </head>
 <body class="auth-locked">
 <!-- =========================================================
@@ -2307,6 +2314,24 @@ VIEW REPORT CENTER
 
 </section>
 
+
+
+<!-- =====================================================
+AI RESCUE TEAM MATCHING - STEP 7
+===================================================== -->
+<section id="aiRescueMatching">
+<div class="container">
+<h2 class="section-title">AI Emergency Rescue Matching</h2>
+<p class="section-subtitle">Use the analyzed incident and its location to find nearby registered rescue teams.</p>
+<div class="ai-rescue-match-panel">
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+<div><strong style="color:#fff;font-size:18px;">🤖 Incident → Rescue Team Matching</strong><p id="aiRescueMatchStatus" style="color:#9fb8c0;margin:6px 0 0;">Analyze an incident to begin matching.</p></div>
+<button class="btn-primary" type="button" onclick="findMatchingRescueTeams()">🚑 FIND NEARBY TEAMS</button>
+</div>
+<div id="aiRescueMatchResults" class="ai-rescue-match-grid"></div>
+</div>
+</div>
+</section>
 
 <!-- =====================================================
 HISTORY
@@ -4980,6 +5005,8 @@ function analyzeIncident() {
 
     displayIncidentAnalysis();
 
+    setTimeout(function(){ findMatchingRescueTeams(); }, 250);
+
 
     saveIncidentHistory();
 
@@ -5377,6 +5404,108 @@ function stopIncidentVoice() {
 
 }
 
+
+
+/* =========================================================
+STEP 7 - AI RESCUE TEAM MATCHING
+========================================================= */
+function rescueDistanceKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2-lat1) * Math.PI / 180;
+    const dLon = (lon2-lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) ** 2 +
+              Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+              Math.sin(dLon/2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function rescueTypeMatchesIncident(teamType, incidentType) {
+    const t = String(teamType || '').toLowerCase();
+    const i = String(incidentType || '').toLowerCase();
+    if (i.includes('fire')) return t.includes('fire') || t.includes('disaster') || t.includes('search');
+    if (i.includes('medical')) return t.includes('medical') || t.includes('disaster');
+    if (i.includes('road accident')) return t.includes('medical') || t.includes('police') || t.includes('search') || t.includes('disaster');
+    if (i.includes('flood') || i.includes('storm') || i.includes('earthquake')) return t.includes('disaster') || t.includes('search') || t.includes('volunteer');
+    return t.includes('disaster') || t.includes('search') || t.includes('volunteer');
+}
+
+function getIncidentCoordinatesForMatching() {
+    if (Number.isFinite(Number(currentLatitude)) && Number.isFinite(Number(currentLongitude))) {
+        return { latitude:Number(currentLatitude), longitude:Number(currentLongitude) };
+    }
+    if (incidentMarker && typeof incidentMarker.getLatLng === 'function') {
+        const p = incidentMarker.getLatLng();
+        if (p && Number.isFinite(p.lat) && Number.isFinite(p.lng)) return { latitude:p.lat, longitude:p.lng };
+    }
+    return null;
+}
+
+async function findMatchingRescueTeams() {
+    const statusEl = document.getElementById('aiRescueMatchStatus');
+    const resultsEl = document.getElementById('aiRescueMatchResults');
+    if (!statusEl || !resultsEl) return;
+    const incident = latestIncidentAnalysis;
+    if (!incident) {
+        statusEl.textContent = 'Please analyze an incident first.';
+        resultsEl.innerHTML = '<div class="ai-rescue-match-empty">⚠️ No analyzed incident is available yet.</div>';
+        return;
+    }
+    const coords = getIncidentCoordinatesForMatching();
+    if (!coords) {
+        statusEl.textContent = 'Location is required for nearby-team matching.';
+        resultsEl.innerHTML = '<div class="ai-rescue-match-empty">📍 Click GET MY LOCATION or create a test incident first, then try again.</div>';
+        return;
+    }
+    const user = window.resilienceFirebase?.auth?.currentUser;
+    if (!user) {
+        statusEl.textContent = 'Please log in first.';
+        return;
+    }
+    resultsEl.innerHTML = '';
+    statusEl.textContent = '☁️ Reading registered rescue teams and calculating distances...';
+    try {
+        const snapshot = await getDocs(collection(db, 'rescueTeams'));
+        const teams = [];
+        snapshot.forEach((docSnap) => {
+            const team = docSnap.data() || {};
+            const lat = Number(team.latitude), lng = Number(team.longitude);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) return;
+            if (String(team.status || '').toLowerCase() === 'offline') return;
+            teams.push({ ...team, distanceKm: rescueDistanceKm(coords.latitude, coords.longitude, lat, lng), typeMatch: rescueTypeMatchesIncident(team.teamType, incident.type) });
+        });
+        teams.sort((a,b) => (Number(b.typeMatch)-Number(a.typeMatch)) || (a.distanceKm-b.distanceKm));
+        const matches = teams.slice(0, 6);
+        if (!matches.length) {
+            statusEl.textContent = 'No available rescue teams with valid map coordinates were found.';
+            resultsEl.innerHTML = '<div class="ai-rescue-match-empty">🚑 No teams are currently available on the map. Register a team with latitude and longitude.</div>';
+            return;
+        }
+        statusEl.textContent = `Found ${matches.length} nearby registered team${matches.length === 1 ? '' : 's'} for ${incident.type}.`;
+        matches.forEach(team => {
+            const card = document.createElement('div');
+            card.className = 'ai-rescue-match-card';
+            const status = team.status || 'Offline';
+            const matchText = team.typeMatch ? 'Recommended for this incident type' : 'Available nearby';
+            card.innerHTML = `
+                <h4>🚑 ${escapeHtml(team.teamName || 'Rescue Team')}</h4>
+                <p><b>Type:</b> ${escapeHtml(team.teamType || 'Disaster Response')}</p>
+                <p><b>Status:</b> ${escapeHtml(status)}</p>
+                <p><b>Location:</b> ${escapeHtml(team.city || '---')}, ${escapeHtml(team.country || '---')}</p>
+                <p class="ai-rescue-match-distance">📍 ${team.distanceKm.toFixed(1)} km away</p>
+                <p style="color:#9fb8c0;">${matchText}</p>`;
+            card.addEventListener('click', () => {
+                if (map) { map.setView([Number(team.latitude), Number(team.longitude)], 14); }
+            });
+            resultsEl.appendChild(card);
+        });
+        addTimeline(`Rescue-team matching completed for ${incident.type}.`);
+    } catch (error) {
+        console.error('Rescue-team matching failed:', error);
+        statusEl.textContent = 'Unable to load rescue teams.';
+        resultsEl.innerHTML = `<div class="ai-rescue-match-empty">❌ ${escapeHtml(error.message || 'Firestore read failed.')}</div>`;
+    }
+}
+window.findMatchingRescueTeams = findMatchingRescueTeams;
 
 /* =========================================================
 INCIDENT HISTORY
