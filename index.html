@@ -7415,6 +7415,163 @@ STEP 11 - ADMIN / RESPONDER CONTROL CENTER
 </script>
 
 <!-- =====================================================
+STEP 14 - EMERGENCY EVENT TIMELINE & AUDIT LOG
+===================================================== -->
+<section id="auditLogCenter">
+  <div class="container">
+    <h2 class="section-title">Emergency Event Timeline & Audit Log</h2>
+    <p class="section-subtitle">Authorized responders can review operational actions and status changes recorded in Firestore.</p>
+
+    <div class="grid-3">
+      <div class="card"><h3>📝 Audit Events</h3><p id="auditEventCount">—</p></div>
+      <div class="card"><h3>👤 Current Operator</h3><p id="auditOperator">Checking...</p></div>
+      <div class="card"><h3>🕒 Live Status</h3><p id="auditLiveStatus">Offline</p></div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+        <h3>📜 Operational Timeline</h3>
+        <button class="btn-primary" type="button" onclick="loadAuditLog()">🔄 REFRESH</button>
+      </div>
+      <div id="auditTimeline" style="margin-top:15px;"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  let auditUnsubscribe = null;
+
+  function auditEscape(value){
+    if (typeof escapeHtml === "function") return escapeHtml(String(value ?? ""));
+    return String(value ?? "").replace(/[&<>'"]/g, function(ch){
+      return ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"})[ch];
+    });
+  }
+
+  function auditSet(id, html){
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=html;
+  }
+
+  function auditClear(){
+    if(auditUnsubscribe){ auditUnsubscribe(); auditUnsubscribe=null; }
+  }
+
+  function auditTime(data){
+    const value=data.createdAt || data.timestamp || data.clientCreatedAt;
+    if(value && typeof value.toDate === "function") return value.toDate().toLocaleString();
+    return value ? String(value) : "Time unavailable";
+  }
+
+  function auditRender(snapshot){
+    const docs=snapshot.docs.slice().sort(function(a,b){
+      const av=String(a.data()?.createdAt || a.data()?.timestamp || "");
+      const bv=String(b.data()?.createdAt || b.data()?.timestamp || "");
+      return bv.localeCompare(av);
+    }).slice(0,100);
+
+    auditSet("auditEventCount",String(docs.length));
+    auditSet("auditLiveStatus","🟢 Live");
+    const timeline=document.getElementById("auditTimeline");
+    if(!timeline) return;
+    if(!docs.length){
+      timeline.innerHTML="<div style='color:#9fb8c0;'>No audit events recorded yet.</div>";
+      return;
+    }
+    timeline.innerHTML=docs.map(function(docSnap){
+      const d=docSnap.data()||{};
+      const action=String(d.action||"EVENT");
+      const actor=d.actorName || d.actorEmail || d.actorUserId || "Unknown operator";
+      const target=d.targetId || d.sosId || d.incidentId || "—";
+      return `<div class="timeline-item" style="padding:14px 0;">
+        <div class="timeline-time">${auditEscape(auditTime(d))}</div>
+        <div class="timeline-text"><strong>${auditEscape(action)}</strong><br>
+        Operator: ${auditEscape(actor)}<br>
+        Target: ${auditEscape(target)}<br>
+        Details: ${auditEscape(d.details||"Operational event recorded.")}</div>
+      </div>`;
+    }).join("");
+  }
+
+  async function getAuditUser(){
+    const user=window.resilienceFirebase?.auth?.currentUser;
+    if(!user) return null;
+    const fs=window.resilienceFirebase?.firestore;
+    if(!fs) return null;
+    try{
+      const snap=await fs.getDoc(fs.doc(window.resilienceFirebase.db,"responders",user.uid));
+      if(!snap.exists() || snap.data()?.active!==true) return null;
+      return {user:user, profile:snap.data()||{}};
+    }catch(e){ return null; }
+  }
+
+  window.writeAuditEvent=async function(action,targetId,details){
+    const fs=window.resilienceFirebase?.firestore;
+    const user=window.resilienceFirebase?.auth?.currentUser;
+    if(!fs || !user) return;
+    try{
+      const responder=await getAuditUser();
+      if(!responder) return;
+      await fs.addDoc(fs.collection(window.resilienceFirebase.db,"auditLogs"),{
+        action:String(action||"EVENT"),
+        targetId:String(targetId||""),
+        details:String(details||""),
+        actorUserId:user.uid,
+        actorName:responder.profile.name || user.displayName || "Responder",
+        actorEmail:user.email || responder.profile.email || "",
+        createdAt:fs.serverTimestamp()
+      });
+    }catch(error){ console.warn("Audit event could not be recorded:",error.message); }
+  };
+
+  window.loadAuditLog=async function(){
+    auditClear();
+    const operator=document.getElementById("auditOperator");
+    const status=document.getElementById("auditLiveStatus");
+    const responder=await getAuditUser();
+    if(!responder){
+      if(operator) operator.textContent="⛔ Responder access required";
+      if(status) status.textContent="🔒 Locked";
+      auditSet("auditEventCount","—");
+      auditSet("auditTimeline","<div style='color:#9fb8c0;'>Only an active responder can view the audit log.</div>");
+      return;
+    }
+    if(operator) operator.textContent=responder.profile.name || responder.user.email || "Responder";
+    const fs=window.resilienceFirebase.firestore;
+    auditUnsubscribe=fs.onSnapshot(fs.collection(window.resilienceFirebase.db,"auditLogs"),auditRender,function(error){
+      console.error("Audit log listener failed:",error);
+      if(status) status.textContent="⚠️ Unavailable";
+      auditSet("auditTimeline","<div style='color:#ffb4b4;'>Audit log is temporarily unavailable.</div>");
+    });
+  };
+
+  window.addEventListener("beforeunload",auditClear);
+  window.addEventListener("load",function(){ setTimeout(loadAuditLog,2200); });
+})();
+
+/* Record control-center status changes in the audit log. */
+(function(){
+  const originalSOS=window.arcUpdateSOS;
+  const originalIncident=window.arcUpdateIncident;
+  if(typeof originalSOS === "function"){
+    window.arcUpdateSOS=async function(id,status){
+      const result=await originalSOS(id,status);
+      if(window.writeAuditEvent) await window.writeAuditEvent("SOS_STATUS_CHANGED",id,"SOS status changed to " + status);
+      return result;
+    };
+  }
+  if(typeof originalIncident === "function"){
+    window.arcUpdateIncident=async function(id,status){
+      const result=await originalIncident(id,status);
+      if(window.writeAuditEvent) await window.writeAuditEvent("INCIDENT_STATUS_CHANGED",id,"Incident recovery status changed to " + status);
+      return result;
+    };
+  }
+})();
+</script>
+
+<!-- =====================================================
 STEP 9 - SECURITY & SCALABILITY FOUNDATION
 ===================================================== -->
 <section id="securityScalability">
