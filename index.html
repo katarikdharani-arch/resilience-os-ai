@@ -8454,5 +8454,32 @@ STEP 19 - EMERGENCY ANALYTICS & PERFORMANCE DASHBOARD
 })();
 </script>
 
+
+<!-- STEP 22: MULTI-LANGUAGE & ACCESSIBILITY -->
+<style>
+#r22Panel{position:fixed;right:18px;bottom:18px;z-index:99999;background:#111827;color:#fff;padding:14px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.3);max-width:300px;font:14px Arial,sans-serif}
+#r22Panel select,#r22Panel button{margin-top:8px;padding:8px;border-radius:8px;border:1px solid #475569}
+#r22Panel button{cursor:pointer;background:#fff;color:#111827}
+.r22-a11y{display:flex;gap:6px;flex-wrap:wrap}
+body.r22-large{font-size:112%}
+body.r22-contrast{filter:contrast(1.18)}
+</style>
+<div id="r22Panel" aria-label="Language and accessibility controls">
+<strong>🌍 Language & Accessibility</strong><br>
+<select id="r22Lang" aria-label="Select language"><option value="en">English</option><option value="hi">हिन्दी</option><option value="te">తెలుగు</option><option value="es">Español</option></select>
+<div class="r22-a11y"><button id="r22Large">A+ Text</button><button id="r22Contrast">High Contrast</button><button id="r22Speak">🔊 Read Page</button></div>
+</div>
+<script>
+(function(){
+const dict={en:{title:'Language & Accessibility'},hi:{title:'भाषा और सुगम्यता'},te:{title:'భాష మరియు ప్రాప్యత'},es:{title:'Idioma y accesibilidad'}};
+const sel=document.getElementById('r22Lang'), panel=document.getElementById('r22Panel');
+function apply(){const l=sel.value;panel.querySelector('strong').textContent='🌍 '+dict[l].title;document.documentElement.lang=l==='hi'?'hi':l==='te'?'te':l==='es'?'es':'en';localStorage.setItem('r22lang',l)}
+sel.value=localStorage.getItem('r22lang')||'en';apply();sel.addEventListener('change',apply);
+document.getElementById('r22Large').onclick=()=>document.body.classList.toggle('r22-large');
+document.getElementById('r22Contrast').onclick=()=>document.body.classList.toggle('r22-contrast');
+document.getElementById('r22Speak').onclick=()=>{if(!('speechSynthesis' in window)){alert('Text-to-speech is not supported in this browser.');return} speechSynthesis.cancel();const t=document.body.innerText.replace(/Language & Accessibility[\s\S]*$/,'').slice(0,6000);speechSynthesis.speak(new SpeechSynthesisUtterance(t));};
+})();
+</script>
+<!-- END STEP 22 -->
 </body>
 </html>
