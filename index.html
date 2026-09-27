@@ -943,6 +943,19 @@ WHATSAPP LOCATION BOX
 .profile-row { padding: 10px 0; border-top: 1px solid #214653; }
 .profile-row span { display: block; color: #8daab3; font-size: 11px; margin-bottom: 4px; }
 .profile-row strong { color: #eaf7fa; font-size: 13px; word-break: break-word; }
+
+.profile-edit-btn{width:100%;margin-top:14px;padding:10px 12px;border:1px solid #2a5b68;border-radius:9px;background:#123743;color:#eaf7fa;font-weight:700;cursor:pointer}
+.profile-edit-btn:hover{background:#174552}
+.profile-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:10000;align-items:center;justify-content:center;padding:20px}
+.profile-modal.show{display:flex}
+.profile-modal-card{width:min(430px,100%);background:#0b2731;border:1px solid #2a5b68;border-radius:18px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.profile-modal-card h3{margin:0 0 5px;color:#fff}
+.profile-modal-card .modal-subtitle{margin:0 0 18px;color:#9fb8c0;font-size:13px}
+.profile-form-field{margin-bottom:13px}.profile-form-field label{display:block;color:#b9d0d6;font-size:12px;margin-bottom:6px}
+.profile-form-field input{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #315966;border-radius:9px;background:#071820;color:#fff;outline:none}
+.profile-form-field input:focus{border-color:#63cfe2}
+.profile-modal-actions{display:flex;gap:10px;margin-top:18px}.profile-modal-actions button{flex:1}
+.profile-edit-status{font-size:12px;min-height:18px;margin-top:10px;color:#9fd9e3}
 @media(max-width:760px){ .profile-name { display:none; } .profile-card { right:-10px; width:280px; } }
 
 /* =========================================================
@@ -1026,10 +1039,32 @@ NAVBAR
                 <div class="profile-row"><span>Email verification</span><strong id="profileVerified">—</strong></div>
                 <div class="profile-row"><span>Account created</span><strong id="profileCreated">—</strong></div>
                 <div class="profile-row"><span>Last sign-in</span><strong id="profileLastSignIn">—</strong></div>
+                <div class="profile-row"><span>Phone</span><strong id="profilePhone">—</strong></div>
+                <div class="profile-row"><span>City</span><strong id="profileCity">—</strong></div>
+                <div class="profile-row"><span>Emergency contact</span><strong id="profileEmergencyContact">—</strong></div>
+                <button id="editProfileButton" class="profile-edit-btn" type="button">✏️ Edit Personal Details</button>
             </div>
         </div>
 </div>
 </nav>
+<!-- =====================================================
+EDIT PROFILE MODAL
+===================================================== -->
+<div id="profileModal" class="profile-modal" aria-hidden="true">
+  <div class="profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="editProfileTitle">
+    <h3 id="editProfileTitle">Edit Personal Details</h3>
+    <p class="modal-subtitle">Update the details shown in your RESILIENCE OS AI profile.</p>
+    <div class="profile-form-field"><label for="editProfileName">Full name</label><input id="editProfileName" type="text" maxlength="80" placeholder="Enter your full name"></div>
+    <div class="profile-form-field"><label for="editProfilePhone">Phone number</label><input id="editProfilePhone" type="tel" maxlength="20" placeholder="Enter your phone number"></div>
+    <div class="profile-form-field"><label for="editProfileCity">City</label><input id="editProfileCity" type="text" maxlength="80" placeholder="Enter your city"></div>
+    <div class="profile-form-field"><label for="editProfileEmergency">Emergency contact</label><input id="editProfileEmergency" type="text" maxlength="100" placeholder="Name and phone number"></div>
+    <div id="profileEditStatus" class="profile-edit-status" aria-live="polite"></div>
+    <div class="profile-modal-actions">
+      <button id="cancelProfileEdit" class="btn-secondary" type="button">Cancel</button>
+      <button id="saveProfileEdit" class="btn-primary" type="button">Save Changes</button>
+    </div>
+  </div>
+</div>
 <!-- =====================================================
 HERO
 ===================================================== -->
@@ -6032,6 +6067,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     getAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    updateProfile,
     onAuthStateChanged,
     signOut
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
@@ -6073,6 +6109,19 @@ FIREBASE WEB INTEGRATION + LOGIN
   const profileVerified = document.getElementById("profileVerified");
   const profileCreated = document.getElementById("profileCreated");
   const profileLastSignIn = document.getElementById("profileLastSignIn");
+  const profilePhone = document.getElementById("profilePhone");
+  const profileCity = document.getElementById("profileCity");
+  const profileEmergencyContact = document.getElementById("profileEmergencyContact");
+  const editProfileButton = document.getElementById("editProfileButton");
+  const profileModal = document.getElementById("profileModal");
+  const cancelProfileEdit = document.getElementById("cancelProfileEdit");
+  const saveProfileEdit = document.getElementById("saveProfileEdit");
+  const editProfileName = document.getElementById("editProfileName");
+  const editProfilePhone = document.getElementById("editProfilePhone");
+  const editProfileCity = document.getElementById("editProfileCity");
+  const editProfileEmergency = document.getElementById("editProfileEmergency");
+  const profileEditStatus = document.getElementById("profileEditStatus");
+  let currentProfileUser = null;
   let isSignUpMode = false;
 
   function formatProfileDate(value) {
@@ -6097,7 +6146,52 @@ FIREBASE WEB INTEGRATION + LOGIN
     profileVerified.textContent = user.emailVerified ? "Verified ✓" : "Not verified";
     profileCreated.textContent = formatProfileDate(user.metadata?.creationTime);
     profileLastSignIn.textContent = formatProfileDate(user.metadata?.lastSignInTime);
+    const saved = JSON.parse(localStorage.getItem(`resilienceProfile_${user.uid}`) || "{}");
+    profilePhone.textContent = saved.phone || "Not added";
+    profileCity.textContent = saved.city || "Not added";
+    profileEmergencyContact.textContent = saved.emergencyContact || "Not added";
+    currentProfileUser = user;
     profileWrap.style.display = "flex";
+  }
+  function openProfileEditor(){
+    if(!currentProfileUser) return;
+    const saved = JSON.parse(localStorage.getItem(`resilienceProfile_${currentProfileUser.uid}`) || "{}");
+    editProfileName.value = currentProfileUser.displayName || currentProfileUser.email?.split("@")[0] || "";
+    editProfilePhone.value = saved.phone || "";
+    editProfileCity.value = saved.city || "";
+    editProfileEmergency.value = saved.emergencyContact || "";
+    profileEditStatus.textContent = "";
+    profileModal.classList.add("show");
+    profileModal.setAttribute("aria-hidden","false");
+  }
+  function closeProfileEditor(){
+    profileModal.classList.remove("show");
+    profileModal.setAttribute("aria-hidden","true");
+  }
+  async function saveProfileDetails(){
+    if(!currentProfileUser) return;
+    const name = editProfileName.value.trim();
+    if(!name){ profileEditStatus.textContent = "Please enter your full name."; return; }
+    saveProfileEdit.disabled = true;
+    saveProfileEdit.textContent = "Saving...";
+    profileEditStatus.textContent = "";
+    try{
+      await updateProfile(currentProfileUser, { displayName: name });
+      localStorage.setItem(`resilienceProfile_${currentProfileUser.uid}`, JSON.stringify({
+        phone: editProfilePhone.value.trim(),
+        city: editProfileCity.value.trim(),
+        emergencyContact: editProfileEmergency.value.trim()
+      }));
+      updateUserProfile(currentProfileUser);
+      profileEditStatus.textContent = "✅ Personal details updated successfully.";
+      setTimeout(closeProfileEditor, 700);
+    }catch(error){
+      console.error("Profile update failed:", error);
+      profileEditStatus.textContent = `❌ ${error.message || "Could not update profile."}`;
+    }finally{
+      saveProfileEdit.disabled = false;
+      saveProfileEdit.textContent = "Save Changes";
+    }
   }
   function showAuthMessage(message, success = false) {
     authMessage.textContent = message;
@@ -6165,6 +6259,17 @@ FIREBASE WEB INTEGRATION + LOGIN
     const open = profileCard.classList.toggle("show");
     profileButton.setAttribute("aria-expanded", String(open));
   });
+  editProfileButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    profileCard.classList.remove("show");
+    profileButton.setAttribute("aria-expanded", "false");
+    openProfileEditor();
+  });
+  cancelProfileEdit.addEventListener("click", closeProfileEditor);
+  saveProfileEdit.addEventListener("click", saveProfileDetails);
+  profileModal.addEventListener("click", (event) => {
+    if(event.target === profileModal) closeProfileEditor();
+  });
   document.addEventListener("click", (event) => {
     if (profileWrap && !profileWrap.contains(event.target)) {
       profileCard.classList.remove("show");
@@ -6197,6 +6302,7 @@ FIREBASE WEB INTEGRATION + LOGIN
         document.body.classList.add("auth-locked");
         logoutButton.style.display = "none";
         updateUserProfile(null);
+        currentProfileUser = null;
         window.__resilienceLoginSparkleShown = false;
         resolve(null);
       });
