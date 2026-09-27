@@ -8515,5 +8515,71 @@ document.getElementById('r22Speak').onclick=()=>{if(!('speechSynthesis' in windo
 </script>
 <!-- END STEP 23 -->
 
+
+<!-- STEP 24: GLOBAL EMERGENCY ALERT & BROADCAST SYSTEM -->
+<style>
+#r24BroadcastCenter{margin:24px auto;max-width:1180px;padding:20px;border-radius:20px;background:linear-gradient(135deg,#101827,#17243a);color:#fff;box-shadow:0 12px 35px rgba(0,0,0,.18)}
+#r24BroadcastCenter h2{margin:0 0 8px;font-size:22px}#r24BroadcastCenter p{opacity:.82}
+.r24grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.r24card{background:rgba(255,255,255,.07);padding:16px;border-radius:14px}.r24card input,.r24card textarea,.r24card select{width:100%;box-sizing:border-box;margin:6px 0 10px;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.18);background:#0b1220;color:#fff}.r24card textarea{min-height:85px;resize:vertical}.r24btn{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer;margin:4px 4px 4px 0}.r24primary{background:#ef4444;color:#fff}.r24secondary{background:#334155;color:#fff}.r24status{font-size:12px;opacity:.8;margin-top:7px}.r24alert{padding:12px;margin:8px 0;border-radius:12px;border-left:5px solid #ef4444;background:rgba(239,68,68,.10)}.r24alert.high{border-left-color:#f59e0b}.r24alert.info{border-left-color:#38bdf8}.r24meta{font-size:11px;opacity:.7;margin-top:6px}.r24empty{opacity:.7;padding:14px;text-align:center}@media(max-width:760px){.r24grid{grid-template-columns:1fr}}
+</style>
+<section id="r24BroadcastCenter" aria-label="Global emergency broadcast system">
+  <h2>📢 Global Emergency Alert & Broadcast</h2>
+  <p>Authorized responders can publish emergency broadcasts. Signed-in users can receive active alerts in real time.</p>
+  <div class="r24grid">
+    <div class="r24card">
+      <h3>🚨 Responder Broadcast</h3>
+      <label>Alert level</label>
+      <select id="r24Level"><option value="CRITICAL">CRITICAL</option><option value="HIGH">HIGH</option><option value="INFO">INFO</option></select>
+      <label>Title</label><input id="r24Title" maxlength="120" placeholder="Emergency alert title">
+      <label>Message</label><textarea id="r24Message" maxlength="1000" placeholder="Give clear instructions and safety information"></textarea>
+      <label>Area / region</label><input id="r24Area" maxlength="120" placeholder="City, region, country or affected area">
+      <button class="r24btn r24primary" id="r24SendBtn">Broadcast Alert</button>
+      <button class="r24btn r24secondary" id="r24ClearBtn" type="button">Clear</button>
+      <div class="r24status" id="r24ResponderStatus">Checking responder authorization…</div>
+    </div>
+    <div class="r24card">
+      <h3>🌍 Live Emergency Alerts</h3>
+      <div id="r24AlertList"><div class="r24empty">Waiting for live alerts…</div></div>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const status=$('r24ResponderStatus'), list=$('r24AlertList');
+  let unsubscribe=null;
+  function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+  function dateText(v){try{if(v?.toDate)return v.toDate().toLocaleString();if(v?.seconds)return new Date(v.seconds*1000).toLocaleString();return v?new Date(v).toLocaleString():'Just now';}catch(e){return 'Just now';}}
+  async function start(){
+    const rf=window.resilienceFirebase; if(!rf){status.textContent='Firebase is not ready yet.';return;}
+    await rf.ready.catch(()=>null); const user=rf.auth.currentUser;
+    if(!user){status.textContent='Sign in to use emergency broadcasts.'; return;}
+    let responder=false;
+    try{const snap=await rf.firestore.getDoc(rf.firestore.doc(rf.db,'responders',user.uid)); responder=snap.exists()&&snap.data()?.active===true;}catch(e){status.textContent='Authorization check failed.';}
+    status.textContent=responder?'✅ Responder broadcast controls enabled.':'👤 Broadcast publishing is restricted to authorized responders.';
+    $('r24SendBtn').disabled=!responder; $('r24SendBtn').style.opacity=responder?'1':'.5';
+    if(unsubscribe)unsubscribe();
+    unsubscribe=rf.firestore.onSnapshot(rf.firestore.collection(rf.db,'emergencyBroadcasts'),snap=>{
+      const rows=[]; snap.forEach(d=>rows.push({id:d.id,...d.data()}));
+      rows.sort((a,b)=>{const av=a.createdAt?.seconds||0,bv=b.createdAt?.seconds||0;return bv-av;});
+      const active=rows.filter(x=>x.active!==false).slice(0,20);
+      list.innerHTML=active.length?active.map(a=>`<div class="r24alert ${a.level==='HIGH'?'high':a.level==='INFO'?'info':''}"><strong>${esc(a.level)} — ${esc(a.title||'Emergency Alert')}</strong><div>${esc(a.message||'')}</div><div class="r24meta">📍 ${esc(a.area||'Affected area not specified')} · ${esc(dateText(a.createdAt))}</div></div>`).join(''):'<div class="r24empty">No active emergency broadcasts.</div>';
+    },err=>{list.innerHTML='<div class="r24empty">Live alerts unavailable. Check connection and Firestore rules.</div>';});
+  }
+  $('r24SendBtn').addEventListener('click',async()=>{
+    const rf=window.resilienceFirebase,user=rf?.auth?.currentUser;if(!rf||!user){alert('Please sign in first.');return;}
+    const level=$('r24Level').value,title=$('r24Title').value.trim(),message=$('r24Message').value.trim(),area=$('r24Area').value.trim();
+    if(!title||!message){alert('Enter an alert title and message.');return;}
+    const snap=await rf.firestore.getDoc(rf.firestore.doc(rf.db,'responders',user.uid));
+    if(!snap.exists()||snap.data()?.active!==true){alert('Only authorized active responders can broadcast alerts.');return;}
+    try{await rf.firestore.setDoc(rf.firestore.doc(rf.db,'emergencyBroadcasts',user.uid+'_'+Date.now()),{level,title,message,area,active:true,senderUserId:user.uid,senderName:user.displayName||'',senderEmail:user.email||'',createdAt:rf.firestore.serverTimestamp()});$('r24Title').value='';$('r24Message').value='';$('r24Area').value='';status.textContent='✅ Emergency broadcast published.';}catch(e){console.error(e);alert('Unable to publish broadcast: '+(e.message||e));}
+  });
+  $('r24ClearBtn').addEventListener('click',()=>{$('r24Title').value='';$('r24Message').value='';$('r24Area').value='';});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+  window.addEventListener('beforeunload',()=>{if(unsubscribe)unsubscribe();});
+})();
+</script>
+<!-- END STEP 24 -->
+
 </body>
 </html>
