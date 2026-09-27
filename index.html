@@ -8341,5 +8341,118 @@ STEP 19 - EMERGENCY ANALYTICS & PERFORMANCE DASHBOARD
 })();
 </script>
 
+
+<!-- ===================================================== STEP 21 - OFFLINE EMERGENCY CONTINUITY ===================================================== -->
+<style>
+  #offlineContinuity{margin-top:28px}
+  .roc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .roc-card{border:1px solid #24434d;border-radius:16px;padding:18px;background:linear-gradient(180deg,rgba(10,28,34,.96),rgba(8,20,25,.96));box-shadow:0 10px 28px rgba(0,0,0,.16)}
+  .roc-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;font-weight:700;font-size:13px;border:1px solid #31515b}
+  .roc-online{color:#9ff0bd;background:rgba(34,160,91,.12)}
+  .roc-offline{color:#ffd18a;background:rgba(230,145,35,.12)}
+  .roc-number{font-size:30px;font-weight:800;margin:8px 0 2px}
+  .roc-muted{color:#9fb8c0;font-size:13px;line-height:1.55}
+  .roc-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+  .roc-btn{border:1px solid #31515b;border-radius:10px;padding:10px 13px;background:#102b33;color:#eaf7fa;cursor:pointer;font-weight:700}
+  .roc-btn:hover{filter:brightness(1.12)}
+  .roc-list{max-height:260px;overflow:auto;margin-top:12px}
+  .roc-item{padding:11px;border:1px solid #29464f;border-radius:10px;margin-bottom:8px;background:#0d232a}
+</style>
+<section id="offlineContinuity">
+  <div class="container">
+    <h2 class="section-title">Offline Emergency Continuity</h2>
+    <p class="section-subtitle">Keep critical emergency information locally available when connectivity is interrupted, then synchronize queued SOS records when the connection returns.</p>
+    <div class="roc-grid">
+      <div class="roc-card">
+        <div id="rocConnection" class="roc-pill">Checking connection…</div>
+        <div id="rocQueueCount" class="roc-number">0</div>
+        <div class="roc-muted">SOS records waiting for cloud synchronization</div>
+      </div>
+      <div class="roc-card">
+        <strong>Emergency continuity</strong>
+        <p class="roc-muted">Your browser can retain a local emergency record even when the internet is temporarily unavailable. Cloud synchronization happens after connectivity returns.</p>
+        <div class="roc-actions">
+          <button class="roc-btn" onclick="rocQueueCurrentSOS()">🚨 Save Current SOS Offline</button>
+          <button class="roc-btn" onclick="rocSaveCurrentIncidentOffline()">⚠️ Save Current Incident Offline</button>
+        </div>
+      </div>
+      <div class="roc-card">
+        <strong>Recovery tools</strong>
+        <p class="roc-muted">Use these controls to retry synchronization or export locally stored emergency records for backup.</p>
+        <div class="roc-actions">
+          <button class="roc-btn" onclick="rocSyncQueue()">☁️ Sync Queue Now</button>
+          <button class="roc-btn" onclick="rocExportQueue()">📥 Export Offline Records</button>
+          <button class="roc-btn" onclick="rocClearCompletedQueue()">🧹 Clear Synced SOS</button>
+        </div>
+      </div>
+    </div>
+    <div class="roc-card" style="margin-top:14px">
+      <strong>Offline records</strong>
+      <div id="rocQueueList" class="roc-list"><div class="roc-muted">No queued records.</div></div>
+      <div id="rocStatus" class="roc-muted" style="margin-top:10px">Offline continuity is ready.</div>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  const KEY="resilienceOfflineEmergencyQueue";
+  const E=id=>document.getElementById(id);
+  function read(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
+  function write(v){localStorage.setItem(KEY,JSON.stringify(v));render()}
+  function esc(v){return String(v??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
+  function setStatus(t){if(E("rocStatus"))E("rocStatus").textContent=t}
+  function render(){
+    const q=read();
+    if(E("rocQueueCount"))E("rocQueueCount").textContent=String(q.filter(x=>x.status!=="SYNCED").length);
+    if(E("rocConnection")){
+      E("rocConnection").className="roc-pill "+(navigator.onLine?"roc-online":"roc-offline");
+      E("rocConnection").textContent=navigator.onLine?"🟢 Online":"🟠 Offline";
+    }
+    if(E("rocQueueList")) E("rocQueueList").innerHTML=q.length?q.slice().reverse().map((x,i)=>
+      `<div class="roc-item"><strong>${esc(x.kind||"Emergency")}</strong> · ${esc(x.status||"QUEUED")}<br><span class="roc-muted">${esc(x.title||x.type||"Emergency record")} · ${esc(x.createdAt||"")}</span></div>`
+    ).join(""):"<div class='roc-muted'>No queued records.</div>";
+  }
+  function currentUser(){return window.resilienceFirebase?.auth?.currentUser||null}
+  window.rocQueueCurrentSOS=function(){
+    const item=window.currentSOS||(typeof currentSOS!=="undefined"?currentSOS:null);
+    if(!item){alert("No current SOS is available to save offline.");return}
+    const q=read();
+    if(q.some(x=>x.kind==="SOS"&&x.id===item.id)){setStatus("This SOS is already in the offline queue.");return}
+    q.push({kind:"SOS",id:item.id||("offline_"+Date.now()),title:item.title||"Emergency SOS Alert",type:item.type||"Emergency",description:item.description||"Emergency assistance requested.",location:item.location||"Current GPS location",latitude:item.latitude,longitude:item.longitude,status:item.status||"ACTIVE",createdAt:item.createdAt||new Date().toISOString(),queuedAt:new Date().toISOString(),statusSync:"QUEUED",status:"QUEUED"});
+    write(q);setStatus("🚨 SOS saved locally. It will be synchronized when possible.");
+  };
+  window.rocSaveCurrentIncidentOffline=function(){
+    const item=window.latestIncidentAnalysis||(typeof latestIncidentAnalysis!=="undefined"?latestIncidentAnalysis:null);
+    if(!item){alert("Analyze an incident first, then save it offline.");return}
+    const q=read();
+    q.push({kind:"INCIDENT",id:item.id||("offline_incident_"+Date.now()),type:item.type||"Incident",title:item.title||"Emergency incident",description:item.description||"",location:item.location||"",latitude:item.latitude??window.currentLatitude,longitude:item.longitude??window.currentLongitude,risk:item.risk||item.riskLevel||"",queuedAt:new Date().toISOString(),status:"LOCAL_ONLY"});
+    write(q);setStatus("⚠️ Incident saved locally. Keep the exported record as a backup until it is registered in the cloud.");
+  };
+  window.rocSyncQueue=async function(){
+    if(!navigator.onLine){setStatus("🟠 Still offline. Synchronization will start when the connection returns.");return}
+    const saver=window.resilienceFirebase?.saveSOSToFirestore;
+    if(typeof saver!=="function"){setStatus("⚠️ Firebase SOS synchronization is not available yet.");return}
+    const q=read();let changed=false,ok=0;
+    for(const x of q){
+      if(x.kind!=="SOS"||x.status==="SYNCED")continue;
+      try{await saver(x);x.status="SYNCED";x.syncedAt=new Date().toISOString();ok++;changed=true}catch(e){console.warn("Offline SOS sync failed",e)}
+    }
+    if(changed)write(q);
+    setStatus(ok?`☁️ Synchronized ${ok} SOS record${ok===1?"":"s"}.`:"No queued SOS record could be synchronized yet.");
+  };
+  window.rocClearCompletedQueue=function(){const q=read().filter(x=>x.status!=="SYNCED");write(q);setStatus("🧹 Synced SOS records were removed from local storage.")};
+  window.rocExportQueue=function(){
+    const q=read();
+    if(!q.length){alert("There are no offline records to export.");return}
+    const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),records:q},null,2)],{type:"application/json"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="resilience-os-ai-offline-emergency-records.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  };
+  window.addEventListener("online",()=>{render();setStatus("🟢 Connection restored. Attempting SOS synchronization…");rocSyncQueue()});
+  window.addEventListener("offline",()=>{render();setStatus("🟠 Internet connection lost. Local emergency continuity remains available.")});
+  window.addEventListener("load",()=>{render();setTimeout(()=>{if(navigator.onLine)rocSyncQueue()},2500)});
+  render();
+})();
+</script>
+
 </body>
 </html>
