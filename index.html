@@ -974,6 +974,21 @@ RESCUE TEAM QR SCANNER
 .rescue-result-row:last-child{border-bottom:0}
 .rescue-result-label{color:#9fb8c0}
 .rescue-result-value{font-weight:bold;text-align:right;word-break:break-word}
+
+.rescue-network-panel{margin-top:25px;padding:25px;background:#0b2731;border:1px solid #214653;border-radius:16px}
+.rescue-network-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.rescue-network-field{display:flex;flex-direction:column;gap:7px}
+.rescue-network-field label{color:#9fb8c0;font-weight:700;font-size:.92rem}
+.rescue-network-field input,.rescue-network-field select{width:100%;padding:12px 13px;border-radius:10px;border:1px solid #214653;background:#071820;color:#fff;outline:none}
+.rescue-network-field input:focus,.rescue-network-field select:focus{border-color:#6fd5e7;box-shadow:0 0 0 2px rgba(111,213,231,.12)}
+.rescue-network-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.rescue-network-status{margin-top:12px;min-height:22px;color:#9fb8c0}
+.rescue-team-cloud-card{margin-top:18px;padding:16px;border:1px solid #214653;border-radius:12px;background:#071820;display:none}
+.rescue-team-cloud-card h4{margin-bottom:10px;color:#8fd8e8}
+.rescue-team-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rescue-team-meta div{padding:10px;border:1px solid #173943;border-radius:10px}
+.rescue-team-meta span{display:block;color:#9fb8c0;font-size:.82rem;margin-bottom:4px}
+@media(max-width:760px){.rescue-network-grid{grid-template-columns:1fr}.rescue-team-meta{grid-template-columns:1fr}}
 @media(max-width:760px){.rescue-scanner-grid{grid-template-columns:1fr}.rescue-result-row{flex-direction:column;gap:3px}.rescue-result-value{text-align:left}}
 
 
@@ -1036,6 +1051,7 @@ NAVBAR
 <a href="#neo1">Neo 1</a>
 <a href="#location">Location</a>
 <a href="#profilePage">Profile</a>
+<a href="#rescueNetwork">Rescue Network</a>
 <a href="#rescueScanner">Rescue Scanner</a>
 <a href="#dashboard">Dashboard</a>
 <a href="#incident">Incident</a>
@@ -1255,6 +1271,92 @@ is simulated through dashboard signals.
 </section>
 
 <!-- =====================================================
+RESCUE TEAM NETWORK - STEP 5
+===================================================== -->
+<section id="rescueNetwork">
+<div class="container">
+<h2 class="section-title">Worldwide Rescue-Team Network</h2>
+<p class="section-subtitle">Register a rescue team and securely save its profile to Firebase Firestore. This is the first part of the global responder network.</p>
+
+<div class="rescue-network-panel">
+<div class="rescue-network-grid">
+<div class="rescue-network-field">
+<label for="rescueTeamNameInput">Team Name</label>
+<input id="rescueTeamNameInput" type="text" placeholder="e.g. Rapid Rescue Team">
+</div>
+
+<div class="rescue-network-field">
+<label for="rescueTeamIdInput">Rescue Team ID</label>
+<input id="rescueTeamIdInput" type="text" readonly>
+</div>
+
+<div class="rescue-network-field">
+<label for="rescueTeamTypeInput">Team Type</label>
+<select id="rescueTeamTypeInput">
+<option value="Medical">Medical</option>
+<option value="Fire & Rescue">Fire & Rescue</option>
+<option value="Police">Police</option>
+<option value="Disaster Response">Disaster Response</option>
+<option value="Search & Rescue">Search & Rescue</option>
+<option value="Volunteer">Volunteer</option>
+<option value="Other">Other</option>
+</select>
+</div>
+
+<div class="rescue-network-field">
+<label for="rescueTeamPhoneInput">Contact Number</label>
+<input id="rescueTeamPhoneInput" type="tel" placeholder="Country code + phone number">
+</div>
+
+<div class="rescue-network-field">
+<label for="rescueTeamCountryInput">Country</label>
+<input id="rescueTeamCountryInput" type="text" placeholder="e.g. India">
+</div>
+
+<div class="rescue-network-field">
+<label for="rescueTeamCityInput">City / Area</label>
+<input id="rescueTeamCityInput" type="text" placeholder="e.g. Vijayawada">
+</div>
+
+<div class="rescue-network-field">
+<label for="rescueTeamStatusInput">Availability</label>
+<select id="rescueTeamStatusInput">
+<option value="Available">🟢 Available</option>
+<option value="Busy">🟡 Busy</option>
+<option value="Offline">⚫ Offline</option>
+</select>
+</div>
+
+<div class="rescue-network-field">
+<label for="rescueTeamLocationInput">GPS Location</label>
+<input id="rescueTeamLocationInput" type="text" placeholder="Click GET LOCATION" readonly>
+</div>
+</div>
+
+<div class="rescue-network-actions">
+<button class="btn-secondary" type="button" onclick="generateRescueTeamId()">🆔 GENERATE TEAM ID</button>
+<button class="btn-secondary" type="button" onclick="getRescueTeamLocation()">📍 GET LOCATION</button>
+<button class="btn-primary" type="button" onclick="registerRescueTeam()">☁️ REGISTER RESCUE TEAM</button>
+</div>
+
+<div id="rescueNetworkStatus" class="rescue-network-status">Team registration is ready.</div>
+
+<div id="registeredRescueTeamCard" class="rescue-team-cloud-card">
+<h4>✅ Rescue Team Registered</h4>
+<div class="rescue-team-meta">
+<div><span>Team</span><strong id="registeredTeamName">---</strong></div>
+<div><span>Rescue ID</span><strong id="registeredTeamId">---</strong></div>
+<div><span>Type</span><strong id="registeredTeamType">---</strong></div>
+<div><span>Status</span><strong id="registeredTeamStatus">---</strong></div>
+<div><span>Country</span><strong id="registeredTeamCountry">---</strong></div>
+<div><span>City / Area</span><strong id="registeredTeamCity">---</strong></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- =====================================================
 RESCUE TEAM SCANNER
 ===================================================== -->
 <section id="rescueScanner">
@@ -1332,20 +1434,6 @@ onclick="showTestIncident()"
 🚨 SHOW TEST INCIDENT
 </button>
 
-<button
-class="btn-secondary"
-onclick="showWorldwideMap()"
->
-🌍 WORLD VIEW
-</button>
-
-<button
-class="btn-secondary"
-onclick="showGlobalDemoIncidents()"
->
-🌐 GLOBAL DEMO INCIDENTS
-</button>
-
 </div>
 
 
@@ -1366,10 +1454,6 @@ class="route-info"
 >
 Route information will appear when an incident
 location is available.
-</div>
-
-<div class="location-info" style="margin-top:12px;">
-🌍 <strong>Worldwide map:</strong> Use <strong>WORLD VIEW</strong> to see the global map. The global demonstration markers are sample data only.
 </div>
 
 </div>
@@ -2878,11 +2962,10 @@ MAP
 
 function initializeMap() {
 
-    // Worldwide starting view. The user can zoom into any country or city.
     map =
         L.map("map").setView(
-            [20, 0],
-            2
+            [16.3067, 80.4365],
+            13
         );
 
 
@@ -2996,43 +3079,6 @@ function getMyLocation() {
 /* =========================================================
 CENTER MAP
 ========================================================= */
-
-function showWorldwideMap() {
-
-    if (!map) return;
-
-    map.setView([20, 0], 2);
-
-    addTimeline("Worldwide map view opened.");
-}
-
-
-function showGlobalDemoIncidents() {
-
-    if (!map) return;
-
-    const demoIncidents = [
-        { lat: 28.6139, lng: 77.2090, title: "Demo Incident — New Delhi", type: "Flood" },
-        { lat: 35.6762, lng: 139.6503, title: "Demo Incident — Tokyo", type: "Storm" },
-        { lat: 40.7128, lng: -74.0060, title: "Demo Incident — New York", type: "Fire" },
-        { lat: -33.8688, lng: 151.2093, title: "Demo Incident — Sydney", type: "Emergency" }
-    ];
-
-    demoIncidents.forEach(function(item) {
-        L.marker([item.lat, item.lng])
-            .addTo(map)
-            .bindPopup(
-                `<strong>${item.title}</strong><br>Type: ${item.type}<br><small>Demo data only — not a live emergency.</small>`
-            );
-    });
-
-    map.fitBounds(demoIncidents.map(function(item) {
-        return [item.lat, item.lng];
-    }), { padding: [30, 30] });
-
-    addTimeline("Global demonstration incident markers displayed.");
-}
-
 
 function centerMap() {
 
@@ -5221,7 +5267,7 @@ function stopIncidentVoice() {
 INCIDENT HISTORY
 ========================================================= */
 
-async function saveIncidentHistory() {
+function saveIncidentHistory() {
 
     if (!latestIncidentAnalysis) {
 
@@ -5230,11 +5276,6 @@ async function saveIncidentHistory() {
     }
 
 
-    const incident =
-        latestIncidentAnalysis;
-
-
-    // Keep the existing browser history for the History page.
     let history =
         JSON.parse(
             localStorage.getItem(
@@ -5243,7 +5284,11 @@ async function saveIncidentHistory() {
         );
 
 
-    const historyItem = {
+    const incident =
+        latestIncidentAnalysis;
+
+
+    history.unshift({
 
         id:
             incident.id,
@@ -5272,34 +5317,7 @@ async function saveIncidentHistory() {
         createdAt:
             new Date().toLocaleString()
 
-    };
-
-
-    const existingIndex =
-        history.findIndex(
-            item =>
-                item.id ===
-                incident.id
-        );
-
-
-    if (existingIndex >= 0) {
-
-        history[existingIndex] =
-            {
-                ...history[existingIndex],
-                ...historyItem
-            };
-
-    }
-
-    else {
-
-        history.unshift(
-            historyItem
-        );
-
-    }
+    });
 
 
     history =
@@ -5317,43 +5335,8 @@ async function saveIncidentHistory() {
 
     loadHistory();
 
-
-    // Save the same incident to Firestore.
-    if (
-        window.resilienceFirebase &&
-        typeof window.resilienceFirebase.saveIncidentToFirestore === "function"
-    ) {
-
-        try {
-
-            await window.resilienceFirebase.saveIncidentToFirestore(
-                incident
-            );
-
-
-            addTimeline(
-                "☁️ Incident saved securely to Firebase Firestore."
-            );
-
-        }
-
-        catch (error) {
-
-            console.warn(
-                "Firestore incident sync failed:",
-                error.message
-            );
-
-
-            addTimeline(
-                "⚠️ Incident saved locally, but cloud save failed."
-            );
-
-        }
-
-    }
-
 }
+
 
 /* =========================================================
 LOAD HISTORY
@@ -6525,6 +6508,128 @@ FIREBASE WEB INTEGRATION + LOGIN
     }
   });
   // =========================================================
+  // STEP 5 - RESCUE TEAM NETWORK
+  // =========================================================
+  function generateRescueTeamId() {
+    const input = document.getElementById("rescueTeamIdInput");
+    if (!input) return;
+    const random = Math.random().toString(36).slice(2, 7).toUpperCase();
+    input.value = `RT-${Date.now().toString(36).slice(-5).toUpperCase()}-${random}`;
+  }
+
+  window.generateRescueTeamId = generateRescueTeamId;
+
+  function setRescueNetworkStatus(message, success = false) {
+    const el = document.getElementById("rescueNetworkStatus");
+    if (!el) return;
+    el.textContent = message;
+    el.style.color = success ? "#8fd8e8" : "#9fb8c0";
+  }
+
+  function getRescueTeamLocation() {
+    if (!navigator.geolocation) {
+      setRescueNetworkStatus("❌ Geolocation is not supported by this browser.");
+      return;
+    }
+
+    setRescueNetworkStatus("📍 Getting team GPS location...");
+    navigator.geolocation.getCurrentPosition((position) => {
+      const lat = Number(position.coords.latitude.toFixed(6));
+      const lng = Number(position.coords.longitude.toFixed(6));
+      const input = document.getElementById("rescueTeamLocationInput");
+      if (input) input.value = `${lat}, ${lng}`;
+      setRescueNetworkStatus("✅ Team GPS location captured.", true);
+    }, () => {
+      setRescueNetworkStatus("❌ Location permission was not granted.");
+    }, { enableHighAccuracy: true, timeout: 10000 });
+  }
+
+  window.getRescueTeamLocation = getRescueTeamLocation;
+
+  async function registerRescueTeam() {
+    const user = auth.currentUser;
+    if (!user) {
+      setRescueNetworkStatus("❌ Please log in before registering a rescue team.");
+      return;
+    }
+
+    const teamName = document.getElementById("rescueTeamNameInput").value.trim();
+    const rescueIdInput = document.getElementById("rescueTeamIdInput");
+    if (!rescueIdInput.value.trim()) generateRescueTeamId();
+    const rescueId = rescueIdInput.value.trim();
+    const teamType = document.getElementById("rescueTeamTypeInput").value;
+    const phone = document.getElementById("rescueTeamPhoneInput").value.trim();
+    const country = document.getElementById("rescueTeamCountryInput").value.trim();
+    const city = document.getElementById("rescueTeamCityInput").value.trim();
+    const status = document.getElementById("rescueTeamStatusInput").value;
+    const locationText = document.getElementById("rescueTeamLocationInput").value.trim();
+
+    if (!teamName || !phone || !country || !city) {
+      setRescueNetworkStatus("❌ Please fill Team Name, Contact Number, Country and City / Area.");
+      return;
+    }
+
+    let latitude = null;
+    let longitude = null;
+    if (locationText) {
+      const parts = locationText.split(",").map(v => Number(v.trim()));
+      if (parts.length === 2 && parts.every(Number.isFinite)) {
+        latitude = parts[0];
+        longitude = parts[1];
+      }
+    }
+
+    const saveButton = document.querySelector('button[onclick="registerRescueTeam()"]');
+    if (saveButton) {
+      saveButton.disabled = true;
+      saveButton.textContent = "Saving...";
+    }
+    setRescueNetworkStatus("☁️ Saving rescue-team profile to Firestore...");
+
+    try {
+      await setDoc(doc(db, "rescueTeams", `${user.uid}_${rescueId}`), {
+        rescueId,
+        teamName,
+        teamType,
+        phone,
+        country,
+        city,
+        status,
+        latitude,
+        longitude,
+        userId: user.uid,
+        ownerEmail: user.email || "",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      document.getElementById("registeredTeamName").textContent = teamName;
+      document.getElementById("registeredTeamId").textContent = rescueId;
+      document.getElementById("registeredTeamType").textContent = teamType;
+      document.getElementById("registeredTeamStatus").textContent = status;
+      document.getElementById("registeredTeamCountry").textContent = country;
+      document.getElementById("registeredTeamCity").textContent = city;
+      document.getElementById("registeredRescueTeamCard").style.display = "block";
+      setRescueNetworkStatus("✅ Rescue team registered successfully in Firestore.", true);
+    } catch (error) {
+      console.error("Rescue team registration failed:", error);
+      setRescueNetworkStatus(`❌ ${error.message || "Could not register the rescue team."}`);
+    } finally {
+      if (saveButton) {
+        saveButton.disabled = false;
+        saveButton.textContent = "☁️ REGISTER RESCUE TEAM";
+      }
+    }
+  }
+
+  window.registerRescueTeam = registerRescueTeam;
+
+  // Give the form a Team ID as soon as the page is ready.
+  if (!document.getElementById("rescueTeamIdInput")?.value) {
+    generateRescueTeamId();
+  }
+
+  // =========================================================
   // CLOUD SOS STORAGE
   // Saves every authenticated user's SOS directly to Firestore.
   // The document ID is based on the Firebase user ID + SOS ID so
@@ -6564,77 +6669,6 @@ FIREBASE WEB INTEGRATION + LOGIN
   }
 
   window.resilienceFirebase.saveSOSToFirestore = saveSOSToFirestore;
-
-  // =========================================================
-  // CLOUD INCIDENT STORAGE
-  // Saves each authenticated incident directly to Firestore.
-  // One document is reused for the same user + incident ID,
-  // so later recovery/status updates can update the same record.
-  // =========================================================
-  async function saveIncidentToFirestore(item) {
-    if (!item) return null;
-
-    const user = auth.currentUser;
-
-    if (!user) {
-      throw new Error("User is not logged in.");
-    }
-
-    const incidentDocumentId =
-      `${user.uid}_${item.id}`;
-
-    await setDoc(
-      doc(db, "incidents", incidentDocumentId),
-      {
-        incidentId: item.id,
-        userId: user.uid,
-        userName: user.displayName || "",
-        userEmail: user.email || "",
-
-        type: item.type || "Emergency",
-        title: item.title || "Incident Report",
-        description: item.description || "",
-        location: item.location || "",
-
-        latitude:
-          typeof window.currentLatitude === "number"
-            ? window.currentLatitude
-            : null,
-
-        longitude:
-          typeof window.currentLongitude === "number"
-            ? window.currentLongitude
-            : null,
-
-        risk: item.risk || "MEDIUM",
-        score: Number(item.score || 0),
-
-        peopleImpact: item.peopleImpact || "",
-        accessImpact: item.accessImpact || "",
-        infrastructureImpact: item.infrastructureImpact || "",
-
-        actions: Array.isArray(item.actions)
-          ? item.actions
-          : [],
-
-        recoveryStatus:
-          item.recoveryStatus || "ASSESSMENT",
-
-        clientCreatedAt:
-          item.createdAt || new Date().toLocaleString(),
-
-        updatedAt:
-          serverTimestamp()
-      },
-      { merge: true }
-    );
-
-    return incidentDocumentId;
-  }
-
-  window.resilienceFirebase.saveIncidentToFirestore =
-    saveIncidentToFirestore;
-
 
   const originalSaveSOSHistory = window.saveSOSHistory;
   if (typeof originalSaveSOSHistory === "function") {
@@ -6683,6 +6717,28 @@ FIREBASE WEB INTEGRATION + LOGIN
       } catch (error) {
         console.warn("Backend SOS sync failed:", error.message);
       }
+    };
+  }
+  const originalSaveIncidentHistory = window.saveIncidentHistory;
+  if (typeof originalSaveIncidentHistory === "function") {
+    window.saveIncidentHistory = function () {
+      originalSaveIncidentHistory();
+      const item = window.latestIncidentAnalysis || (typeof latestIncidentAnalysis !== "undefined" ? latestIncidentAnalysis : null);
+      if (!item || !window.resilienceApi) return;
+      window.resilienceApi.request("/api/incidents", {
+        method: "POST",
+        body: JSON.stringify({
+          clientId: item.id,
+          type: item.type,
+          title: item.title,
+          description: item.description,
+          location: item.location,
+          risk: item.risk,
+          score: item.score,
+          recoveryStatus: item.recoveryStatus
+        })
+      }).then(() => console.log("Incident saved to Firebase."))
+        .catch((error) => console.warn("Incident Firebase sync failed:", error.message));
     };
   }
 </script>
