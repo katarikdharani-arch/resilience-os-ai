@@ -8081,5 +8081,130 @@ setTimeout(updateSecurityCenter, 1500);
 })();
 </script>
 
+<!-- STEP 18 - AI-ASSISTED EMERGENCY PRIORITIZATION -->
+<style id="step18PriorityStyles">
+  #aiPriorityCenter{margin:28px 0;padding:26px;border-radius:20px;background:linear-gradient(135deg,rgba(8,28,36,.96),rgba(12,23,31,.96));border:1px solid rgba(104,190,205,.2);box-shadow:0 12px 35px rgba(0,0,0,.18)}
+  .priority-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0}
+  .priority-toolbar select,.priority-toolbar input{background:#06171d;color:#eaf5f7;border:1px solid rgba(130,190,200,.28);border-radius:10px;padding:10px 12px}
+  .priority-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0}
+  .priority-stat{padding:14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)}
+  .priority-stat b{display:block;font-size:24px;color:#f1fbfd}.priority-stat span{font-size:12px;color:#9eb7be}
+  .priority-list{display:grid;gap:12px}.priority-card{border:1px solid rgba(130,190,200,.16);border-radius:15px;padding:16px;background:rgba(3,16,21,.68)}
+  .priority-card-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.priority-badge{font-weight:800;padding:6px 10px;border-radius:999px;font-size:11px;letter-spacing:.5px}
+  .priority-critical{background:#5d1820;color:#ffb9c0}.priority-high{background:#593914;color:#ffd18d}.priority-medium{background:#514b17;color:#f5e99b}.priority-low{background:#173f30;color:#a9e8c9}
+  .priority-score{font-size:22px;font-weight:800;color:#eaf8fa}.priority-meta{color:#9eb7be;font-size:12px;margin-top:7px}.priority-reasons{margin:10px 0 0;padding-left:18px;color:#c5d9dd;font-size:13px;line-height:1.55}
+  .priority-empty{padding:22px;text-align:center;color:#91aab1;border:1px dashed rgba(130,190,200,.2);border-radius:14px}
+  @media(max-width:900px){.priority-stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+
+<section id="aiPriorityCenter">
+  <div class="container">
+    <h2 class="section-title">AI-Assisted Emergency Prioritization</h2>
+    <p class="section-subtitle">Explainable decision-support scoring for responders. The score uses available emergency data, urgency signals and incident age; it does not replace human judgment.</p>
+    <div id="priorityAccess" style="margin:10px 0;color:#9fb8c0">Checking responder authorization...</div>
+    <div class="priority-toolbar">
+      <select id="priorityFilter" aria-label="Priority filter">
+        <option value="ALL">All priorities</option><option value="CRITICAL">Critical</option><option value="HIGH">High</option><option value="MEDIUM">Medium</option><option value="LOW">Low</option>
+      </select>
+      <select id="priorityTypeFilter" aria-label="Emergency type filter">
+        <option value="ALL">SOS + Incidents</option><option value="SOS">SOS only</option><option value="INCIDENT">Incidents only</option>
+      </select>
+      <input id="prioritySearch" type="search" placeholder="Search title, city, type..." aria-label="Search emergencies">
+      <button class="btn-secondary" type="button" onclick="window.refreshAIPriority?.()">↻ Refresh</button>
+    </div>
+    <div class="priority-stats">
+      <div class="priority-stat"><b id="priorityCriticalCount">0</b><span>Critical</span></div>
+      <div class="priority-stat"><b id="priorityHighCount">0</b><span>High</span></div>
+      <div class="priority-stat"><b id="priorityMediumCount">0</b><span>Medium</span></div>
+      <div class="priority-stat"><b id="priorityLowCount">0</b><span>Low</span></div>
+      <div class="priority-stat"><b id="priorityOpenCount">0</b><span>Open emergencies</span></div>
+    </div>
+    <div id="aiPriorityList" class="priority-list"><div class="priority-empty">Waiting for live emergency data...</div></div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const E=id=>document.getElementById(id);
+  const esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+  let data={sos:[],incidents:[]}, unsub=[];
+
+  function text(o,...keys){for(const k of keys){if(o&&o[k]!==undefined&&o[k]!==null&&String(o[k]).trim()!=="")return o[k]}return ""}
+  function num(o,...keys){for(const k of keys){const n=Number(o?.[k]);if(Number.isFinite(n))return n}return null}
+  function ageMs(o){
+    const v=o?.createdAt||o?.clientCreatedAt||o?.updatedAt||o?.timestamp;
+    if(v?.toMillis)return Math.max(0,Date.now()-v.toMillis());
+    const n=Number(v); if(Number.isFinite(n)) return Math.max(0,Date.now()-n);
+    const d=Date.parse(v); return Number.isFinite(d)?Math.max(0,Date.now()-d):0;
+  }
+  function priority(o,type){
+    let score=0,reasons=[];
+    const status=String(text(o,"status")|| (type==="SOS"?"ACTIVE":"OPEN")).toUpperCase();
+    const title=String(text(o,"title","incidentType","type","description")||"").toLowerCase();
+    const risk=String(text(o,"risk","severity","priority","dangerLevel")||"").toUpperCase();
+    if(type==="SOS"){score+=35;reasons.push("SOS alert receives an immediate urgency boost")}
+    if(/critical|extreme|very high/.test(risk)){score+=30;reasons.push("Critical/extreme risk recorded")}
+    else if(/high|severe/.test(risk)){score+=22;reasons.push("High/severe risk recorded")}
+    else if(/medium|moderate/.test(risk)){score+=12;reasons.push("Medium/moderate risk recorded")}
+    else if(/low/.test(risk)){score+=4;reasons.push("Low risk recorded")}
+    const dangerWords=/(fire|flood|earthquake|collapse|explosion|chemical|gas|landslide|tsunami|cyclone|hurricane|tornado|drowning|trapped|injur|death|evacuat|missing)/i;
+    if(dangerWords.test(title)){score+=15;reasons.push("High-consequence emergency signal detected in report")}
+    const people=num(o,"peopleAffected","affectedPeople","people","personsAffected","numberOfPeople");
+    if(people!==null){if(people>=100)score+=20;else if(people>=25)score+=14;else if(people>=5)score+=8;else if(people>0)score+=4;if(people>0)reasons.push(`${people} affected people reported`)}
+    const vulnerability=num(o,"vulnerablePeople","children","elderly","injuredPeople");
+    if(vulnerability!==null&&vulnerability>0){score+=Math.min(15,5+Math.round(vulnerability/5));reasons.push("Vulnerable/at-risk people reported")}
+    const hours=ageMs(o)/3600000;
+    if(hours>=6){score+=12;reasons.push("Emergency has remained open for 6+ hours")}
+    else if(hours>=2){score+=7;reasons.push("Emergency has remained open for 2+ hours")}
+    else if(hours>=0.5){score+=3;reasons.push("Emergency is still active after initial reporting")}
+    if(status==="ARRIVED"){score-=8;reasons.push("Responder arrival recorded")}
+    if(status==="RESPONDING"){score+=4;reasons.push("Response is underway but not yet resolved")}
+    score=Math.max(0,Math.min(100,Math.round(score)));
+    const level=score>=75?"CRITICAL":score>=55?"HIGH":score>=30?"MEDIUM":"LOW";
+    if(!reasons.length)reasons.push("No additional urgency signals were available in the record");
+    return {score,level,reasons,status};
+  }
+  function rows(){
+    return [...data.sos.map(x=>({...x,_type:"SOS",_id:x.id})),...data.incidents.map(x=>({...x,_type:"INCIDENT",_id:x.id}))]
+      .filter(x=>{const st=String(x.status||"").toUpperCase();return st!=="RESOLVED"&&st!=="CLOSED"&&st!=="CANCELLED"})
+      .map(x=>({...x,_p:priority(x,x._type)}));
+  }
+  function render(){
+    const all=rows(),pf=E("priorityFilter")?.value||"ALL",tf=E("priorityTypeFilter")?.value||"ALL",q=(E("prioritySearch")?.value||"").toLowerCase().trim();
+    const counts={CRITICAL:0,HIGH:0,MEDIUM:0,LOW:0};all.forEach(x=>counts[x._p.level]++);
+    ["Critical","High","Medium","Low"].forEach(k=>{const el=E("priority"+k+"Count");if(el)el.textContent=counts[k.toUpperCase()]||0});
+    if(E("priorityOpenCount"))E("priorityOpenCount").textContent=all.length;
+    const filtered=all.filter(x=>(pf==="ALL"||x._p.level===pf)&&(tf==="ALL"||x._type===tf)&&(!q||JSON.stringify(x).toLowerCase().includes(q))).sort((a,b)=>b._p.score-a._p.score||ageMs(b)-ageMs(a));
+    const box=E("aiPriorityList");if(!box)return;
+    if(!filtered.length){box.innerHTML='<div class="priority-empty">No matching open emergencies.</div>';return}
+    box.innerHTML=filtered.map(x=>{
+      const title=text(x,"title","incidentType","type","description")|| (x._type==="SOS"?"Emergency SOS":"Incident report");
+      const city=text(x,"city","location","address")||"Location not specified";
+      const cls=x._p.level.toLowerCase();
+      return `<article class="priority-card"><div class="priority-card-head"><div><strong>${x._type==="SOS"?"🚨":"⚠️"} ${esc(title)}</strong><div class="priority-meta">${esc(x._type)} · ${esc(city)} · Status: ${esc(x._p.status)}</div></div><div style="display:flex;align-items:center;gap:10px"><span class="priority-badge priority-${cls}">${esc(x._p.level)}</span><span class="priority-score">${x._p.score}/100</span></div></div><ul class="priority-reasons">${x._p.reasons.slice(0,5).map(r=>`<li>${esc(r)}</li>`).join("")}</ul></article>`;
+    }).join("");
+  }
+  function listen(collection,key){
+    const f=window.resilienceFirebase?.firestore,d=window.resilienceFirebase?.db;if(!f||!d)return;
+    unsub.push(f.onSnapshot(f.collection(d,collection),snap=>{data[key]=snap.docs.map(doc=>({id:doc.id,...doc.data()}));render()},err=>console.error("AI priority listener",collection,err)));
+  }
+  function stop(){unsub.forEach(fn=>{try{fn()}catch(e){}});unsub=[]}
+  async function start(){
+    const access=E("priorityAccess"),auth=window.resilienceFirebase?.auth,f=window.resilienceFirebase?.firestore,d=window.resilienceFirebase?.db;
+    if(!auth||!f||!d)return;
+    const u=auth.currentUser;if(!u){access.textContent="🔒 Sign in to use AI-assisted emergency prioritization.";return}
+    try{const snap=await f.getDoc(f.doc(d,"responders",u.uid)),p=snap.exists()?snap.data():null;
+      if(!p||p.active!==true){access.textContent="🔒 Responder authorization required.";return}
+      access.textContent=`✅ Authorized · ${esc(p.role||"RESPONDER")} · Live priority scoring`;
+      stop();listen("sos","sos");listen("incidents","incidents");
+    }catch(e){console.error(e);access.textContent="⚠️ Unable to verify responder access: "+(e.message||"")}
+  }
+  ["priorityFilter","priorityTypeFilter","prioritySearch"].forEach(id=>E(id)?.addEventListener("input",render));
+  window.refreshAIPriority=()=>start();
+  window.addEventListener("beforeunload",stop);
+  window.addEventListener("load",()=>setTimeout(start,1100));
+})();
+</script>
+
 </body>
 </html>
