@@ -8281,5 +8281,65 @@ STEP 19 - EMERGENCY ANALYTICS & PERFORMANCE DASHBOARD
   window.refreshEmergencyAnalytics=()=>start();window.addEventListener('beforeunload',stop);window.addEventListener('load',()=>setTimeout(start,1300));
 })();
 </script>
+
+<!-- STEP 20: FINAL SECURITY, TESTING & GLOBAL DEPLOYMENT -->
+<section id="finalSecurityDeployment" class="card" style="margin-top:18px">
+  <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+    <div><h2 style="margin:0">🔐 Final Security, Testing & Global Deployment</h2><p style="margin:.35rem 0;opacity:.78">Production-readiness checklist for RESILIENCE OS AI.</p></div>
+    <button onclick="runResilienceFinalCheck()" class="btn">Run Final System Check</button>
+  </div>
+  <div id="finalCheckSummary" style="margin-top:12px">Ready to run the final check.</div>
+  <div id="finalCheckList" style="display:grid;gap:8px;margin-top:12px"></div>
+  <details style="margin-top:14px"><summary><strong>🌍 Global deployment checklist</strong></summary>
+    <ul style="line-height:1.7">
+      <li>Use HTTPS in production so browser geolocation works reliably.</li>
+      <li>Enable Firebase Authentication providers required by your deployment.</li>
+      <li>Publish the latest Firestore Security Rules before production use.</li>
+      <li>Seed trusted responder/admin accounts manually or through a protected backend process.</li>
+      <li>Do not place Firebase Admin credentials, service-account keys, or private secrets in this HTML file.</li>
+      <li>Keep rescue-team private contact data separate from public map data for production privacy.</li>
+      <li>Test location permission, SOS creation, incident reporting, dispatch, tracking, notifications, and responder access on real devices.</li>
+      <li>Monitor Firestore usage, Authentication activity, errors, and billing limits.</li>
+      <li>Back up important operational data according to your organization's retention policy.</li>
+    </ul>
+  </details>
+  <details style="margin-top:10px"><summary><strong>🧪 Manual emergency test sequence</strong></summary>
+    <ol style="line-height:1.7">
+      <li>Sign in as a normal user and confirm normal users cannot open responder-only operations.</li>
+      <li>Create a test SOS and verify it appears in the responder command center.</li>
+      <li>Create a test incident and verify its AI-assisted priority is visible.</li>
+      <li>As an authorized responder, acknowledge and dispatch the test emergency.</li>
+      <li>Start rescue-team location tracking and verify the location updates live.</li>
+      <li>Send an emergency notification and confirm the intended recipient receives it.</li>
+      <li>Resolve the test emergency and confirm analytics and audit records update.</li>
+      <li>Repeat critical tests after every major code or Firestore Rules change.</li>
+    </ol>
+  </details>
+</section>
+<style>
+#finalSecurityDeployment .final-check{padding:10px 12px;border-radius:10px;background:rgba(127,127,127,.10);display:flex;justify-content:space-between;gap:12px;align-items:center}
+#finalSecurityDeployment .final-ok{border-left:4px solid currentColor}.final-warn{border-left:4px solid currentColor}.final-bad{border-left:4px solid currentColor}
+</style>
+<script>
+(function(){
+  function item(name,ok,detail){return {name,ok,detail:detail||''}}
+  window.runResilienceFinalCheck=function(){
+    const f=window.resilienceFirebase||{};
+    const checks=[];
+    checks.push(item('Firebase configuration',!!f.auth&&!!f.firestore&&!!f.db,'Authentication and Firestore handles'));
+    checks.push(item('Authentication state',!!f.auth?.currentUser, f.auth?.currentUser?'Signed-in user detected':'No user currently signed in'));
+    checks.push(item('Secure production context',location.protocol==='https:'||location.hostname==='localhost','HTTPS is recommended for production geolocation'));
+    checks.push(item('Browser geolocation API',!!navigator.geolocation,'Required for live location features'));
+    checks.push(item('Local storage',typeof localStorage!=='undefined','Browser storage available'));
+    checks.push(item('Online connectivity',navigator.onLine!==false,navigator.onLine===false?'Browser reports offline':'Browser reports online'));
+    const list=document.getElementById('finalCheckList'),sum=document.getElementById('finalCheckSummary');
+    const pass=checks.filter(x=>x.ok).length, total=checks.length;
+    if(sum)sum.innerHTML='<strong>System check: '+pass+'/'+total+' checks passed.</strong> '+(pass===total?'Core browser/runtime checks look ready.':'Review the highlighted checks before deployment.');
+    if(list)list.innerHTML=checks.map(x=>'<div class="final-check '+(x.ok?'final-ok':'final-warn')+'"><span>'+ (x.ok?'✅':'⚠️') +' <strong>'+x.name+'</strong></span><span style="opacity:.78;text-align:right">'+x.detail+'</span></div>').join('');
+  };
+  window.addEventListener('load',()=>setTimeout(window.runResilienceFinalCheck,1500));
+})();
+</script>
+
 </body>
 </html>
