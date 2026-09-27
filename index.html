@@ -814,6 +814,8 @@ LOGIN SCREEN
 .auth-switch button { padding: 0; background: transparent; color: #63cfe2; font-weight: bold; }
 .auth-message { min-height: 20px; margin-top: 13px; text-align: center; font-size: 13px; color: #ffdce0; }
 #logoutButton { display: none; margin-left: 8px; padding: 8px 11px; font-size: 12px; }
+#editProfileNavButton { display:none; margin-left:8px; padding:8px 11px; font-size:12px; border:1px solid #63cfe2; border-radius:9px; background:#123743; color:#eaf7fa; font-weight:700; cursor:pointer; }
+#editProfileNavButton:hover { background:#174552; }
 .sparkle { position: fixed; z-index: 100000; width: 7px; height: 7px; border-radius: 50%; background: #ffffff; box-shadow: 0 0 10px #63cfe2, 0 0 20px #ffffff; pointer-events: none; animation: sparkleFly 900ms ease-out forwards; }
 @keyframes sparkleFly { from { transform: translate(0, 0) scale(1); opacity: 1; } to { transform: translate(var(--sx), var(--sy)) scale(0); opacity: 0; } }
 body.auth-locked { overflow: hidden; }
@@ -1026,6 +1028,7 @@ NAVBAR
 <a href="#recovery">Recovery</a>
 </div>
         <button id="logoutButton" class="btn-secondary" type="button">Logout</button>
+        <button id="editProfileNavButton" type="button" onclick="openProfileEditor()">✏️ EDIT PROFILE</button>
         <div class="profile-wrap" id="profileWrap">
             <button id="profileButton" class="profile-button" type="button" aria-expanded="false">
                 <span id="profileAvatar" class="profile-avatar">U</span>
@@ -6098,6 +6101,7 @@ FIREBASE WEB INTEGRATION + LOGIN
   const authSwitchText = document.getElementById("authSwitchText");
   const authSwitchButton = document.getElementById("authSwitchButton");
   const logoutButton = document.getElementById("logoutButton");
+  const editProfileNavButton = document.getElementById("editProfileNavButton");
   const profileWrap = document.getElementById("profileWrap");
   const profileButton = document.getElementById("profileButton");
   const profileCard = document.getElementById("profileCard");
@@ -6133,6 +6137,7 @@ FIREBASE WEB INTEGRATION + LOGIN
   function updateUserProfile(user) {
     if (!user) {
       profileWrap.style.display = "none";
+      editProfileNavButton.style.display = "none";
       return;
     }
     const email = user.email || "No email";
@@ -6152,6 +6157,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     profileEmergencyContact.textContent = saved.emergencyContact || "Not added";
     currentProfileUser = user;
     profileWrap.style.display = "flex";
+    editProfileNavButton.style.display = "inline-flex";
   }
   function openProfileEditor(){
     if(!currentProfileUser) return;
@@ -6164,6 +6170,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     profileModal.classList.add("show");
     profileModal.setAttribute("aria-hidden","false");
   }
+  window.openProfileEditor = openProfileEditor;
   function closeProfileEditor(){
     profileModal.classList.remove("show");
     profileModal.setAttribute("aria-hidden","true");
