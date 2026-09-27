@@ -6111,6 +6111,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     signOut
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
   import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyC0LjcBj175G5GdADPoZreiyx-zHJIXDqA",
     authDomain: "resilience-os-ai.firebaseapp.com",
@@ -6122,6 +6123,7 @@ FIREBASE WEB INTEGRATION + LOGIN
   };
   const firebaseApp = initializeApp(firebaseConfig);
   const auth = getAuth(firebaseApp);
+  const db = getFirestore(firebaseApp);
   try {
     if (await isSupported()) getAnalytics(firebaseApp);
   } catch (e) {
@@ -6157,28 +6159,46 @@ FIREBASE WEB INTEGRATION + LOGIN
   let currentProfileUser = null;
   let isSignUpMode = false;
 
-  function formatProfileDate(value) {
-    if (!value) return "Not available";
-    const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? "Not available" : d.toLocaleString();
+  async function getCloudProfile(user) {
+    if (!user) return {};
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      return snap.exists() ? (snap.data() || {}) : {};
+    } catch (error) {
+      console.warn("Cloud profile read failed:", error.message);
+      return {};
+    }
   }
 
-  function updateUserProfile(user) {
+  async function saveCloudProfile(user, data = {}) {
+    if (!user) return;
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      name: data.name ?? user.displayName ?? "",
+      email: user.email || "",
+      phone: data.phone ?? "",
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+  }
+
+  async function updateUserProfile(user) {
     if (!user) {
       profileWrap.style.display = "none";
       editProfileNavButton.style.display = "none";
       return;
     }
-    const email = user.email || "No email";
-    const displayName = user.displayName || email.split("@")[0] || "User";
+    currentProfileUser = user;
+    const cloud = await getCloudProfile(user);
+    const email = user.email || cloud.email || "No email";
+    const displayName = cloud.name || user.displayName || email.split("@")[0] || "User";
+    const phone = cloud.phone || "Not added";
     const initials = displayName.split(/\s+/).filter(Boolean).slice(0,2).map(part => part[0].toUpperCase()).join("") || "U";
     profileAvatar.textContent = initials;
     profileName.textContent = displayName;
     profileDisplayName.textContent = displayName;
     profileEmail.textContent = email;
+    profilePhone.textContent = phone;
 
-    const saved = JSON.parse(localStorage.getItem(`resilienceProfile_${user.uid}`) || "{}");
-    profilePhone.textContent = saved.phone || "Not added";
     const pageName = document.getElementById("profilePageName");
     const pageAvatar = document.getElementById("profilePageAvatar");
     const pageFullName = document.getElementById("profilePageFullName");
@@ -6188,17 +6208,18 @@ FIREBASE WEB INTEGRATION + LOGIN
     if(pageAvatar) pageAvatar.textContent = initials;
     if(pageFullName) pageFullName.textContent = displayName;
     if(pageEmail) pageEmail.textContent = email;
-    if(pagePhone) pagePhone.textContent = saved.phone || "Not added";
-    currentProfileUser = user;
+    if(pagePhone) pagePhone.textContent = phone;
+
     profileWrap.style.display = "flex";
     editProfileNavButton.style.display = "inline-flex";
   }
-  function openProfileEditor(){
+
+  async function openProfileEditor(){
     if(!currentProfileUser) return;
-    const saved = JSON.parse(localStorage.getItem(`resilienceProfile_${currentProfileUser.uid}`) || "{}");
-    editProfileName.value = currentProfileUser.displayName || currentProfileUser.email?.split("@")[0] || "";
-    editProfileEmail.value = currentProfileUser.email || "";
-    editProfilePhone.value = saved.phone || "";
+    const cloud = await getCloudProfile(currentProfileUser);
+    editProfileName.value = cloud.name || currentProfileUser.displayName || currentProfileUser.email?.split("@")[0] || "";
+    editProfileEmail.value = currentProfileUser.email || cloud.email || "";
+    editProfilePhone.value = cloud.phone || "";
     profileEditStatus.textContent = "";
     profileModal.classList.add("show");
     profileModal.setAttribute("aria-hidden","false");
@@ -6211,17 +6232,16 @@ FIREBASE WEB INTEGRATION + LOGIN
   async function saveProfileDetails(){
     if(!currentProfileUser) return;
     const name = editProfileName.value.trim();
+    const phone = editProfilePhone.value.trim();
     if(!name){ profileEditStatus.textContent = "Please enter your full name."; return; }
     saveProfileEdit.disabled = true;
     saveProfileEdit.textContent = "Saving...";
     profileEditStatus.textContent = "";
     try{
       await updateProfile(currentProfileUser, { displayName: name });
-      localStorage.setItem(`resilienceProfile_${currentProfileUser.uid}`, JSON.stringify({
-        phone: editProfilePhone.value.trim()
-      }));
-      updateUserProfile(currentProfileUser);
-      profileEditStatus.textContent = "✅ Personal details updated successfully.";
+      await saveCloudProfile(currentProfileUser, { name, phone });
+      await updateUserProfile(currentProfileUser);
+      profileEditStatus.textContent = "✅ Personal details saved to the cloud.";
       setTimeout(closeProfileEditor, 700);
     }catch(error){
       console.error("Profile update failed:", error);
@@ -6321,6 +6341,7 @@ FIREBASE WEB INTEGRATION + LOGIN
   window.resilienceFirebase = {
     app: firebaseApp,
     auth,
+    db,
     ready: new Promise((resolve) => {
       onAuthStateChanged(auth, async (user) => {
         const publicLiveViewer = Boolean(new URLSearchParams(window.location.search).get("live"));
@@ -6328,7 +6349,7 @@ FIREBASE WEB INTEGRATION + LOGIN
           authScreen.style.display = "none";
           document.body.classList.remove("auth-locked");
           logoutButton.style.display = "inline-block";
-          updateUserProfile(user);
+          await updateUserProfile(user);
           if (!window.__resilienceLoginSparkleShown) {
             window.__resilienceLoginSparkleShown = true;
             showSparkles();
@@ -6367,6 +6388,10 @@ FIREBASE WEB INTEGRATION + LOGIN
   window.resilienceFirebase.ready.then(async (user) => {
     if (!user) return;
     try {
+      await saveCloudProfile(user, {
+        name: user.displayName || user.email?.split("@")[0] || "User",
+        phone: ""
+      });
       await apiRequest("/api/users", {
         method: "POST",
         body: JSON.stringify({ displayName: user.displayName || null })
