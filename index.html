@@ -1434,6 +1434,13 @@ onclick="showTestIncident()"
 🚨 SHOW TEST INCIDENT
 </button>
 
+<button
+class="btn-primary"
+onclick="loadRescueTeamsOnMap()"
+>
+🚑 SHOW RESCUE TEAMS
+</button>
+
 </div>
 
 
@@ -2900,6 +2907,7 @@ let userMarker = null;
 let incidentMarker = null;
 
 let sosMarker = null;
+let rescueTeamMarkers = [];
 
 let routeLine = null;
 
@@ -2943,6 +2951,12 @@ document.addEventListener(
 
         initializeMap();
 
+        setTimeout(() => {
+            if (window.resilienceFirebase?.auth?.currentUser) {
+                loadRescueTeamsOnMap();
+            }
+        }, 1200);
+
         loadHistory();
 
         updateDashboard();
@@ -2978,6 +2992,107 @@ function initializeMap() {
     ).addTo(map);
 
 }
+
+
+/* =========================================================
+WORLDWIDE RESCUE TEAM MAP
+========================================================= */
+
+function clearRescueTeamMarkers() {
+    rescueTeamMarkers.forEach(marker => {
+        if (map && marker) map.removeLayer(marker);
+    });
+    rescueTeamMarkers = [];
+}
+
+function rescueTeamMarkerIcon(status) {
+    const colors = {
+        Available: "#22c55e",
+        Busy: "#f59e0b",
+        Offline: "#64748b"
+    };
+    const color = colors[status] || "#38bdf8";
+    return L.divIcon({
+        className: "rescue-team-map-marker",
+        html: `<div style="width:30px;height:30px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font-size:15px;">🚑</div>`,
+        iconSize: [30,30],
+        iconAnchor: [15,15],
+        popupAnchor: [0,-15]
+    });
+}
+
+async function loadRescueTeamsOnMap() {
+    if (!map) {
+        alert("Map is not ready yet.");
+        return;
+    }
+
+    const user = window.resilienceFirebase?.auth?.currentUser;
+    if (!user) {
+        alert("Please log in to view the rescue-team network.");
+        return;
+    }
+
+    try {
+        clearRescueTeamMarkers();
+        const snapshot = await getDocs(collection(db, "rescueTeams"));
+        let count = 0;
+        const bounds = [];
+
+        snapshot.forEach((docSnap) => {
+            const team = docSnap.data() || {};
+            const lat = Number(team.latitude);
+            const lng = Number(team.longitude);
+
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+            if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return;
+
+            const marker = L.marker([lat, lng], {
+                icon: rescueTeamMarkerIcon(team.status)
+            }).addTo(map);
+
+            const status = team.status || "Offline";
+            marker.bindPopup(`
+                <div style="min-width:210px;line-height:1.5;">
+                    <strong>🚑 ${escapeHtml(team.teamName || "Rescue Team")}</strong><br>
+                    <b>ID:</b> ${escapeHtml(team.rescueId || "---")}<br>
+                    <b>Type:</b> ${escapeHtml(team.teamType || "Disaster Response")}<br>
+                    <b>Status:</b> ${escapeHtml(status)}<br>
+                    <b>Location:</b> ${escapeHtml(team.city || "---")}, ${escapeHtml(team.country || "---")}
+                </div>
+            `);
+
+            rescueTeamMarkers.push(marker);
+            bounds.push([lat, lng]);
+            count++;
+        });
+
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
+            document.getElementById("locationInfo").innerText =
+                `🚑 ${count} rescue team${count === 1 ? "" : "s"} displayed on the map.`;
+        } else {
+            document.getElementById("locationInfo").innerText =
+                "No rescue teams with valid GPS locations were found.";
+        }
+
+        addTimeline(`Rescue-team network refreshed: ${count} team${count === 1 ? "" : "s"} displayed.`);
+    } catch (error) {
+        console.error("Rescue-team map load failed:", error);
+        alert(`Unable to load rescue teams: ${error.message || "Firestore read failed."}`);
+    }
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+window.loadRescueTeamsOnMap = loadRescueTeamsOnMap;
 
 
 /* =========================================================
@@ -6213,7 +6328,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     signOut
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
   import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
-  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, getDocs, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyC0LjcBj175G5GdADPoZreiyx-zHJIXDqA",
     authDomain: "resilience-os-ai.firebaseapp.com",
