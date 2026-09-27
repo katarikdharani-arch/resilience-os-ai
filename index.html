@@ -8481,5 +8481,39 @@ document.getElementById('r22Speak').onclick=()=>{if(!('speechSynthesis' in windo
 })();
 </script>
 <!-- END STEP 22 -->
+
+<!-- STEP 23: PWA / INSTALLABLE MOBILE APP -->
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#0b1220">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Resilience OS AI">
+<style>
+#r23InstallPanel{position:fixed;left:18px;bottom:18px;z-index:99998;background:#0b1220;color:#fff;padding:14px 16px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.28);max-width:330px;font:14px Arial,sans-serif}
+#r23InstallPanel button{margin-top:9px;padding:9px 12px;border:0;border-radius:9px;cursor:pointer;font-weight:700}
+#r23InstallStatus{margin-top:7px;opacity:.85;font-size:12px}
+</style>
+<div id="r23InstallPanel" aria-label="Install Resilience OS AI">
+<strong>📱 Resilience OS AI</strong><br>
+<button id="r23InstallBtn" hidden>Install App</button>
+<div id="r23InstallStatus">Checking app installation support…</div>
+</div>
+<script>
+(function(){
+  let deferredPrompt=null;
+  const btn=document.getElementById('r23InstallBtn'), status=document.getElementById('r23InstallStatus');
+  function standalone(){return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true}
+  if(standalone()){status.textContent='✅ App mode is active.';}
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;btn.hidden=false;status.textContent='Ready to install on this device.'});
+  btn.addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();const choice=await deferredPrompt.userChoice;status.textContent=choice.outcome==='accepted'?'✅ Installation started.':'Installation was not accepted.';deferredPrompt=null;btn.hidden=true});
+  window.addEventListener('appinstalled',()=>{status.textContent='✅ Resilience OS AI installed.';btn.hidden=true});
+  if('serviceWorker' in navigator && location.protocol!=='file:'){
+    navigator.serviceWorker.register('./sw.js').then(()=>{if(!deferredPrompt&&!standalone())status.textContent='Offline app support enabled.'}).catch(()=>{status.textContent='Browser supports the site, but offline app setup needs HTTPS.'});
+  } else if(location.protocol==='file:'){status.textContent='Open this app through HTTPS/localhost for PWA installation.'}
+})();
+</script>
+<!-- END STEP 23 -->
+
 </body>
 </html>
