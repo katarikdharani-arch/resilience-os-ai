@@ -3081,8 +3081,14 @@ async function loadRescueTeamsOnMap() {
     }
 
     try {
+        const fs = window.resilienceFirebase?.firestore;
+        const db = window.resilienceFirebase?.db;
+        if (!fs || !db) {
+            alert("Firebase Firestore is not ready yet. Please refresh and try again.");
+            return;
+        }
         clearRescueTeamMarkers();
-        const snapshot = await getDocs(collection(db, "rescueTeams"));
+        const snapshot = await fs.getDocs(fs.collection(db, "rescueTeams"));
         let count = 0;
         const bounds = [];
 
@@ -5486,7 +5492,13 @@ async function findMatchingRescueTeams() {
     resultsEl.innerHTML = '';
     statusEl.textContent = '☁️ Reading registered rescue teams and calculating distances...';
     try {
-        const snapshot = await getDocs(collection(db, 'rescueTeams'));
+        const fs = window.resilienceFirebase?.firestore;
+        const db = window.resilienceFirebase?.db;
+        if (!fs || !db) {
+            statusEl.textContent = 'Firebase Firestore is not ready yet. Please refresh and try again.';
+            return;
+        }
+        const snapshot = await fs.getDocs(fs.collection(db, 'rescueTeams'));
         const teams = [];
         snapshot.forEach((docSnap) => {
             const team = docSnap.data() || {};
@@ -7149,11 +7161,17 @@ async function sendRescueTeamAlert() {
   step8NotificationStatus("☁️ Verifying rescue-team destination...");
 
   try {
-    const teamQuery = query(
-      collection(db, "rescueTeams"),
-      where("rescueId", "==", teamId)
+    const fs = window.resilienceFirebase?.firestore;
+    const cloudDb = window.resilienceFirebase?.db;
+    if (!fs || !cloudDb) {
+      step8NotificationStatus("❌ Firebase Firestore is not ready yet. Please refresh and try again.");
+      return;
+    }
+    const teamQuery = fs.query(
+      fs.collection(cloudDb, "rescueTeams"),
+      fs.where("rescueId", "==", teamId)
     );
-    const teamSnapshot = await getDocs(teamQuery);
+    const teamSnapshot = await fs.getDocs(teamQuery);
     let recipientUserId = "";
     teamSnapshot.forEach((teamDoc) => {
       const team = teamDoc.data() || {};
@@ -7683,8 +7701,6 @@ setTimeout(updateSecurityCenter, 1500);
   window.addEventListener("beforeunload",stop);
 })();
 </script>
-</body>
-</html
 <!-- STEP 15 - EMERGENCY COMMAND CENTER + GLOBAL INCIDENT MAP -->
 <section id="emergencyCommandCenter">
   <div class="container">
@@ -7715,4 +7731,5 @@ setTimeout(updateSecurityCenter, 1500);
     </div>
   </div>
 </section>
->
+</body>
+</html>
