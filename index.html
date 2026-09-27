@@ -817,6 +817,20 @@ LOGIN SCREEN
 @keyframes sparkleFly { from { transform: translate(0, 0) scale(1); opacity: 1; } to { transform: translate(var(--sx), var(--sy)) scale(0); opacity: 0; } }
 body.auth-locked { overflow: hidden; }
 @media (max-width: 700px) { .auth-card { padding: 26px 20px; } }
+
+/* =========================================================
+EMERGENCY SHARING / LIVE TRACKING
+========================================================= */
+.share-panel{margin-top:25px;padding:25px;background:#0b2731;border:1px solid #214653;border-radius:16px}
+.share-panel h3{margin-bottom:8px}.share-panel p{color:#9fb8c0}
+.share-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-top:18px}
+.share-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.share-status{margin-top:15px;padding:12px;background:#102f39;border-radius:9px;color:#9fd9e3;word-break:break-word}
+.live-view-banner{display:none;position:sticky;top:74px;z-index:900;margin:15px auto 0;max-width:1200px;padding:14px 20px;background:#102f39;border:1px solid #63cfe2;border-radius:12px;color:#d8f7fb}
+.live-dot{display:inline-block;width:9px;height:9px;background:#77e0a8;border-radius:50%;margin-right:7px;animation:livePulse 1.3s infinite}
+@keyframes livePulse{50%{opacity:.35;transform:scale(.75)}}
+@media(max-width:760px){.share-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body class="auth-locked">
@@ -1093,6 +1107,53 @@ location is available.
 DASHBOARD
 ===================================================== -->
 
+
+<!-- =====================================================
+EMERGENCY SHARING & LIVE LOCATION
+===================================================== -->
+<section id="sharing">
+<div class="container">
+<h2 class="section-title">Emergency Sharing & Live Location</h2>
+<p class="section-subtitle">Share incident details and location with trusted contacts through WhatsApp or email. Live tracking is shared only when you start a live session.</p>
+
+<div class="share-panel">
+<h3>📲 Share Emergency Information</h3>
+<p>Enter a contact and share the latest incident, SOS status, coordinates and live-tracking link.</p>
+<div class="share-grid">
+<div class="form-group"><label for="sharePhone">WhatsApp Number (country code)</label><input id="sharePhone" type="tel" placeholder="Example: 919876543210"></div>
+<div class="form-group"><label for="shareEmail">Email ID</label><input id="shareEmail" type="email" placeholder="Example: contact@example.com"></div>
+</div>
+<div class="share-actions">
+<button class="btn-primary" type="button" onclick="shareEmergencyWhatsApp()">💬 SHARE ON WHATSAPP</button>
+<button class="btn-secondary" type="button" onclick="shareEmergencyEmail()">✉️ SHARE BY EMAIL</button>
+<button class="btn-secondary" type="button" onclick="copyEmergencyLink()">🔗 COPY SHARE LINK</button>
+</div>
+<div id="shareStatus" class="share-status">Ready. Get your location or activate SOS before sharing.</div>
+</div>
+
+<div class="share-panel">
+<h3>📍 Live Location Tracking</h3>
+<p>Start a live session to create a private link. Anyone you send the link to can open it and see the location update on the map while the session is active.</p>
+<div class="share-actions">
+<button class="btn-primary" type="button" id="startLiveButton" onclick="startLiveLocation()">🟢 START LIVE LOCATION</button>
+<button class="btn-danger" type="button" id="stopLiveButton" onclick="stopLiveLocation()" style="display:none;">⏹ STOP LIVE LOCATION</button>
+</div>
+<div id="liveStatus" class="share-status">Live location is not active.</div>
+</div>
+
+<div class="share-panel">
+<h3>🎙️ Voice Message</h3>
+<p>Record a voice message. On supported phones, the Share button opens the system share sheet where WhatsApp can be selected.</p>
+<div class="share-actions">
+<button class="btn-primary" type="button" id="recordVoiceButton" onclick="startVoiceMessage()">🎙️ RECORD VOICE MESSAGE</button>
+<button class="btn-secondary" type="button" id="stopVoiceMessageButton" onclick="stopVoiceMessage()" style="display:none;">⏹ STOP RECORDING</button>
+<button class="btn-secondary" type="button" id="shareVoiceButton" onclick="shareVoiceMessage()" style="display:none;">📤 SHARE VOICE MESSAGE</button>
+</div>
+<audio id="voiceMessagePlayer" controls style="display:none;width:100%;margin-top:15px;"></audio>
+<div id="voiceMessageStatus" class="share-status">Voice message recorder is ready.</div>
+</div>
+</div>
+</section>
 <section id="dashboard">
 
 <div class="container">
@@ -1171,52 +1232,6 @@ id="devicesOnline"
 
 </div>
 
-</div>
-
-
-<!-- =====================================================
-COMMAND CENTER
-===================================================== -->
-<div class="command-center">
-
-<div class="command-center-header">
-<div>
-<h3 style="margin:0;">Command Center</h3>
-<p style="color:#718f98;font-size:12px;margin-top:5px;">Live operational overview of incidents and recovery.</p>
-</div>
-<div class="command-live">LIVE <span class="live-clock" id="liveTimestamp">--:--:--</span></div>
-</div>
-
-<div class="command-grid">
-<div class="command-card"><div class="command-label">TOTAL INCIDENTS</div><div class="command-value" id="liveIncidentCounter">0</div><div class="command-meta">Recorded incidents</div></div>
-<div class="command-card"><div class="command-label">ACTIVE INCIDENTS</div><div class="command-value" id="activeIncidentCounter">0</div><div class="command-meta">Awaiting recovery</div></div>
-<div class="command-card"><div class="command-label">RECOVERY</div><div class="command-value" id="commandRecoveryPercent">0%</div><div class="command-meta">Average recovery progress</div></div>
-<div class="command-card"><div class="command-label">SYSTEM STATUS</div><div class="command-value" id="commandSystemStatus" style="color:#77e0a8;">ONLINE</div><div class="command-meta">All dashboard services ready</div></div>
-</div>
-
-<div class="risk-count-grid">
-<div class="risk-count critical"><span>CRITICAL</span><span id="criticalCount">0</span></div>
-<div class="risk-count high"><span>HIGH</span><span id="highCount">0</span></div>
-<div class="risk-count medium"><span>MEDIUM</span><span id="mediumCount">0</span></div>
-<div class="risk-count low"><span>LOW</span><span id="lowCount">0</span></div>
-</div>
-
-<div class="command-two-col">
-<div class="card">
-<h3>Recent Incidents</h3><br>
-<div id="recentIncidents" class="recent-list"><div class="recent-empty">No incidents recorded yet.</div></div>
-</div>
-<div class="card">
-<h3>System Status</h3><br>
-<div class="system-status-list">
-<div class="system-status-row"><span>AI Engine</span><span><span class="status-dot"></span>READY</span></div>
-<div class="system-status-row"><span>Incident Monitor</span><span><span class="status-dot"></span>ACTIVE</span></div>
-<div class="system-status-row"><span>Recovery Tracker</span><span><span class="status-dot"></span>ACTIVE</span></div>
-<div class="system-status-row"><span>Local Storage</span><span><span class="status-dot"></span>READY</span></div>
-<div class="system-status-row"><span>Last Sync</span><span class="live-clock" id="lastSyncTime">--:--:--</span></div>
-</div>
-</div>
-</div>
 </div>
 
 
@@ -2437,6 +2452,13 @@ let isListening = false;
 let sosActive = false;
 
 let currentSOS = null;
+let liveShareToken = null;
+let liveWatchId = null;
+let liveShareActive = false;
+let liveViewerTimer = null;
+let voiceMessageRecorder = null;
+let voiceMessageChunks = [];
+let voiceMessageBlob = null;
 
 
 /* =========================================================
@@ -2452,7 +2474,11 @@ document.addEventListener(
         loadHistory();
 
         updateDashboard();
-        setInterval(updateLiveTimestamp, 1000);
+
+        liveShareToken = new URLSearchParams(window.location.search).get("live");
+        if (liveShareToken) {
+            startLiveLocationViewer(liveShareToken);
+        }
 
     }
 );
@@ -2906,6 +2932,119 @@ function calculateDistance(
 
 }
 
+
+
+/* =========================================================
+EMERGENCY SHARING / LIVE LOCATION / VOICE MESSAGE
+========================================================= */
+function getEmergencyShareText(){
+ const lat=currentLatitude,lng=currentLongitude;
+ const type=document.getElementById("incidentType")?.value||"Emergency";
+ const title=document.getElementById("incidentTitle")?.value.trim()||"Emergency Alert";
+ const desc=document.getElementById("incidentDescription")?.value.trim()||"Emergency assistance requested.";
+ const location=document.getElementById("incidentLocation")?.value.trim()||"Current GPS location";
+ let text=`🚨 RESILIENCE OS AI EMERGENCY ALERT\n\nType: ${type}\nTitle: ${title}\nLocation: ${location}\nDetails: ${desc}\n`;
+ if(lat!==null&&lng!==null){text+=`\n📍 Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}\n🗺️ Map: https://www.google.com/maps?q=${lat},${lng}`;}
+ if(currentSOS) text+=`\n🚨 SOS: ${currentSOS.status}\nSOS ID: ${currentSOS.id}`;
+ if(liveShareToken) text+=`\n\n🔴 Live tracking: ${getLiveShareUrl(liveShareToken)}`;
+ return text;
+}
+function getLiveShareUrl(token){return `${window.location.origin}${window.location.pathname}?live=${encodeURIComponent(token)}`;}
+function showShareStatus(message){const el=document.getElementById("shareStatus");if(el)el.innerText=message;}
+function shareEmergencyWhatsApp(){
+ const phone=document.getElementById("sharePhone").value.trim().replace(/[^\d]/g,"");
+ if(!phone){alert("Enter the WhatsApp number with country code, for example 919876543210.");return;}
+ window.open(`https://wa.me/${phone}?text=${encodeURIComponent(getEmergencyShareText())}`,"_blank","noopener,noreferrer");
+ showShareStatus("WhatsApp opened. Review the message and press Send.");
+}
+function shareEmergencyEmail(){
+ const email=document.getElementById("shareEmail").value.trim();
+ if(!email){alert("Enter the recipient email ID.");return;}
+ window.location.href=`mailto:${email}?subject=${encodeURIComponent("RESILIENCE OS AI Emergency Alert")}&body=${encodeURIComponent(getEmergencyShareText())}`;
+ showShareStatus("Your email application was opened with the emergency information.");
+}
+async function copyEmergencyLink(){
+ if(currentLatitude===null||currentLongitude===null){alert("Get your current location first.");return;}
+ const link=liveShareToken?getLiveShareUrl(liveShareToken):`https://www.google.com/maps?q=${currentLatitude},${currentLongitude}`;
+ try{await navigator.clipboard.writeText(link);showShareStatus("Share link copied to clipboard.");}
+ catch{prompt("Copy this link:",link);}
+}
+async function startLiveLocation(){
+ if(liveShareActive)return;
+ if(!navigator.geolocation){alert("Live location requires browser geolocation support.");return;}
+ const status=document.getElementById("liveStatus");status.innerText="Requesting your current location...";
+ navigator.geolocation.getCurrentPosition(async position=>{
+  currentLatitude=position.coords.latitude;currentLongitude=position.coords.longitude;
+  try{
+   const result=await window.resilienceApi.request("/api/share/live",{method:"POST",body:JSON.stringify({latitude:currentLatitude,longitude:currentLongitude,accuracy:position.coords.accuracy})});
+   liveShareToken=result.session.token;liveShareActive=true;
+   document.getElementById("startLiveButton").style.display="none";
+   document.getElementById("stopLiveButton").style.display="inline-block";
+   status.innerHTML=`<span class="live-dot"></span><strong>LIVE LOCATION ACTIVE</strong><br><br>Send this link to your trusted contact:<br>${getLiveShareUrl(liveShareToken)}`;
+   addTimeline("🔴 Live location sharing started.");
+   liveWatchId=navigator.geolocation.watchPosition(updateLiveLocation,error=>console.warn("Live location update failed:",error.message),{enableHighAccuracy:true,maximumAge:5000,timeout:15000});
+  }catch(error){console.error(error);status.innerText=`Unable to start live location: ${error.message}`;}
+ },error=>{status.innerText=`Unable to get location: ${error.message}`;},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+async function updateLiveLocation(position){
+ if(!liveShareActive||!liveShareToken)return;
+ currentLatitude=position.coords.latitude;currentLongitude=position.coords.longitude;
+ try{
+  await window.resilienceApi.request(`/api/share/live/${encodeURIComponent(liveShareToken)}/location`,{method:"PATCH",body:JSON.stringify({latitude:currentLatitude,longitude:currentLongitude,accuracy:position.coords.accuracy})});
+  document.getElementById("liveStatus").innerHTML=`<span class="live-dot"></span><strong>LIVE LOCATION ACTIVE</strong><br>Updated: ${new Date().toLocaleTimeString()}<br>📍 ${currentLatitude.toFixed(6)}, ${currentLongitude.toFixed(6)}<br>🔗 ${getLiveShareUrl(liveShareToken)}`;
+  if(userMarker)userMarker.setLatLng([currentLatitude,currentLongitude]);
+ }catch(error){console.warn("Live location sync failed:",error.message);}
+}
+async function stopLiveLocation(){
+ if(!liveShareToken)return;
+ if(liveWatchId!==null){navigator.geolocation.clearWatch(liveWatchId);liveWatchId=null;}
+ try{await window.resilienceApi.request(`/api/share/live/${encodeURIComponent(liveShareToken)}`,{method:"DELETE"});}catch(error){console.warn("Unable to close live session:",error.message);}
+ liveShareActive=false;document.getElementById("startLiveButton").style.display="inline-block";document.getElementById("stopLiveButton").style.display="none";document.getElementById("liveStatus").innerText="Live location stopped.";addTimeline("⏹ Live location sharing stopped.");
+}
+async function startLiveLocationViewer(token){
+ const banner=document.createElement("div");banner.id="liveViewBanner";banner.className="live-view-banner";banner.style.display="block";banner.innerHTML=`<span class="live-dot"></span><strong>LIVE LOCATION VIEW</strong> — waiting for location...`;document.body.prepend(banner);
+ const updateViewer=async()=>{
+  try{
+   const response=await fetch(`/api/share/live/${encodeURIComponent(token)}`);
+   if(!response.ok)throw new Error("Live session is unavailable or has ended.");
+   const data=await response.json();const session=data.session;if(!session.active)throw new Error("Live session has ended.");
+   if(session.latitude!==undefined&&session.longitude!==undefined){
+    const lat=Number(session.latitude),lng=Number(session.longitude);currentLatitude=lat;currentLongitude=lng;
+    if(userMarker)userMarker.setLatLng([lat,lng]);else userMarker=L.marker([lat,lng]).addTo(map).bindPopup("🔴 Live shared location").openPopup();
+    map.setView([lat,lng],16);
+    banner.innerHTML=`<span class="live-dot"></span><strong>LIVE LOCATION</strong> Updated ${new Date(session.updatedAt).toLocaleTimeString()} — ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+   }
+  }catch(error){banner.innerHTML=`⚪ <strong>LIVE LOCATION ENDED</strong> — ${error.message}`;clearInterval(liveViewerTimer);}
+ };
+ updateViewer();liveViewerTimer=setInterval(updateViewer,3000);
+}
+async function startVoiceMessage(){
+ if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){alert("Voice recording is not supported in this browser. Try Chrome or Edge on a phone.");return;}
+ try{
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});voiceMessageChunks=[];voiceMessageBlob=null;
+  const mimeType=MediaRecorder.isTypeSupported("audio/webm;codecs=opus")?"audio/webm;codecs=opus":"audio/webm";
+  voiceMessageRecorder=new MediaRecorder(stream,{mimeType});
+  voiceMessageRecorder.ondataavailable=e=>{if(e.data.size>0)voiceMessageChunks.push(e.data);};
+  voiceMessageRecorder.onstop=()=>{
+   voiceMessageBlob=new Blob(voiceMessageChunks,{type:mimeType});document.getElementById("voiceMessagePlayer").src=URL.createObjectURL(voiceMessageBlob);document.getElementById("voiceMessagePlayer").style.display="block";
+   document.getElementById("shareVoiceButton").style.display="inline-block";document.getElementById("recordVoiceButton").style.display="inline-block";document.getElementById("stopVoiceMessageButton").style.display="none";
+   document.getElementById("voiceMessageStatus").innerText="Voice message recorded. Use SHARE VOICE MESSAGE to send it through your phone's share sheet.";stream.getTracks().forEach(track=>track.stop());
+  };
+  voiceMessageRecorder.start();document.getElementById("recordVoiceButton").style.display="none";document.getElementById("stopVoiceMessageButton").style.display="inline-block";document.getElementById("shareVoiceButton").style.display="none";document.getElementById("voiceMessageStatus").innerText="🔴 Recording... Speak your emergency message.";
+ }catch(error){console.error(error);alert("Microphone permission is required to record a voice message.");}
+}
+function stopVoiceMessage(){if(voiceMessageRecorder&&voiceMessageRecorder.state!=="inactive")voiceMessageRecorder.stop();}
+async function shareVoiceMessage(){
+ if(!voiceMessageBlob){alert("Record a voice message first.");return;}
+ const file=new File([voiceMessageBlob],`resilience-emergency-${Date.now()}.webm`,{type:voiceMessageBlob.type});
+ if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){
+  try{await navigator.share({title:"RESILIENCE OS AI Voice Emergency Message",text:getEmergencyShareText(),files:[file]});document.getElementById("voiceMessageStatus").innerText="Voice message shared. Select WhatsApp in the share sheet if available.";}
+  catch(error){if(error.name!=="AbortError")document.getElementById("voiceMessageStatus").innerText="Sharing was not completed.";}
+ }else{
+  const url=URL.createObjectURL(file),a=document.createElement("a");a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  document.getElementById("voiceMessageStatus").innerText="Your browser cannot directly share audio. The voice file was prepared for download; attach it to WhatsApp manually.";
+ }
+}
 
 /* =========================================================
 SOS SYSTEM
@@ -5053,9 +5192,6 @@ function setRecovery(
         "recoveryStatus"
     ).innerText =
         status;
-    if (latestIncidentAnalysis) {
-        updateDashboard();
-    }
     for (
         let i = 1;
         i <= 5;
@@ -5206,73 +5342,15 @@ function generateReport() {
 DASHBOARD
 ========================================================= */
 function updateDashboard() {
-    const history = JSON.parse(localStorage.getItem("resilienceIncidentHistory") || "[]");
-    const active = history.filter(item => String(item.recoveryStatus || "ASSESSMENT").toUpperCase() !== "RECOVERED");
-    const counts = { CRITICAL:0, HIGH:0, MEDIUM:0, LOW:0 };
-    let recoveryTotal = 0;
-    history.forEach(item => {
-        const risk = String(item.risk || "LOW").toUpperCase();
-        if (counts[risk] !== undefined) counts[risk]++;
-        const status = String(item.recoveryStatus || "ASSESSMENT").toUpperCase();
-        const progress = {ASSESSMENT:0, RESPONSE:25, STABILIZATION:50, RESTORATION:75, RECOVERED:100}[status] ?? 0;
-        recoveryTotal += progress;
-    });
-    const avgRecovery = history.length ? Math.round(recoveryTotal / history.length) : 0;
-
-    document.getElementById("systemStatus").innerText = "ONLINE";
-    document.getElementById("devicesOnline").innerText = "24";
-    document.getElementById("liveIncidentCounter").innerText = history.length;
-    document.getElementById("activeIncidentCounter").innerText = active.length;
-    document.getElementById("commandRecoveryPercent").innerText = avgRecovery + "%";
-    document.getElementById("commandSystemStatus").innerText = "ONLINE";
-    document.getElementById("criticalCount").innerText = counts.CRITICAL;
-    document.getElementById("highCount").innerText = counts.HIGH;
-    document.getElementById("mediumCount").innerText = counts.MEDIUM;
-    document.getElementById("lowCount").innerText = counts.LOW;
-
-    if (latestIncidentAnalysis) {
-        const r = String(latestIncidentAnalysis.risk || "LOW").toUpperCase();
-        document.getElementById("dashboardRisk").innerText = r;
-        document.getElementById("dashboardRisk").className = "metric-value risk-" + r.toLowerCase();
-    } else {
-        document.getElementById("dashboardRisk").innerText = "LOW";
-        document.getElementById("dashboardRisk").className = "metric-value risk-low";
-    }
-
-    document.getElementById("dashboardAlerts").innerText = active.length;
-    renderRecentIncidents(history);
-    updateLiveTimestamp();
+    document.getElementById(
+        "systemStatus"
+    ).innerText =
+        "ONLINE";
+    document.getElementById(
+        "devicesOnline"
+    ).innerText =
+        "24";
 }
-
-function renderRecentIncidents(history) {
-    const box = document.getElementById("recentIncidents");
-    if (!box) return;
-    const recent = history.slice(0, 5);
-    if (!recent.length) {
-        box.innerHTML = '<div class="recent-empty">No incidents recorded yet. Run an incident analysis or simulation.</div>';
-        return;
-    }
-    box.innerHTML = recent.map(item => {
-        const risk = String(item.risk || "LOW").toUpperCase();
-        const riskClass = risk.toLowerCase();
-        const time = item.createdAt || item.time || "";
-        return `<div class="recent-item">
-            <div class="recent-risk risk-${riskClass}">${escapeHTML(risk)}</div>
-            <div><div class="recent-title">${escapeHTML(item.title || item.type || "Incident")}</div><div class="recent-meta">${escapeHTML(item.location || "Location unavailable")}</div></div>
-            <div class="recent-meta">${escapeHTML(time)}</div>
-        </div>`;
-    }).join("");
-}
-
-function updateLiveTimestamp() {
-    const now = new Date();
-    const time = now.toLocaleTimeString();
-    const clock = document.getElementById("liveTimestamp");
-    const sync = document.getElementById("lastSyncTime");
-    if (clock) clock.innerText = time;
-    if (sync) sync.innerText = time;
-}
-
 /* =========================================================
 DASHBOARD INCIDENT UPDATE
 ========================================================= */
@@ -5660,7 +5738,8 @@ FIREBASE WEB INTEGRATION + LOGIN
     auth,
     ready: new Promise((resolve) => {
       onAuthStateChanged(auth, async (user) => {
-        if (user) {
+        const publicLiveViewer = Boolean(new URLSearchParams(window.location.search).get("live"));
+        if (user || publicLiveViewer) {
           authScreen.style.display = "none";
           document.body.classList.remove("auth-locked");
           logoutButton.style.display = "inline-block";
