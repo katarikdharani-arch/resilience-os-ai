@@ -1076,6 +1076,7 @@ NAVBAR
 <a href="#rescueNetwork">Rescue Network</a>
 <a href="#rescueScanner">Rescue Scanner</a>
 <a href="#emergencyNotifications">Emergency Alerts</a>
+<a href="#securityScalability">Security</a>
 <a href="#dashboard">Dashboard</a>
 <a href="#incident">Incident</a>
 <a href="#history">History</a>
@@ -6473,7 +6474,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     signOut
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
   import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
-  import { getFirestore, doc, getDoc, setDoc, getDocs, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, getDocs, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyC0LjcBj175G5GdADPoZreiyx-zHJIXDqA",
     authDomain: "resilience-os-ai.firebaseapp.com",
@@ -7139,9 +7140,26 @@ async function sendRescueTeamAlert() {
   }
 
   const coords = getStep8IncidentCoordinates();
-  step8NotificationStatus("☁️ Sending emergency alert to the cloud...");
+  step8NotificationStatus("☁️ Verifying rescue-team destination...");
 
   try {
+    const teamQuery = query(
+      collection(db, "rescueTeams"),
+      where("rescueId", "==", teamId)
+    );
+    const teamSnapshot = await getDocs(teamQuery);
+    let recipientUserId = "";
+    teamSnapshot.forEach((teamDoc) => {
+      const team = teamDoc.data() || {};
+      if (!recipientUserId && team.userId) recipientUserId = team.userId;
+    });
+
+    if (!recipientUserId) {
+      step8NotificationStatus(`❌ Rescue Team ID ${teamId} was not found in the registered network.`);
+      return;
+    }
+
+    step8NotificationStatus("☁️ Sending emergency alert to the cloud...");
     const alertId = `${user.uid}_${Date.now()}`;
 
     await setDoc(doc(db, "notifications", alertId), {
@@ -7150,6 +7168,7 @@ async function sendRescueTeamAlert() {
       senderName: user.displayName || "",
       senderEmail: user.email || "",
       recipientTeamId: teamId,
+      recipientUserId,
       title,
       message,
       type: "EMERGENCY",
@@ -7188,6 +7207,60 @@ function renderStep8LocalAlert(item) {
   `;
   list.prepend(card);
 }
+</script>
+
+<!-- =====================================================
+STEP 9 - SECURITY & SCALABILITY FOUNDATION
+===================================================== -->
+<section id="securityScalability">
+  <div class="container">
+    <h2 class="section-title">Security & Scalability Center</h2>
+    <p class="section-subtitle">A lightweight control panel for the worldwide architecture: authenticated access, protected cloud data, input validation and deployment readiness.</p>
+
+    <div class="grid-3">
+      <div class="card">
+        <h3>🔐 Authentication</h3>
+        <p id="securityAuthStatus">Checking signed-in account...</p>
+      </div>
+      <div class="card">
+        <h3>☁️ Cloud Protection</h3>
+        <p>Firestore rules restrict user-owned records and rescue-team management to authenticated accounts.</p>
+      </div>
+      <div class="card">
+        <h3>🌍 Scalability</h3>
+        <p>Cloud data is separated into users, SOS, incidents, rescueTeams and notifications for future regional expansion.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>🛡️ Security Checklist</h3>
+      <div id="securityChecklist" style="line-height:1.9;">
+        <div>✅ Firebase Authentication required</div>
+        <div>✅ User-owned SOS and incident records protected</div>
+        <div>✅ Rescue-team create/update/delete restricted to owners</div>
+        <div>✅ Emergency notifications can be addressed to a registered team owner</div>
+        <div>⬜ Production deployment should use HTTPS</div>
+        <div>⬜ Production Firebase App Check should be enabled</div>
+        <div>⬜ Server-side rate limiting should be added before public launch</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+function updateSecurityCenter() {
+  const el = document.getElementById("securityAuthStatus");
+  const user = window.resilienceFirebase?.auth?.currentUser;
+  if (!el) return;
+  if (user) {
+    const shortUid = user.uid ? `${user.uid.slice(0, 6)}…${user.uid.slice(-4)}` : "authenticated";
+    el.textContent = `✅ Signed in securely · Account ${shortUid}`;
+  } else {
+    el.textContent = "⚠️ No authenticated account detected.";
+  }
+}
+window.addEventListener("load", updateSecurityCenter);
+setTimeout(updateSecurityCenter, 1500);
 </script>
 
 </body>
