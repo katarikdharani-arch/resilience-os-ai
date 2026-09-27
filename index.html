@@ -6405,27 +6405,94 @@ FIREBASE WEB INTEGRATION + LOGIN
       console.warn("User sync skipped:", error.message);
     }
   });
+  // =========================================================
+  // CLOUD SOS STORAGE
+  // Saves every authenticated user's SOS directly to Firestore.
+  // The document ID is based on the Firebase user ID + SOS ID so
+  // cancelling/updating the same SOS updates the existing record.
+  // =========================================================
+  async function saveSOSToFirestore(item) {
+    if (!item) return null;
+
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error("User is not logged in.");
+    }
+
+    const sosDocumentId = `${user.uid}_${item.id}`;
+
+    await setDoc(
+      doc(db, "sos", sosDocumentId),
+      {
+        sosId: item.id,
+        userId: user.uid,
+        userName: user.displayName || "",
+        userEmail: user.email || "",
+        type: item.type || "Emergency",
+        title: item.title || "Emergency SOS Alert",
+        description: item.description || "Emergency assistance requested.",
+        location: item.location || "Current GPS location",
+        latitude: Number(item.latitude),
+        longitude: Number(item.longitude),
+        status: item.status || "ACTIVE",
+        clientCreatedAt: item.createdAt || new Date().toLocaleString(),
+        updatedAt: serverTimestamp()
+      },
+      { merge: true }
+    );
+
+    return sosDocumentId;
+  }
+
+  window.resilienceFirebase.saveSOSToFirestore = saveSOSToFirestore;
+
   const originalSaveSOSHistory = window.saveSOSHistory;
   if (typeof originalSaveSOSHistory === "function") {
-    window.saveSOSHistory = function () {
+    window.saveSOSHistory = async function () {
+      // Keep the existing browser history.
       originalSaveSOSHistory();
+
       const item = window.currentSOS || (typeof currentSOS !== "undefined" ? currentSOS : null);
-      if (!item || !window.resilienceApi) return;
-      window.resilienceApi.request("/api/sos", {
-        method: "POST",
-        body: JSON.stringify({
-          clientId: item.id,
-          type: item.type,
-          title: item.title,
-          description: item.description,
-          location: item.location,
-          latitude: item.latitude,
-          longitude: item.longitude,
-          status: item.status,
-          clientCreatedAt: item.createdAt
-        })
-      }).then(() => console.log("SOS saved to Firebase."))
-        .catch((error) => console.warn("SOS Firebase sync failed:", error.message));
+      if (!item) return;
+
+      // Save directly to Firestore.
+      try {
+        await saveSOSToFirestore(item);
+        console.log("SOS saved to Firestore.");
+
+        const sosStatus = document.getElementById("sosStatus");
+        if (sosStatus && item.status === "ACTIVE") {
+          sosStatus.innerHTML += "<br>☁️ SOS saved securely to cloud.";
+        }
+      } catch (error) {
+        console.warn("Firestore SOS sync failed:", error.message);
+
+        const sosStatus = document.getElementById("sosStatus");
+        if (sosStatus && item.status === "ACTIVE") {
+          sosStatus.innerHTML += "<br>⚠️ Cloud save failed. Local SOS is still available.";
+        }
+      }
+
+      // Keep the existing backend API sync if the project backend is available.
+      if (!window.resilienceApi) return;
+      try {
+        await window.resilienceApi.request("/api/sos", {
+          method: "POST",
+          body: JSON.stringify({
+            clientId: item.id,
+            type: item.type,
+            title: item.title,
+            description: item.description,
+            location: item.location,
+            latitude: item.latitude,
+            longitude: item.longitude,
+            status: item.status,
+            clientCreatedAt: item.createdAt
+          })
+        });
+      } catch (error) {
+        console.warn("Backend SOS sync failed:", error.message);
+      }
     };
   }
   const originalSaveIncidentHistory = window.saveIncidentHistory;
