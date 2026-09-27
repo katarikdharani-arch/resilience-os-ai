@@ -976,6 +976,21 @@ RESCUE TEAM QR SCANNER
 .rescue-result-value{font-weight:bold;text-align:right;word-break:break-word}
 @media(max-width:760px){.rescue-scanner-grid{grid-template-columns:1fr}.rescue-result-row{flex-direction:column;gap:3px}.rescue-result-value{text-align:left}}
 
+
+/* =========================================================
+DEDICATED PROFILE PAGE
+========================================================= */
+.profile-page{padding:70px 0;background:#06131a;min-height:70vh}
+.profile-page-card{max-width:900px;margin:0 auto;background:#0b2731;border:1px solid #214653;border-radius:20px;padding:28px;box-shadow:0 15px 40px rgba(0,0,0,.25)}
+.profile-page-header{display:flex;align-items:center;gap:18px;margin-bottom:25px}
+.profile-page-avatar{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#25d366,#168aad);color:#fff;font-size:25px;font-weight:800;flex-shrink:0}
+.profile-page-header h2{margin:0;color:#fff}.profile-page-header p{margin:5px 0 0;color:#9fb8c0}
+.profile-details-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.profile-detail-card{background:#071820;border:1px solid #214653;border-radius:14px;padding:17px}
+.profile-detail-card label{display:block;color:#8daab3;font-size:12px;margin-bottom:7px}.profile-detail-value{color:#eaf7fa;font-weight:700;word-break:break-word}
+.profile-page-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.profile-page-note{margin-top:15px;color:#8daab3;font-size:12px}
+@media(max-width:760px){.profile-details-grid{grid-template-columns:1fr}.profile-page-card{padding:20px}.profile-page-header{align-items:flex-start}}
 </style>
 </head>
 <body class="auth-locked">
@@ -1020,6 +1035,7 @@ NAVBAR
 <a href="#solution">Solution</a>
 <a href="#neo1">Neo 1</a>
 <a href="#location">Location</a>
+<a href="#profilePage">Profile</a>
 <a href="#rescueScanner">Rescue Scanner</a>
 <a href="#dashboard">Dashboard</a>
 <a href="#incident">Incident</a>
@@ -1068,6 +1084,35 @@ EDIT PROFILE MODAL
     </div>
   </div>
 </div>
+<!-- =====================================================
+DEDICATED PROFILE PAGE
+===================================================== -->
+<section id="profilePage" class="profile-page">
+<div class="container">
+<div class="profile-page-card">
+<div class="profile-page-header">
+<div id="profilePageAvatar" class="profile-page-avatar">U</div>
+<div>
+<h2 id="profilePageName">My Profile</h2>
+<p>Manage your personal information and emergency details.</p>
+</div>
+</div>
+<div class="profile-details-grid">
+<div class="profile-detail-card"><label>Full Name</label><div id="profilePageFullName" class="profile-detail-value">Not added</div></div>
+<div class="profile-detail-card"><label>Email</label><div id="profilePageEmail" class="profile-detail-value">Not available</div></div>
+<div class="profile-detail-card"><label>Phone Number</label><div id="profilePagePhone" class="profile-detail-value">Not added</div></div>
+<div class="profile-detail-card"><label>City</label><div id="profilePageCity" class="profile-detail-value">Not added</div></div>
+<div class="profile-detail-card"><label>Emergency Contact</label><div id="profilePageEmergency" class="profile-detail-value">Not added</div></div>
+<div class="profile-detail-card"><label>Account Status</label><div id="profilePageStatus" class="profile-detail-value">—</div></div>
+</div>
+<div class="profile-page-actions">
+<button class="btn-primary" type="button" onclick="openProfileEditor()">✏️ EDIT PROFILE</button>
+<button class="btn-secondary" type="button" onclick="document.getElementById('profilePage').scrollIntoView({behavior:'smooth'})">🔄 REFRESH PROFILE</button>
+</div>
+<p class="profile-page-note">Your email and account ID are controlled by your login account. Personal details such as phone, city and emergency contact can be edited here.</p>
+</div>
+</div>
+</section>
 <!-- =====================================================
 HERO
 ===================================================== -->
@@ -6155,6 +6200,22 @@ FIREBASE WEB INTEGRATION + LOGIN
     profilePhone.textContent = saved.phone || "Not added";
     profileCity.textContent = saved.city || "Not added";
     profileEmergencyContact.textContent = saved.emergencyContact || "Not added";
+    const pageName = document.getElementById("profilePageName");
+    const pageAvatar = document.getElementById("profilePageAvatar");
+    const pageFullName = document.getElementById("profilePageFullName");
+    const pageEmail = document.getElementById("profilePageEmail");
+    const pagePhone = document.getElementById("profilePagePhone");
+    const pageCity = document.getElementById("profilePageCity");
+    const pageEmergency = document.getElementById("profilePageEmergency");
+    const pageStatus = document.getElementById("profilePageStatus");
+    if(pageName) pageName.textContent = displayName;
+    if(pageAvatar) pageAvatar.textContent = initials;
+    if(pageFullName) pageFullName.textContent = displayName;
+    if(pageEmail) pageEmail.textContent = email;
+    if(pagePhone) pagePhone.textContent = saved.phone || "Not added";
+    if(pageCity) pageCity.textContent = saved.city || "Not added";
+    if(pageEmergency) pageEmergency.textContent = saved.emergencyContact || "Not added";
+    if(pageStatus) pageStatus.textContent = user.emailVerified ? "Email verified ✓" : "Email not verified";
     currentProfileUser = user;
     profileWrap.style.display = "flex";
     editProfileNavButton.style.display = "inline-flex";
