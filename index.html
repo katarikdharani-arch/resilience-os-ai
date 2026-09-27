@@ -6475,7 +6475,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     signOut
   } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
   import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
-  import { getFirestore, doc, getDoc, setDoc, getDocs, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, getDocs, collection, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyC0LjcBj175G5GdADPoZreiyx-zHJIXDqA",
     authDomain: "resilience-os-ai.firebaseapp.com",
@@ -6706,6 +6706,7 @@ FIREBASE WEB INTEGRATION + LOGIN
     app: firebaseApp,
     auth,
     db,
+    firestore: { doc, getDoc, setDoc, getDocs, collection, query, where, onSnapshot, serverTimestamp },
     ready: new Promise((resolve) => {
       onAuthStateChanged(auth, async (user) => {
         const publicLiveViewer = Boolean(new URLSearchParams(window.location.search).get("live"));
@@ -7253,6 +7254,9 @@ STEP 11 - ADMIN / RESPONDER CONTROL CENTER
 <script>
 (function(){
   let arcAuthorized = false;
+  let arcSosUnsubscribe = null;
+  let arcIncidentUnsubscribe = null;
+  let arcNotificationUnsubscribe = null;
 
   function arcEscape(value){
     if (typeof escapeHtml === "function") return escapeHtml(String(value ?? ""));
@@ -7263,23 +7267,30 @@ STEP 11 - ADMIN / RESPONDER CONTROL CENTER
     const el=document.getElementById(id); if(el) el.innerHTML=html;
   }
 
+  function arcClearRealtime(){
+    if (arcSosUnsubscribe) { arcSosUnsubscribe(); arcSosUnsubscribe=null; }
+    if (arcIncidentUnsubscribe) { arcIncidentUnsubscribe(); arcIncidentUnsubscribe=null; }
+    if (arcNotificationUnsubscribe) { arcNotificationUnsubscribe(); arcNotificationUnsubscribe=null; }
+  }
+
   async function arcGetResponderProfile(){
     const user = window.resilienceFirebase?.auth?.currentUser;
-    if(!user) return null;
-    const db = window.resilienceFirebase?.db;
-    if(!db) return null;
+    const fs = window.resilienceFirebase?.firestore;
+    if(!user || !fs) return null;
     try{
-      const snap = await getDoc(doc(db,"responders",user.uid));
+      const snap = await fs.getDoc(fs.doc(window.resilienceFirebase.db,"responders",user.uid));
       if(!snap.exists()) return null;
       const data=snap.data()||{};
-      return data.active !== false ? data : null;
+      return data.active === true ? data : null;
     }catch(error){
       console.warn("Responder authorization check failed:",error.message);
       return null;
     }
   }
 
-  function arcEmpty(id,message){ arcSet(id,`<div style="padding:14px;border:1px solid #214653;border-radius:12px;color:#9fb8c0;">${arcEscape(message)}</div>`); }
+  function arcEmpty(id,message){
+    arcSet(id,`<div style="padding:14px;border:1px solid #214653;border-radius:12px;color:#9fb8c0;">${arcEscape(message)}</div>`);
+  }
 
   function arcSosCard(docSnap){
     const d=docSnap.data()||{};
@@ -7315,53 +7326,90 @@ STEP 11 - ADMIN / RESPONDER CONTROL CENTER
     </div>`;
   }
 
+  function arcRenderSos(snapshot){
+    const docs=snapshot.docs.filter(d=>{
+      const status=String(d.data()?.status||"ACTIVE").toUpperCase();
+      return status!=="RESOLVED" && status!=="CANCELLED";
+    }).sort((a,b)=>String(b.data()?.createdAt||"").localeCompare(String(a.data()?.createdAt||"")));
+    document.getElementById("arcSosCount").textContent=String(docs.length);
+    arcSet("arcSosList",docs.length?docs.map(arcSosCard).join(""):"<div style='color:#9fb8c0;'>No active SOS alerts.</div>");
+  }
+
+  function arcRenderIncidents(snapshot){
+    const docs=snapshot.docs.filter(d=>String(d.data()?.recoveryStatus||"ASSESSMENT").toUpperCase()!=="RESOLVED")
+      .sort((a,b)=>String(b.data()?.createdAt||"").localeCompare(String(a.data()?.createdAt||"")));
+    document.getElementById("arcIncidentCount").textContent=String(docs.length);
+    arcSet("arcIncidentList",docs.length?docs.map(arcIncidentCard).join(""):"<div style='color:#9fb8c0;'>No open incidents.</div>");
+  }
+
+  function arcRenderNotifications(snapshot){
+    const docs=snapshot.docs.slice().sort((a,b)=>String(b.data()?.createdAt||"").localeCompare(String(a.data()?.createdAt||""))).slice(0,20);
+    arcSet("arcNotificationList",docs.length?docs.map(arcNotificationCard).join(""):"<div style='color:#9fb8c0;'>No emergency notifications.</div>");
+  }
+
+  function arcStartRealtime(){
+    const fs=window.resilienceFirebase?.firestore;
+    const db=window.resilienceFirebase?.db;
+    if(!fs || !db) return;
+    arcClearRealtime();
+
+    arcSosUnsubscribe=fs.onSnapshot(fs.collection(db,"sos"),arcRenderSos,error=>{
+      console.error("Real-time SOS listener failed:",error);
+      arcEmpty("arcSosList","Real-time SOS updates are unavailable.");
+    });
+    arcIncidentUnsubscribe=fs.onSnapshot(fs.collection(db,"incidents"),arcRenderIncidents,error=>{
+      console.error("Real-time incident listener failed:",error);
+      arcEmpty("arcIncidentList","Real-time incident updates are unavailable.");
+    });
+    arcNotificationUnsubscribe=fs.onSnapshot(fs.collection(db,"notifications"),arcRenderNotifications,error=>{
+      console.error("Real-time notification listener failed:",error);
+      arcEmpty("arcNotificationList","Real-time notification updates are unavailable.");
+    });
+  }
+
   window.loadAdminResponderCenter=async function(){
     const access=document.getElementById("arcAccessStatus");
     const user=window.resilienceFirebase?.auth?.currentUser;
-    if(!user){ arcAuthorized=false; if(access) access.textContent="⚠️ Please sign in."; arcEmpty("arcSosList","Sign in to access the responder center."); arcEmpty("arcIncidentList","Sign in to access the responder center."); arcEmpty("arcNotificationList","Sign in to access the responder center."); return; }
+    arcClearRealtime();
+    if(!user){
+      arcAuthorized=false;
+      if(access) access.textContent="⚠️ Please sign in.";
+      arcSet("arcSosCount","—"); arcSet("arcIncidentCount","—");
+      arcEmpty("arcSosList","Sign in to access the responder center.");
+      arcEmpty("arcIncidentList","Sign in to access the responder center.");
+      arcEmpty("arcNotificationList","Sign in to access the responder center.");
+      return;
+    }
     if(access) access.textContent="Checking authorized responder account…";
     const profile=await arcGetResponderProfile();
     arcAuthorized=!!profile;
     if(!arcAuthorized){
       if(access) access.textContent="⛔ Access denied. This account is not an active responder.";
       arcSet("arcSosCount","—"); arcSet("arcIncidentCount","—");
-      arcEmpty("arcSosList","No responder access."); arcEmpty("arcIncidentList","No responder access."); arcEmpty("arcNotificationList","No responder access."); return;
+      arcEmpty("arcSosList","No responder access."); arcEmpty("arcIncidentList","No responder access."); arcEmpty("arcNotificationList","No responder access.");
+      return;
     }
-    if(access) access.innerHTML=`✅ Authorized · ${arcEscape(profile.role||"RESPONDER")}`;
-    try{
-      const db=window.resilienceFirebase.db;
-      const [sosSnap,incSnap,notSnap]=await Promise.all([
-        getDocs(collection(db,"sos")),
-        getDocs(collection(db,"incidents")),
-        getDocs(collection(db,"notifications"))
-      ]);
-      const sos=sosSnap.docs.filter(d=>String(d.data()?.status||"ACTIVE").toUpperCase()!=="RESOLVED" && String(d.data()?.status||"ACTIVE").toUpperCase()!=="CANCELLED");
-      const inc=incSnap.docs.filter(d=>String(d.data()?.recoveryStatus||"ASSESSMENT").toUpperCase()!=="RESOLVED");
-      document.getElementById("arcSosCount").textContent=String(sos.length);
-      document.getElementById("arcIncidentCount").textContent=String(inc.length);
-      arcSet("arcSosList",sos.length?sos.map(arcSosCard).join(""):"<div style='color:#9fb8c0;'>No active SOS alerts.</div>");
-      arcSet("arcIncidentList",inc.length?inc.map(arcIncidentCard).join(""):"<div style='color:#9fb8c0;'>No open incidents.</div>");
-      const notes=notSnap.docs.slice(-20).reverse();
-      arcSet("arcNotificationList",notes.length?notes.map(arcNotificationCard).join(""):"<div style='color:#9fb8c0;'>No emergency notifications.</div>");
-    }catch(error){
-      console.error("Responder center load failed:",error);
-      if(access) access.textContent="⚠️ Responder access is configured, but Firestore rules/data access need to be enabled.";
-      arcEmpty("arcSosList",error.message||"Could not load SOS alerts."); arcEmpty("arcIncidentList",error.message||"Could not load incidents."); arcEmpty("arcNotificationList",error.message||"Could not load notifications.");
-    }
+    if(access) access.innerHTML=`✅ Authorized · ${arcEscape(profile.role||"RESPONDER")} · LIVE`;
+    arcStartRealtime();
   };
 
   window.arcUpdateSOS=async function(id,status){
     if(!arcAuthorized)return;
-    try{ await setDoc(doc(window.resilienceFirebase.db,"sos",id),{status,updatedAt:serverTimestamp()},{merge:true}); await loadAdminResponderCenter(); }
-    catch(error){alert("Could not update SOS: "+error.message);}
+    const fs=window.resilienceFirebase?.firestore;
+    try{
+      await fs.setDoc(fs.doc(window.resilienceFirebase.db,"sos",id),{status,updatedAt:fs.serverTimestamp()},{merge:true});
+    }catch(error){alert("Could not update SOS: "+error.message);}
   };
 
   window.arcUpdateIncident=async function(id,recoveryStatus){
     if(!arcAuthorized)return;
-    try{ await setDoc(doc(window.resilienceFirebase.db,"incidents",id),{recoveryStatus,updatedAt:serverTimestamp()},{merge:true}); await loadAdminResponderCenter(); }
-    catch(error){alert("Could not update incident: "+error.message);}
+    const fs=window.resilienceFirebase?.firestore;
+    try{
+      await fs.setDoc(fs.doc(window.resilienceFirebase.db,"incidents",id),{recoveryStatus,updatedAt:fs.serverTimestamp()},{merge:true});
+    }catch(error){alert("Could not update incident: "+error.message);}
   };
 
+  window.addEventListener("beforeunload",arcClearRealtime);
   window.addEventListener("load",function(){ setTimeout(loadAdminResponderCenter,1800); });
 })();
 </script>
