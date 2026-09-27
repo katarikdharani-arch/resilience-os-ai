@@ -1014,6 +1014,21 @@ DEDICATED PROFILE PAGE
 .ai-rescue-match-card{padding:16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
 .ai-rescue-match-card h4{margin:0 0 8px;color:#fff}.ai-rescue-match-card p{margin:5px 0;color:#b9cbd2}.ai-rescue-match-distance{font-weight:700;color:#67e8f9}.ai-rescue-match-empty{padding:14px;border-radius:12px;background:rgba(245,158,11,.08);color:#ffd27a}
 </style>
+
+<style id="step8-notifications-css">
+.step8-notification-panel{margin-top:24px;padding:24px;border-radius:18px;border:1px solid rgba(56,189,248,.25);background:rgba(8,25,35,.82);box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.step8-notification-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.step8-notification-panel label{display:block;margin-bottom:7px;font-weight:700}
+.step8-notification-panel input,.step8-notification-panel textarea{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.22);color:inherit}
+.step8-notification-panel textarea{min-height:110px;resize:vertical}
+.step8-notification-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.step8-alert-status{margin-top:14px;padding:12px;border-radius:10px;background:rgba(255,255,255,.05)}
+.step8-notification-list{margin-top:18px;display:grid;gap:10px}
+.step8-notification-item{padding:14px;border-radius:12px;background:rgba(255,255,255,.045);border-left:4px solid #38bdf8}
+.step8-notification-item strong{display:block;margin-bottom:4px}
+@media(max-width:700px){.step8-notification-grid{grid-template-columns:1fr}}
+</style>
+
 </head>
 <body class="auth-locked">
 <!-- =========================================================
@@ -1060,6 +1075,7 @@ NAVBAR
 <a href="#profilePage">Profile</a>
 <a href="#rescueNetwork">Rescue Network</a>
 <a href="#rescueScanner">Rescue Scanner</a>
+<a href="#emergencyNotifications">Emergency Alerts</a>
 <a href="#dashboard">Dashboard</a>
 <a href="#incident">Incident</a>
 <a href="#history">History</a>
@@ -6986,5 +7002,193 @@ FIREBASE WEB INTEGRATION + LOGIN
     };
   }
 </script>
+
+<!-- =====================================================
+STEP 8 - EMERGENCY NOTIFICATIONS & RESCUE TEAM ALERTS
+===================================================== -->
+<section id="emergencyNotifications">
+  <div class="container">
+    <h2 class="section-title">Emergency Notifications & Rescue-Team Alerts</h2>
+    <p class="section-subtitle">
+      Send a cloud-stored emergency alert to a registered rescue team and keep a local notification history.
+      Browser notifications are optional and require permission.
+    </p>
+
+    <div class="step8-notification-panel">
+      <div class="step8-notification-grid">
+        <div>
+          <label for="step8AlertTeamId">Rescue Team ID</label>
+          <input id="step8AlertTeamId" type="text" placeholder="e.g. RRT-001">
+        </div>
+        <div>
+          <label for="step8AlertTitle">Alert Title</label>
+          <input id="step8AlertTitle" type="text" value="Emergency Assistance Required">
+        </div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <label for="step8AlertMessage">Emergency Message</label>
+        <textarea id="step8AlertMessage" placeholder="Describe the emergency, people affected, access problem, or immediate assistance required."></textarea>
+      </div>
+
+      <div class="step8-notification-actions">
+        <button class="btn-danger" type="button" onclick="sendRescueTeamAlert()">🚨 SEND RESCUE ALERT</button>
+        <button class="btn-secondary" type="button" onclick="requestEmergencyNotificationPermission()">🔔 ENABLE BROWSER ALERTS</button>
+        <button class="btn-secondary" type="button" onclick="fillAlertFromLatestIncident()">📋 USE LATEST INCIDENT</button>
+      </div>
+
+      <div id="step8AlertStatus" class="step8-alert-status" aria-live="polite">
+        Ready to send an emergency alert.
+      </div>
+
+      <div id="step8NotificationList" class="step8-notification-list"></div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+/* =========================================================
+STEP 8 - EMERGENCY NOTIFICATIONS & RESCUE TEAM ALERTS
+========================================================= */
+
+function step8NotificationStatus(message, success=false) {
+  const el = document.getElementById("step8AlertStatus");
+  if (el) el.textContent = message;
+}
+
+async function requestEmergencyNotificationPermission() {
+  if (!("Notification" in window)) {
+    step8NotificationStatus("⚠️ This browser does not support browser notifications.");
+    return;
+  }
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      step8NotificationStatus("✅ Browser emergency alerts are enabled.", true);
+      new Notification("RESILIENCE OS AI", {
+        body: "Emergency notifications are now enabled."
+      });
+    } else {
+      step8NotificationStatus("Browser notifications were not enabled.");
+    }
+  } catch (error) {
+    step8NotificationStatus("❌ Could not enable browser notifications.");
+  }
+}
+
+function showStep8BrowserNotification(title, message) {
+  if ("Notification" in window && Notification.permission === "granted") {
+    try {
+      new Notification(title || "Emergency Alert", { body: message || "" });
+    } catch (_) {}
+  }
+}
+
+function getStep8IncidentCoordinates() {
+  if (Number.isFinite(Number(currentLatitude)) &&
+      Number.isFinite(Number(currentLongitude))) {
+    return {
+      latitude: Number(currentLatitude),
+      longitude: Number(currentLongitude)
+    };
+  }
+  if (incidentMarker && typeof incidentMarker.getLatLng === "function") {
+    const p = incidentMarker.getLatLng();
+    if (p && Number.isFinite(p.lat) && Number.isFinite(p.lng)) {
+      return { latitude: p.lat, longitude: p.lng };
+    }
+  }
+  return { latitude: null, longitude: null };
+}
+
+function fillAlertFromLatestIncident() {
+  const incident = latestIncidentAnalysis;
+  if (!incident) {
+    step8NotificationStatus("⚠️ Analyze an incident first.");
+    return;
+  }
+  const title = document.getElementById("step8AlertTitle");
+  const message = document.getElementById("step8AlertMessage");
+  if (title) title.value = `🚨 ${incident.title || incident.type || "Emergency Incident"}`;
+  if (message) {
+    const actions = Array.isArray(incident.actions) ? incident.actions.join(", ") : "";
+    message.value =
+      `${incident.description || "Emergency assistance required."}\n` +
+      `Risk: ${incident.risk || "UNKNOWN"}\n` +
+      `Location: ${incident.location || "Current GPS location"}` +
+      (actions ? `\nRecommended actions: ${actions}` : "");
+  }
+  step8NotificationStatus("📋 Latest incident details added to the alert form.");
+}
+
+async function sendRescueTeamAlert() {
+  const user = window.resilienceFirebase?.auth?.currentUser;
+  if (!user) {
+    step8NotificationStatus("❌ Please log in before sending an alert.");
+    return;
+  }
+
+  const teamId = document.getElementById("step8AlertTeamId")?.value.trim();
+  const title = document.getElementById("step8AlertTitle")?.value.trim();
+  const message = document.getElementById("step8AlertMessage")?.value.trim();
+
+  if (!teamId || !title || !message) {
+    step8NotificationStatus("❌ Enter Rescue Team ID, Alert Title and Emergency Message.");
+    return;
+  }
+
+  const coords = getStep8IncidentCoordinates();
+  step8NotificationStatus("☁️ Sending emergency alert to the cloud...");
+
+  try {
+    const alertId = `${user.uid}_${Date.now()}`;
+
+    await setDoc(doc(db, "notifications", alertId), {
+      notificationId: alertId,
+      senderUserId: user.uid,
+      senderName: user.displayName || "",
+      senderEmail: user.email || "",
+      recipientTeamId: teamId,
+      title,
+      message,
+      type: "EMERGENCY",
+      status: "SENT",
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      incidentId: latestIncidentAnalysis?.id || "",
+      createdAt: serverTimestamp()
+    });
+
+    showStep8BrowserNotification(title, message);
+    step8NotificationStatus(`✅ Emergency alert sent and stored in Firestore for team ${teamId}.`);
+    addTimeline(`Emergency rescue-team alert sent to ${teamId}.`);
+    renderStep8LocalAlert({
+      title,
+      message,
+      teamId,
+      createdAt: new Date().toLocaleString()
+    });
+  } catch (error) {
+    console.error("Emergency alert failed:", error);
+    step8NotificationStatus(`❌ ${error.message || "Could not send the emergency alert."}`);
+  }
+}
+
+function renderStep8LocalAlert(item) {
+  const list = document.getElementById("step8NotificationList");
+  if (!list) return;
+  const card = document.createElement("div");
+  card.className = "step8-notification-item";
+  card.innerHTML = `
+    <strong>🚨 ${escapeHtml(item.title || "Emergency Alert")}</strong>
+    <div>Team: ${escapeHtml(item.teamId || "---")}</div>
+    <div>${escapeHtml(item.message || "")}</div>
+    <small>${escapeHtml(item.createdAt || "")}</small>
+  `;
+  list.prepend(card);
+}
+</script>
+
 </body>
 </html>
